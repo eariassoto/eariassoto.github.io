@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: 
+
+Sitemap: http://eariassoto.github.io/sitemap.xml 

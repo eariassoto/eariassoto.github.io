@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[My Octopress Blog]]></title>
+  <link href="http://eariassoto.github.io/atom.xml" rel="self"/>
+  <link href="http://eariassoto.github.io/"/>
+  <updated>2016-12-29T12:31:45-06:00</updated>
+  <id>http://eariassoto.github.io/</id>
+  <author>
+    <name><![CDATA[Your Name]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    
+    <title type="html"><![CDATA[First Post4]]></title>
+    <link href="http://eariassoto.github.io/blog/2016/12/29/first-post4/"/>
+    
+    <updated>2016-12-29T08:55:44-06:00</updated>
+    <id>http://eariassoto.github.io/blog/2016/12/29/first-post4</id>
+    
+    <content type="html"><![CDATA[
+]]></content>
+    
+  </entry>
+  
+  <entry>
+    
+    <title type="html"><![CDATA[First Post3]]></title>
+    <link href="http://eariassoto.github.io/blog/2016/12/29/first-post3/"/>
+    
+    <updated>2016-12-29T08:55:42-06:00</updated>
+    <id>http://eariassoto.github.io/blog/2016/12/29/first-post3</id>
+    
+    <content type="html"><![CDATA[
+]]></content>
+    
+  </entry>
+  
+  <entry>
+    
+    <title type="html"><![CDATA[First Post2]]></title>
+    <link href="http://eariassoto.github.io/blog/2016/12/29/first-post2/"/>
+    
+    <updated>2016-12-29T08:55:28-06:00</updated>
+    <id>http://eariassoto.github.io/blog/2016/12/29/first-post2</id>
+    
+    <content type="html"><![CDATA[
+]]></content>
+    
+  </entry>
+  
+  <entry>
+    
+    <title type="html"><![CDATA[First Post]]></title>
+    <link href="http://eariassoto.github.io/blog/2016/12/29/first-post/"/>
+    
+    <updated>2016-12-29T08:53:37-06:00</updated>
+    <id>http://eariassoto.github.io/blog/2016/12/29/first-post</id>
+    
+    <content type="html"><![CDATA[<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kd">var</span> <span class="nx">arr1</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">arrayLength</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">arr2</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">element0</span><span class="p">,</span> <span class="nx">element1</span><span class="p">,</span> <span class="p">...,</span> <span class="nx">elementN</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+    
+  </entry>
+  
+</feed>
