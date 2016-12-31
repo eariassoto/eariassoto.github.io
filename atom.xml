@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[My Octopress Blog]]></title>
+  <title><![CDATA[Emmanuel Arias]]></title>
   <link href="http://eariassoto.github.io/atom.xml" rel="self"/>
   <link href="http://eariassoto.github.io/"/>
-  <updated>2016-12-29T12:31:45-06:00</updated>
+  <updated>2016-12-31T10:36:48-06:00</updated>
   <id>http://eariassoto.github.io/</id>
   <author>
-    <name><![CDATA[Your Name]]></name>
+    <name><![CDATA[Emmanuel Arias]]></name>
     
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
@@ -15,57 +15,41 @@
   
   <entry>
     
-    <title type="html"><![CDATA[First Post4]]></title>
-    <link href="http://eariassoto.github.io/blog/2016/12/29/first-post4/"/>
+    <title type="html"><![CDATA[First Post &amp; 2017 Resolutions]]></title>
+    <link href="http://eariassoto.github.io/blog/2016/12/31/first-post-and-2017-resolutions/"/>
     
-    <updated>2016-12-29T08:55:44-06:00</updated>
-    <id>http://eariassoto.github.io/blog/2016/12/29/first-post4</id>
+    <updated>2016-12-31T10:29:02-06:00</updated>
+    <id>http://eariassoto.github.io/blog/2016/12/31/first-post-and-2017-resolutions</id>
     
-    <content type="html"><![CDATA[
-]]></content>
-    
-  </entry>
-  
-  <entry>
-    
-    <title type="html"><![CDATA[First Post3]]></title>
-    <link href="http://eariassoto.github.io/blog/2016/12/29/first-post3/"/>
-    
-    <updated>2016-12-29T08:55:42-06:00</updated>
-    <id>http://eariassoto.github.io/blog/2016/12/29/first-post3</id>
-    
-    <content type="html"><![CDATA[
-]]></content>
-    
-  </entry>
-  
-  <entry>
-    
-    <title type="html"><![CDATA[First Post2]]></title>
-    <link href="http://eariassoto.github.io/blog/2016/12/29/first-post2/"/>
-    
-    <updated>2016-12-29T08:55:28-06:00</updated>
-    <id>http://eariassoto.github.io/blog/2016/12/29/first-post2</id>
-    
-    <content type="html"><![CDATA[
-]]></content>
-    
-  </entry>
-  
-  <entry>
-    
-    <title type="html"><![CDATA[First Post]]></title>
-    <link href="http://eariassoto.github.io/blog/2016/12/29/first-post/"/>
-    
-    <updated>2016-12-29T08:53:37-06:00</updated>
-    <id>http://eariassoto.github.io/blog/2016/12/29/first-post</id>
-    
-    <content type="html"><![CDATA[<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kd">var</span> <span class="nx">arr1</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">arrayLength</span><span class="p">);</span>
-</span><span class='line'><span class="kd">var</span> <span class="nx">arr2</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">element0</span><span class="p">,</span> <span class="nx">element1</span><span class="p">,</span> <span class="p">...,</span> <span class="nx">elementN</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
+    <content type="html"><![CDATA[<p>So I&rsquo;m finally writing a blog. It&rsquo;s been a while since I wanted to, but the thought of not having anything to write about always drew me back. It is ironical because I think that side projects, research, and general curiosity makes the best out of a student but I never documented my own.</p>
 
+<p>Now I&rsquo;m not just an undergrad student. Starting a new job has challenged me in ways I didn&rsquo;t even imagined. It is awesome to finally put all the things I&rsquo;ve learned and my skills into the project I&rsquo;m assigned. But in the same way, I&rsquo;ve faced with systems, frameworks and technologies I didn&rsquo;t know about and now have to use.</p>
+
+<p>I know there is no magic recipe for learning. But I had to put out the &ldquo;algorithm&rdquo; for learning, it would be something along these lines:</p>
+
+<ol>
+<li>Find a subject you don&rsquo;t about.</li>
+<li>Search information, books, tutorials, videos, anything you can.</li>
+<li>Look for someone who knows about the subject and ask questions. Doesn&rsquo;t matter if the questions sound dumb, they will eventually get less dumb.</li>
+<li>Try to make a small project that involves the subject.</li>
+<li>Profit. Now you know something new. And even if you didn&rsquo;t fully understand the thing maybe in the future you will.</li>
+</ol>
+
+
+<p>This is how I can summarize the way I learn the best. But most important, being curious is key. Working in the technology field requires to always keep yourself updated. Reading tech news, following the latest trends in the tech world have helped me learn about new things that now I found extremely useful.</p>
+
+<p>I truly believe that writing about my learnings will keep me even more motivated. Keeping this blog updated will be my #1 resolution for this new year. Also, I made a small list of things I want to learn throughout this year. It looks something like this:</p>
+
+<ul>
+<li>Operative Systems. I want to understand better how a OS works and how it manages all main tasks.</li>
+<li>Containers. In my current job, I work with containers to deploy applications so I really want to dig a little deeper into this subject.</li>
+<li>Concurrency and multithreading.</li>
+<li>Functional programming.</li>
+<li>Specific programming languages. Rust, Go, and whatever I find interesting in the way.</li>
+</ul>
+
+
+<p>Believe this will be like an adventure for me. I hope to meet this goal and even further. See you next post.</p>
 ]]></content>
     
   </entry>
