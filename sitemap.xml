@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
+<loc>http://eariassoto.github.io/blog/2017/07/15/source-to-source-compilation-with-lex-yacc/</loc>
+<lastmod>2017-07-15T18:20:23-06:00</lastmod>
+</url>
+<url>
 <loc>http://eariassoto.github.io/blog/2017/04/17/building-a-basic-c-slash-c-plus-plus-project-template/</loc>
 <lastmod>2017-04-17T20:22:00-06:00</lastmod>
 </url>
@@ -12,5 +16,11 @@
 </url>
 <url>
 <loc>http://eariassoto.github.io/about/</loc>
+</url>
+<url>
+<loc>http://eariassoto.github.io/blog/categories/assembly/</loc>
+</url>
+<url>
+<loc>http://eariassoto.github.io/blog/categories/compilers/</loc>
 </url>
 </urlset>

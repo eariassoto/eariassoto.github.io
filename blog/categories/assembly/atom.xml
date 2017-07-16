@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Assembly, | Emmanuel Arias]]></title>
+  <link href="http://eariassoto.github.io/blog/categories/assembly/atom.xml" rel="self"/>
+  <link href="http://eariassoto.github.io/"/>
+  <updated>2017-07-15T18:24:50-06:00</updated>
+  <id>http://eariassoto.github.io/</id>
+  <author>
+    <name><![CDATA[Emmanuel Arias]]></name>
+    <email><![CDATA[ariassotoemmanuel@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Source-to-source Compilation With Lex-Yacc]]></title>
+    <link href="http://eariassoto.github.io/blog/2017/07/15/source-to-source-compilation-with-lex-yacc/"/>
+    <updated>2017-07-15T18:20:23-06:00</updated>
+    <id>http://eariassoto.github.io/blog/2017/07/15/source-to-source-compilation-with-lex-yacc</id>
+    <content type="html"><![CDATA[<p>A source-to-source compiler is a compiler that takes a program written in a certain language and outputs the equivalent program in another language. This process is useful to compile a program to an intermediate language, or to provide backward compatibility for a legacy language. The Babel compiler, for instance, can parse Javascript ES6 to Javascript ES5 standard. The ES6 standard comes with a lot of improvements and new features, but it is currently not supported by most web browsers. Or maybe, you can come up with a new language and translate it to another one. Take for example this list of <a href="https://github.com/jashkenas/coffeescript/wiki/list-of-languages-that-compile-to-js">languages that compile to Javascript</a>.</p>
+
+<p>In this post, I will describe a source-to-source compiler that transforms Brainfuck program into its equivalent 64 bits assembly code. The output assembly program can be built into a executable, thus allowing you to run Brainfuck programs natively.</p>
+
+<!--more-->
+
+
+<p><a class=button href="https://github.com/eariassoto/brasm/" target="%5fblank">Get the code on GitHub</a></p>
+
+<h1>Requirements</h1>
+
+<p>I used Python to develop the compiler. In order to run the compiler you need to have Python installed on your computer. Also, you need the Python Lex-Yacc (PLY) module installed in your python environment. You can download the latest PLY version (I used the 3.10 version) from the <a href="http://www.dabeaz.com/ply/">PLY homepage</a>. To install PLY uncompress the file you downloaded, open a terminal within the uncompressed folder and run:</p>
+
+<pre><code class="bash">$ sudo python setup.py install
+</code></pre>
+
+<p>In case you want to compile the assembly code, you need the <a href="http://www.nasm.us/">NASM assembler</a>, and the Linux dynamic linker (ld command). I decided to go with NASM because it supports the Intel assembly syntax which is more readable than the AT&amp;T syntax.</p>
+
+<h1>The source language: Brainfuck</h1>
+
+<p>Brainfuck is a  <a href="https://en.wikipedia.org/wiki/Turing_completeness">Turing complete</a> programming language. I chose this language as input language because it has a small set of instructions. Its only memory structure is a buffer of at least 30,000 bytes initialized to zero. In C, that buffer can be declared as <code>char buffer[30000] = {0};</code>. The only variable is a data pointer that starts at the beginning of the buffer. To continue the C analogy, the data pointer might be declared as <code>char *ptr = buffer;</code></p>
+
+<p>A Brainfuck program is structured as a series of instructions. The most basic instructions manipulate memory buffer using the data pointer. There are two streams of bytes for input and output. Also, there are two instructions to implement loops. Table below describes all the instructions:</p>
+
+<table>
+<thead>
+<tr>
+<th> Command </th>
+<th style="text-align:center;"> Description </th>
+<th style="text-align:right;"> C equivalent </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> > </td>
+<td style="text-align:center;"> Increment data pointer </td>
+<td style="text-align:right;"> ++ptr; </td>
+</tr>
+<tr>
+<td> &lt; </td>
+<td style="text-align:center;"> Decrement data pointer </td>
+<td style="text-align:right;"> &ndash;ptr; </td>
+</tr>
+<tr>
+<td> + </td>
+<td style="text-align:center;"> Increment by one byte at the data pointer </td>
+<td style="text-align:right;"> ++*ptr; </td>
+</tr>
+<tr>
+<td> - </td>
+<td style="text-align:center;"> Decrement by one byte at the data pointer </td>
+<td style="text-align:right;"> &ndash;*ptr; </td>
+</tr>
+<tr>
+<td> . </td>
+<td style="text-align:center;"> Print byte at the data pointer </td>
+<td style="text-align:right;"> putchar(*ptr); </td>
+</tr>
+<tr>
+<td> , </td>
+<td style="text-align:center;"> Read char from input, store in the byte at the data pointer</td>
+<td style="text-align:right;"> *ptr=getchar(); </td>
+</tr>
+<tr>
+<td> [ </td>
+<td style="text-align:center;"> If the byte at the data pointer is zero, jump to matching <code>]</code> </td>
+<td style="text-align:right;"> while (*ptr) { </td>
+</tr>
+<tr>
+<td> ] </td>
+<td style="text-align:center;"> if the byte at the data pointer is nonzero, jump to matching <code>[</code> </td>
+<td style="text-align:right;"> } </td>
+</tr>
+</tbody>
+</table>
+
+
+<p>Brainfuck falls into the category of <a href="https://en.wikipedia.org/wiki/Esoteric_programming_language">esoteric programming languages</a>. So, Brainfuck programs are really hard to understand. For example, this is an implementation of the classic &ldquo;Hello World&rdquo; program written in Brainfuck:
+```
+++++++++++[>+++++++>++++++++++>+++>+&lt;&lt;&lt;&lt;-]</p>
+
+<blockquote><p>++.>+.+++++++..+++.>++.&lt;&lt;+++++++++++++++.>.+++.&mdash;&mdash;.&mdash;&mdash;&ndash;.>+.>.
+```</p></blockquote>
+
+<h1>Hello Assembly</h1>
+
+<p>For this post, I will assume you are familiarized with x86-64 assembly code. To compare the previous example, I wrote a Hello World in x86-64 assembly code.</p>
+
+<pre><code class="nasm">global _start
+
+section .text
+_start:
+mov rax, 1
+mov rdi, 1
+mov rsi, message
+mov rdx, 13
+syscall
+
+mov eax, 60
+xor rdi, rdi
+syscall
+
+message:
+db "Hello, World", 10
+</code></pre>
+
+<p>The <code>global _start</code> directive defines the entry point for our program. The <code>.text</code> section contains the program instructions and all constants we defined. This program calls two special functions, called system calls. System calls are functions executed by the kernel because they required higher privileges. These functions take parameters using registers, and they are invoked using the <code>syscall</code> instruction. This “hello world” program calls the  <code>sys_write</code> system call to print the string <code>"Hello World"</code>, and the <code>sys_exit</code> system call to exit the program. To check all the available system calls and their parameters, <a href="http://blog.rchapman.org/posts/Linux_System_Call_Table_for_x86_64/">check this list</a>.</p>
+
+<h1>Translating Brainfuck instructions set to x64 assembly</h1>
+
+<p>The first thing I needed to define was the buffer memory and the data pointer. I declared the buffer as a 30000 bytes zero-initialized array in the <code>.bss</code> section. In this section, the program declared static variables. These variables will be allocated and initialized by the program loader. All variables in the <code>.bss</code> section are zero-initialized. For the data pointer, I will use register <code>r9</code>. When the program starts, the buffer address will be stored in this register.</p>
+
+<pre><code class="asm">section .bss
+buffer: resb 30000
+
+_start:
+mov r9, buffer
+</code></pre>
+
+<p>I will break Brainfuck instructions into four subsections: pointer instructions, data instructions, input/output instructions, and the loop instruction.</p>
+
+<h2>Pointer instructions</h2>
+
+<p>Instructions <code>&gt;</code> and <code>&lt;</code> move the data pointer through the buffer. For this task, address in register <code>r9</code> should move eight positions (so the address moves a byte) forward or backwards.</p>
+
+<pre><code class="asm">; &gt; move data pointer forward
+add r9, 8
+
+; &lt; move data pointer backward
+sub r9, 8
+</code></pre>
+
+<h2>Data instructions</h2>
+
+<p>Here, the byte stored in the address in register <code>r9</code> is modified using a temporary register, <code>r10b</code>. Then, the result value is stored back into the same address.
+``` asm
+; + add 1 to byte at data pointer
+mov byte r10b, [r9]
+add r10b, 1
+mov byte [r9], r10b</p>
+
+<p>; - subtract 1 to byte at data pointer
+mov byte r10b, [r9]
+sub r10b, 1
+mov byte [r9], r10b
+```</p>
+
+<h2>Input/Output instructions</h2>
+
+<p>To provide the input and output data streams, I used system calls. These are functions provided and executed by the kernel that allow a program to interact with higher level functionality. Before calling a system call the register <code>rax</code> must have the system call id number. Some system calls may take parameters from specific registers. The compiler uses the <code>sys_write</code> and <code>sys_read</code> system calls to read and write from <code>stdin</code> and <code>stdout</code> respectively.</p>
+
+<p>The <code>_print_byte</code> function prints an input byte on <code>stdout</code>. Input byte must be store on the register <code>rcx</code>. The function pushes the register <code>rcx</code> into the stack. Then, it prepares the registers needed by the system call <code>sys_write</code>. Register <code>rdi</code> contains the file descriptor. In this case <code>stdout</code> file descriptor is <code>1</code>. Register <code>rsi</code> has the address of the content to be written, in our case the stack address. Register <code>rdx</code> has the length of the buffer. Finally, register <code>rax</code> contains the system call id, for <code>sys_write</code> the id is <code>1</code>. Before calling <code>_print_byte</code> function, the program will store on register <code>cl</code> (lowest byte in register <code>rcx</code>) the byte at data pointer.</p>
+
+<pre><code class="asm">_print_byte:
+push rcx ; grow stack and push output byte to stack
+mov rdi, 1 ; file descriptor 1 is stdout
+mov rsi, rsp ; stack address
+mov rdx, 1 ; number of bytes to print
+mov rax, 1 ; system call 1 is write
+syscall ; call OS system call
+pop rcx ; decrease stack
+ret
+
+; . call _print_byte function
+mov cl, [r9]
+call _print_byte
+</code></pre>
+
+<p>The <code>_read_byte</code> function is very similar to the <code>_print_byte</code> function. The only difference is that <code>sys_read</code> id number is <code>0</code>, and the file descriptor for <code>stdin</code> is also <code>0</code>. After calling <code>_read_byte</code> function, the program stores the byte returned by <code>_read_byte</code> on <code>cl</code> at data pointer.</p>
+
+<pre><code class="asm">_read_byte:
+sub rsp, 8 ; grow stack
+mov rsi, rsp ; stack address
+mov rdi, 0 ; file descriptor 0 is stdin
+mov rdx, 1 ; number of bytes
+mov rax, 0 ; syscall 0 is read
+syscall ; call OS system call
+pop rcx ; decrease stack and save input
+ret
+
+; , call _read_byte function
+call _read_byte
+mov byte [r9], cl
+</code></pre>
+
+<h2>Loop instruction</h2>
+
+<p>The instructions <code>[</code> and <code>]</code> are the C equivalent of <code>while (*ptr) { }</code>. The assembly loop jumps into the comparison between the byte at data pointer and zero. If the value is not zero, the program jumps to the <code>_cloop</code> tag. Between the <code>_cloop</code> and <code>_loop</code> tags, the compiler will put all the parsed Brainfuck code that was originally between <code>[</code> and <code>]</code> instructions.
+``` asm</p>
+
+<p>jmp <em>loop0
+</em>cloop0:
+; [loop code]
+<em>loop0:
+mov byte cl, [r9]
+cmp cl, 0
+jne </em>cloop0
+```</p>
+
+<h1>Building the compiler</h1>
+
+<p>Compiling a program can be described, in a very basic way, as a two parts process:</p>
+
+<ol>
+<li>Break the input program into the language components.</li>
+<li>Build the program using the language components and the language specification.</li>
+</ol>
+
+
+<p>This is where Lex-Yacc comes to use. Lex will help us parsing the input program from a series of characters to strings with certain meaning, called tokens. This process is known as lexical analysis. Yacc will generate a parser from a grammar. The parser will take the tokens and try to find a valid match for the grammar. In this process, the grammar rules will trigger actions that will create the output code.</p>
+
+<h2>Lexical analysis</h2>
+
+<p>Here, I will go into details about what the PLY Lex implementation needs to build a lexical analyzer. First thing, Lex requires a list of token names. I defined one token for each Brainfuck instruction.</p>
+
+<pre><code class="python">tokens = (
+'INCR_PTR', 'DECR_PTR', 'INCR_VAL', 'DECR_VAL', 'WRITE', 'READ', 'LB', 'RB'
+)
+</code></pre>
+
+<p>Each token needs a rule to match the input with the token. Rules are defined as functions named as the token with the prefix <code>t_</code>. Some rules are simple, and can be defined as regular expressions. I defined simple regular expressions for each Brainfuck instruction.</p>
+
+<pre><code class="python"># Simple Tokens
+t_INCR_PTR = r'\&gt;'
+t_DECR_PTR = r'\&lt;'
+t_INCR_VAL = r'\+'
+t_DECR_VAL = r'\-'
+t_WRITE = r'\.'
+t_READ = r'\,'
+t_LB = r'\['
+t_RB = r'\]'
+
+t_ignore = " \t" # Ignored characters
+</code></pre>
+
+<p>Some rules need to perform an action for every token they find. For example, I will set a rule to count the number of lines in order to indicate the line number in a compilation error. Also, I will treat any other characters the input program might have as comments.</p>
+
+<pre><code class="python">def t_newline(t):
+r'\n+'
+t.lexer.lineno += t.value.count("\n")
+
+def t_error(t):
+""" Ignore all other characters """
+t.lexer.skip(1)
+</code></pre>
+
+<p>With these, we can tell Lex to build the lexical analyzer.
+``` python</p>
+
+<h1>Build the lexer</h1>
+
+<p>import ply.lex as lex
+lex.lex()
+```</p>
+
+<h2>Parsing the tokens</h2>
+
+<p>Yacc will generate our parser based on a <a href="https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form">Backus–Naur form (BNF) grammar</a>. The grammar I used is simple because Brainfuck programs are just a sequence of valid instructions. I defined two types of instructions: simple instructions (<code>&gt; &lt; + - . ,</code>) and loops (<code>[ ]</code>). Loops are treated as a different type of instructions because Brainfuck allows nested loops. The entire grammar is specified below.</p>
+
+<pre><code>program : instruction
+
+instruction : simpleInstruction
+| loopInstruction
+| simpleInstruction instruction
+| loopInstruction instruction
+
+loopInstruction : LB instruction RB
+
+simpleInstruction : INCR_PTR
+| DECR_PTR
+| INCR_VAL
+| DECR_VAL
+| WRITE
+| READ
+</code></pre>
+
+<p>Grammar rules are defined in Yacc as functions. These functions need the prefix <code>p_</code> and take one parameter named <code>p</code>. <code>p</code> is an array containing the values of each grammar symbol in the corresponding rule. The rule is written in a triple quote comment after the function definition. The function body will be the actions that the rule will perform if it founds a match. Rules that are reduced should save in <code>p[0]</code> the final result.</p>
+
+<p>The first rule defined will be the starting point for the parse. These is the starting rule for my compiler:
+<code>python
+def p_program(p):
+''' program : instructions '''
+global global_success
+compile_program(p[1])
+global_success = True
+</code>
+This rule will translate all the Brainfuck instructions into their assembly equivalents. The <code>compile_program</code> function will replace Brainfuck operations into assembly instructions and save the result on a file. The next rules reduce all the instructions into the final <code>instructions</code> symbol.</p>
+
+<pre><code class="python">def p_instructions_expansion(p):
+''' instructions : simpleInstruction instructions
+| loop_instruction instructions
+'''
+p[0] = p[1] + p[2]
+
+def p_instructions(p):
+''' instructions : simpleInstruction
+| loop_instruction
+'''
+p[0] = p[1]
+</code></pre>
+
+<p>The rules to match the instructions will reduce the instruction within a wrapper structure. The wrapper will store the instruction type and the instruction (or instructions in case it is a loop).</p>
+
+<pre><code class="python">def make_instruction_action(type, payload):
+""" Wraps the instruction content into a struct """
+obj = {}
+obj[INSTR_OBJ_PROP_TYPE] = type
+obj[INSTR_OBJ_PROP_PAYLOAD] = payload
+return obj
+
+def p_loop_instruction(p):
+''' loop_instruction : LB instructions RB
+'''
+action = make_instruction_action('loop', p[2])
+p[0] = [action]
+
+
+def p_simple_instruction(p):
+'''simpleInstruction : INCR_PTR
+| DECR_PTR
+| INCR_VAL
+| DECR_VAL
+| WRITE
+| READ
+'''
+action = make_instruction_action('op', p[1])
+p[0] = [action]
+</code></pre>
+
+<p>I also defined a rule in case the parser encounters a error in the input program.</p>
+
+<pre><code class="python">def p_error(p):
+if p:
+print("Syntax error at '%s'" % p.value)
+else:
+print("Error, input program empty.")
+</code></pre>
+
+<p>Finally, I just need to build the parser and give the compiler a starting point.</p>
+
+<pre><code class="python">import ply.yacc as yacc
+yacc.yacc()
+</code></pre>
+
+<pre><code class="python">def main():
+global global_compiled_filename
+parser = argparse.ArgumentParser()
+parser.add_argument("file", help="Brainfuck input file to be parsed")
+parser.add_argument("-o", help="file name for the output assembly code")
+args = parser.parse_args()
+if args.o:
+global_compiled_filename = args.o
+try:
+f = open(args.file, 'r')
+program_str = f.read()
+f.close()
+result = yacc.parse(program_str)
+
+if(global_success):
+print("Program compiled. To build the executable run:\
+\n\tnasm -f elf64 {0}.asm &amp;&amp; ld {0}.o -o {0}".format(global_compiled_filename))
+except IOError:
+sys.exit('Error, input file not found!')
+</code></pre>
+
+<h1>Improvement proposals</h1>
+
+<ul>
+<li>Optimize the compiler. Group pointer and data instructions to no repeat a lot of assembly code.</li>
+<li>Support reading/writing files. Perhaps the memory buffer can be loaded from/saved into a file.</li>
+<li>Extend Brainfuck specification to support variables and string constants.
+
+<h2>Bigger challenge</h2></li>
+<li>Create a compiler to translate a subset of the C language to Brainfuck. Then, use this compiler to translate the Brainfuck code into assembly.</li>
+</ul>
+
+
+<p><a class=button href="https://github.com/eariassoto/brasm/" target="_blank">Get the code on GitHub</a></p>
+]]></content>
+  </entry>
+  
+</feed>
