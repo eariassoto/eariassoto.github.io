@@ -1,6 +1,7 @@
 
 
 
+
   
 
 
@@ -18,21 +19,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="Hugo 0.26 with theme Tranquilpeak 0.4.0-BETA">
-    <title>Emmanuel Arias</title>
+    <title>Categories</title>
     <meta name="author" content="Emmanuel Arias">
     <meta name="keywords" content="">
 
     <link rel="icon" href="https://eariassoto.github.io/favicon.png">
     
-      <link rel="alternate" type="application/rss+xml" title="RSS" href="https://eariassoto.github.io/index.xml">
+      <link rel="alternate" type="application/rss+xml" title="RSS" href="https://eariassoto.github.io/categories/index.xml">
     
 
     
     <meta name="description" content="">
     <meta property="og:description" content="">
     <meta property="og:type" content="blog">
-    <meta property="og:title" content="Emmanuel Arias">
-    <meta property="og:url" content="/">
+    <meta property="og:title" content="Categories">
+    <meta property="og:url" content="/categories/">
     <meta property="og:site_name" content="Emmanuel Arias">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Emmanuel Arias">
@@ -205,128 +206,102 @@ ga('send', 'pageview');
         class="
                hasCoverMetaIn
                ">
-        <section class="postShorten-group main-content-wrap">
-          
-          
+
+        <div id="categories-archives" class="main-content-wrap">
+          <form id="filter-form" action="##">
+            <input name="category" type="text" class="form-control input--xlarge"
+                   placeholder="Search category" autofocus="autofocus">
+          </form>
+          <h5 class="archive-result text-color-base text-xlarge"
+              data-message-zero="no category found"
+              data-message-one="1 cartegory found"
+              data-message-other="{n} categories found"></h5>
+          <section class="boxes">
             
-  
-    
-      
-        
-      
-    
-  
-
-
-  
-
-<article class="postShorten postShorten--thumbnailimg-bottom" itemscope itemType="http://schema.org/BlogPosting">
-  <div class="postShorten-wrap">
-    
-    <div class="postShorten-header">
-      <h1 class="postShorten-title" itemprop="headline">
-        <a class="link-unstyled" href="https://eariassoto.github.io/2017/07/source-to-source-compilation-with-lex-yacc/">
-          Source-to-source compilation with Lex-Yacc
-        </a>
-      </h1>
-      
-  <div class="postShorten-meta post-meta">
-    
-      <time itemprop="datePublished" datetime="2017-07-15T10:43:23-06:00">
-        
-  July 15, 2017
-
-      </time>
-    
-    
-  
-  
-    <span>in</span>
-    
-      <a class="category-link" href="https://eariassoto.github.io/categories/development">Development</a>, 
-    
-      <a class="category-link" href="https://eariassoto.github.io/categories/projects">Projects</a>
-    
-  
-
-
-  </div>
-
-    </div>
-    <div class="postShorten-excerpt" itemprop="articleBody">
-      <p>In this post, I will describe a source-to-source compiler that transforms a Brainfuck program into its equivalent 64 bits assembly code. The assembly program can be built into a executable, thus allowing you to run Brainfuck programs natively.
-</p>
-      <p>
-        <a href="https://eariassoto.github.io/2017/07/source-to-source-compilation-with-lex-yacc/" class="postShorten-excerpt_link link">Continue reading</a>
-        
-      </p>
-    </div>
-  </div>
-  
-</article>
-
-          
+              
+                <div>
+                  <a href="#posts-list-development" class="category-anchor" data-category="development">development</a>
+                </div>
+              
+                <div>
+                  <a href="#posts-list-projects" class="category-anchor" data-category="projects">projects</a>
+                </div>
+              
+                <div>
+                  <a href="#posts-list-tutorials" class="category-anchor" data-category="tutorials">tutorials</a>
+                </div>
+              
             
-  
-    
-      
-        
-      
-    
-  
-
-
-  
-
-<article class="postShorten postShorten--thumbnailimg-bottom" itemscope itemType="http://schema.org/BlogPosting">
-  <div class="postShorten-wrap">
-    
-    <div class="postShorten-header">
-      <h1 class="postShorten-title" itemprop="headline">
-        <a class="link-unstyled" href="https://eariassoto.github.io/2017/04/building-a-basic-c/c---project-template/">
-          Building a basic C/C&#43;&#43; project template
-        </a>
-      </h1>
-      
-  <div class="postShorten-meta post-meta">
-    
-      <time itemprop="datePublished" datetime="2017-04-17T10:41:16-06:00">
-        
+          </section>
+          <section class="boxes">
+            
+              
+              <div id="posts-list-development" class="archive box" data-category="development" style="display: block;">
+                <h4 class="archive-title text-xlarge">
+                  <a class="link-unstyled" href="development">development (2)</a>
+                </h4>
+                <ul class="archive-posts">
+                  
+                    <li class="archive-post">
+                      <a class="archive-post-title" href="https://eariassoto.github.io/2017/04/building-a-basic-c/c---project-template/">
+                        Building a basic C/C&#43;&#43; project template
+                      </a>
+                      <span class="archive-post-date"> - 
   April 17, 2017
-
-      </time>
-    
-    
-  
-  
-    <span>in</span>
-    
-      <a class="category-link" href="https://eariassoto.github.io/categories/development">Development</a>, 
-    
-      <a class="category-link" href="https://eariassoto.github.io/categories/tutorials">Tutorials</a>
-    
-  
-
-
-  </div>
-
-    </div>
-    <div class="postShorten-excerpt" itemprop="articleBody">
-      <p>Starting a C/C++ project can be as easy or as difficult as you want. Personally, I don&rsquo;t like to fire up an IDE just for a small program. So, I end up using a text editor and compiling by terminal. However, the compilation process can get tedious. In this post, we will build a simple project template for a C/C++ program. This project will use the CMake tool to handle all the compilation process.
-</p>
-      <p>
-        <a href="https://eariassoto.github.io/2017/04/building-a-basic-c/c---project-template/" class="postShorten-excerpt_link link">Continue reading</a>
-        
-      </p>
-    </div>
-  </div>
-  
-</article>
-
-          
-          
-
-        </section>
+</span>
+                    </li>
+                  
+                    <li class="archive-post">
+                      <a class="archive-post-title" href="https://eariassoto.github.io/2017/07/source-to-source-compilation-with-lex-yacc/">
+                        Source-to-source compilation with Lex-Yacc
+                      </a>
+                      <span class="archive-post-date"> - 
+  July 15, 2017
+</span>
+                    </li>
+                  
+                </ul>
+              </div>
+              
+              <div id="posts-list-projects" class="archive box" data-category="projects" style="display: block;">
+                <h4 class="archive-title text-xlarge">
+                  <a class="link-unstyled" href="projects">projects (1)</a>
+                </h4>
+                <ul class="archive-posts">
+                  
+                    <li class="archive-post">
+                      <a class="archive-post-title" href="https://eariassoto.github.io/2017/07/source-to-source-compilation-with-lex-yacc/">
+                        Source-to-source compilation with Lex-Yacc
+                      </a>
+                      <span class="archive-post-date"> - 
+  July 15, 2017
+</span>
+                    </li>
+                  
+                </ul>
+              </div>
+              
+              <div id="posts-list-tutorials" class="archive box" data-category="tutorials" style="display: block;">
+                <h4 class="archive-title text-xlarge">
+                  <a class="link-unstyled" href="tutorials">tutorials (1)</a>
+                </h4>
+                <ul class="archive-posts">
+                  
+                    <li class="archive-post">
+                      <a class="archive-post-title" href="https://eariassoto.github.io/2017/04/building-a-basic-c/c---project-template/">
+                        Building a basic C/C&#43;&#43; project template
+                      </a>
+                      <span class="archive-post-date"> - 
+  April 17, 2017
+</span>
+                    </li>
+                  
+                </ul>
+              </div>
+              
+            
+          </section>
+        </div>
         <footer id="footer" class="main-content-wrap">
   <span class="copyrights">
     &copy; 2017 Emmanuel Arias. All Rights Reserved
@@ -335,7 +310,6 @@ ga('send', 'pageview');
 
       </div>
     </div>
-    
     <div id="about">
   <div id="about-card">
     <div id="about-btn-close">
@@ -365,90 +339,6 @@ ga('send', 'pageview');
   </div>
 </div>
 
-    <div id="algolia-search-modal" class="modal-container">
-  <div class="modal">
-    <div class="modal-header">
-      <span class="close-button"><i class="fa fa-close"></i></span>
-      <a href="https://algolia.com" target="_blank" rel="noopener" class="searchby-algolia text-color-light link-unstyled">
-        <span class="searchby-algolia-text text-color-light text-small">by</span>
-        <img class="searchby-algolia-logo" src="https://www.algolia.com/static_assets/images/press/downloads/algolia-light.svg">
-      </a>
-      <i class="search-icon fa fa-search"></i>
-      <form id="algolia-search-form">
-        <input type="text" id="algolia-search-input" name="search"
-          class="form-control input--large search-input" placeholder="Search" />
-      </form>
-    </div>
-    <div class="modal-body">
-      <div class="no-result text-color-light text-center">no post found</div>
-      <div class="results">
-        
-        
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="https://eariassoto.github.io/2017/07/source-to-source-compilation-with-lex-yacc/">
-                <h3 class="media-heading">Source-to-source compilation with Lex-Yacc</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  Jul 7, 2017
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather"><p>In this post, I will describe a source-to-source compiler that transforms a Brainfuck program into its equivalent 64 bits assembly code. The assembly program can be built into a executable, thus allowing you to run Brainfuck programs natively.
-</p></div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="https://eariassoto.github.io/2017/04/building-a-basic-c/c---project-template/">
-                <h3 class="media-heading">Building a basic C/C&#43;&#43; project template</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  Apr 4, 2017
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather"><p>Starting a C/C++ project can be as easy or as difficult as you want. Personally, I don&rsquo;t like to fire up an IDE just for a small program. So, I end up using a text editor and compiling by terminal. However, the compilation process can get tedious. In this post, we will build a simple project template for a C/C++ program. This project will use the CMake tool to handle all the compilation process.
-</p></div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
-          <div class="media">
-            
-            <div class="media-body">
-              <a class="link-unstyled" href="https://eariassoto.github.io/post/">
-                <h3 class="media-heading">Posts</h3>
-              </a>
-              <span class="media-meta">
-                <span class="media-date text-small">
-                  Jul 7, 2017
-                </span>
-              </span>
-              <div class="media-content hide-xs font-merryweather"></div>
-            </div>
-            <div style="clear:both;"></div>
-            <hr>
-          </div>
-        
-      </div>
-    </div>
-    <div class="modal-footer">
-      <p class="results-count text-medium"
-         data-message-zero="no post found"
-         data-message-one="1 post found"
-         data-message-other="{n} posts found">
-         3 posts found
-      </p>
-    </div>
-  </div>
-</div>
     
   
     
@@ -456,7 +346,8 @@ ga('send', 'pageview');
   
 
 
-    
+  </body>
+  
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js" integrity="sha256-IFHWFEbU2/+wNycDECKgjIRSirRNIDp2acEB5fvdVRU=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.8.0/highlight.min.js" integrity="sha256-+mpyNVJsNt4rVXCw0F+pAOiB3YxmHgrbJsx4ecPuUaI=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.js" integrity="sha256-vMxgR/7FtLovVA+IPrR7+xTgIgARH7y9VZQnmmi0HDI=" crossorigin="anonymous"></script>
@@ -480,6 +371,4 @@ $(document).ready(function() {
 
 
 
-    
-  </body>
 </html>

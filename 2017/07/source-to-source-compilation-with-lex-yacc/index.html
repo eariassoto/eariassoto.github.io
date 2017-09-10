@@ -1,0 +1,1413 @@
+
+
+  
+    
+  
+
+
+  
+
+
+
+
+  
+
+
+  
+
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="Hugo 0.26 with theme Tranquilpeak 0.4.0-BETA">
+    <title>Source-to-source compilation with Lex-Yacc</title>
+    <meta name="author" content="Emmanuel Arias">
+    <meta name="keywords" content="">
+
+    <link rel="icon" href="https://eariassoto.github.io/favicon.png">
+    
+
+    
+    <meta name="description" content="In this post, I will describe a source-to-source compiler that transforms a Brainfuck program into its equivalent 64 bits assembly code. The assembly program can be built into a executable, thus allowing you to run Brainfuck programs natively.
+">
+    <meta property="og:description" content="In this post, I will describe a source-to-source compiler that transforms a Brainfuck program into its equivalent 64 bits assembly code. The assembly program can be built into a executable, thus allowing you to run Brainfuck programs natively.
+">
+    <meta property="og:type" content="blog">
+    <meta property="og:title" content="Source-to-source compilation with Lex-Yacc">
+    <meta property="og:url" content="/2017/07/source-to-source-compilation-with-lex-yacc/">
+    <meta property="og:site_name" content="Emmanuel Arias">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Emmanuel Arias">
+    <meta name="twitter:description" content="In this post, I will describe a source-to-source compiler that transforms a Brainfuck program into its equivalent 64 bits assembly code. The assembly program can be built into a executable, thus allowing you to run Brainfuck programs natively.
+">
+    
+    
+
+    
+    
+
+    
+      <meta property="og:image" content="//www.gravatar.com/avatar/34e6d94006f393aa22fbf320352b25b6?s=640">
+    
+
+    
+    
+    
+
+    
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.css" integrity="sha256-vuXZ9LGmmwtjqFX1F+EKin1ThZMub58gKULUyf0qECk=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-thumbs.min.css" integrity="sha256-SEa4XYAHihTcEP1f5gARTB2K26Uk8PsndQYHQC1f4jU=" crossorigin="anonymous" />
+    
+    
+    <link rel="stylesheet" href="https://eariassoto.github.io/css/style-fpbzgxsy0kgmdvyrj5ykkg6ratccrk3gocmaqn4xpcjywmv5dteilzucro4f.min.css" />
+    
+    
+
+    
+      
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-55905821-2', 'auto');
+ga('send', 'pageview');
+</script>
+
+    
+    
+  </head>
+
+  <body>
+    <div id="blog">
+      <header id="header" data-behavior="4">
+  <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+  <div class="header-title">
+    <a class="header-title-link" href="https://eariassoto.github.io/">Emmanuel Arias</a>
+  </div>
+  
+    
+      <a class="header-right-picture "
+         href="https://eariassoto.github.io/#about">
+    
+    
+    
+      
+        <img class="header-picture" src="//www.gravatar.com/avatar/34e6d94006f393aa22fbf320352b25b6?s=90" alt="Author&#39;s picture" />
+      
+    
+    </a>
+  
+</header>
+
+      <nav id="sidebar" data-behavior="4">
+  <div class="sidebar-container">
+    
+      <div class="sidebar-profile">
+        <a href="https://eariassoto.github.io/#about">
+          <img class="sidebar-profile-picture" src="//www.gravatar.com/avatar/34e6d94006f393aa22fbf320352b25b6?s=110" alt="Author&#39;s picture" />
+        </a>
+        <h4 class="sidebar-profile-name">Emmanuel Arias</h4>
+        
+          <h5 class="sidebar-profile-bio">A software developer looking for his $PATH</h5>
+        
+      </div>
+    
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://eariassoto.github.io/">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+      
+      <span class="sidebar-button-desc">Home</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://eariassoto.github.io/categories">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+      
+      <span class="sidebar-button-desc">Categories</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://eariassoto.github.io/tags">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+      
+      <span class="sidebar-button-desc">Tags</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://eariassoto.github.io/archives">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+      
+      <span class="sidebar-button-desc">Archives</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://eariassoto.github.io/#about">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+      
+      <span class="sidebar-button-desc">About</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://github.com/eariassoto" target="_blank" rel="noopener">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+      
+      <span class="sidebar-button-desc">GitHub</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://eariassoto.github.io/index.xml">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-rss"></i>
+      
+      <span class="sidebar-button-desc">RSS</span>
+    </a>
+  </li>
+
+
+    </ul>
+  </div>
+</nav>
+
+      
+
+      <div id="main" data-behavior="4"
+        class="
+               hasCoverMetaIn
+               ">
+        <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+          
+          
+            <div class="post-header main-content-wrap text-left">
+  
+    <h1 class="post-title" itemprop="headline">
+      Source-to-source compilation with Lex-Yacc
+    </h1>
+  
+  
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2017-07-15T10:43:23-06:00">
+        
+  July 15, 2017
+
+      </time>
+    
+    
+  
+  
+    <span>in</span>
+    
+      <a class="category-link" href="https://eariassoto.github.io/categories/development">Development</a>, 
+    
+      <a class="category-link" href="https://eariassoto.github.io/categories/projects">Projects</a>
+    
+  
+
+
+  </div>
+
+</div>
+          
+          <div class="post-content markdown" itemprop="articleBody">
+            <div class="main-content-wrap">
+              <p>In this post, I will describe a source-to-source compiler that transforms a Brainfuck program into its equivalent 64 bits assembly code. The assembly program can be built into a executable, thus allowing you to run Brainfuck programs natively.
+</p>
+
+<p>A source-to-source compiler is a compiler that takes a program written in a certain language and outputs the equivalent program in another language. This process is useful to compile a program to an intermediate language, or to provide backward compatibility for a legacy language. The Babel compiler, for instance, can parse Javascript ES6 to Javascript ES5 standard. The ES6 standard comes with a lot of improvements and new features, but it is currently not supported by most web browsers. Or maybe, you can come up with a new language and translate it to another one. Take for example this list of <a href="https://github.com/jashkenas/coffeescript/wiki/list-of-languages-that-compile-to-js">languages that compile to Javascript</a>.</p>
+
+<p><a class=button href="https://github.com/eariassoto/brasm/" target="%5fblank">Get the code on GitHub</a></p>
+
+<h1 id="requirements">Requirements</h1>
+
+<p>I used Python to develop the compiler. In order to run the compiler you need to have Python installed on your computer. Also, you need the Python Lex-Yacc (PLY) module installed in your python environment. You can download the latest PLY version (I used the 3.10 version) from the <a href="http://www.dabeaz.com/ply/">PLY homepage</a>. To install PLY uncompress the file you downloaded, open a terminal within the uncompressed folder and run:</p>
+
+
+  
+  
+  
+  
+
+
+<figure class="highlight bash">
+  <figcaption>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="bash code-highlight">$ sudo python setup.py install</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+
+<p>In case you want to compile the assembly code, you need the <a href="http://www.x86asm.us/">x86asm assembler</a>, and the Linux dynamic linker (ld command). I decided to go with x86asm because it supports the Intel assembly syntax which is more readable than the AT&amp;T syntax.</p>
+
+<h1 id="the-source-language-brainfuck">The source language: Brainfuck</h1>
+
+<p>Brainfuck is a  <a href="https://en.wikipedia.org/wiki/Turing_completeness">Turing complete</a> programming language. I chose this language as input language because it has a small set of instructions. Its only memory structure is a buffer of at least 30,000 bytes initialized to zero. In C, that buffer can be declared as <code>char buffer[30000] = {0};</code>. The only variable is a data pointer that starts at the beginning of the buffer. To continue the C analogy, the data pointer might be declared as <code>char *ptr = buffer;</code></p>
+
+<p>A Brainfuck program is structured as a series of instructions. The most basic instructions manipulate memory buffer using the data pointer. There are two streams of bytes for input and output. Also, there are two instructions to implement loops. Table below describes all the instructions:</p>
+
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th align="center">Description</th>
+<th align="right">C equivalent</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>&gt;</td>
+<td align="center">Increment data pointer</td>
+<td align="right">++ptr;</td>
+</tr>
+
+<tr>
+<td>&lt;</td>
+<td align="center">Decrement data pointer</td>
+<td align="right">&ndash;ptr;</td>
+</tr>
+
+<tr>
+<td>+</td>
+<td align="center">Increment by one byte at the data pointer</td>
+<td align="right">++*ptr;</td>
+</tr>
+
+<tr>
+<td>-</td>
+<td align="center">Decrement by one byte at the data pointer</td>
+<td align="right">&ndash;*ptr;</td>
+</tr>
+
+<tr>
+<td>.</td>
+<td align="center">Print byte at the data pointer</td>
+<td align="right">putchar(*ptr);</td>
+</tr>
+
+<tr>
+<td>,</td>
+<td align="center">Read char from input, store in the byte at the data pointer</td>
+<td align="right">*ptr=getchar();</td>
+</tr>
+
+<tr>
+<td>[</td>
+<td align="center">If the byte at the data pointer is zero, jump to matching <code>]</code></td>
+<td align="right">while (*ptr) {</td>
+</tr>
+
+<tr>
+<td>]</td>
+<td align="center">if the byte at the data pointer is nonzero, jump to matching <code>[</code></td>
+<td align="right">}</td>
+</tr>
+</tbody>
+</table>
+
+<p>Brainfuck falls into the category of <a href="https://en.wikipedia.org/wiki/Esoteric_programming_language">esoteric programming languages</a>. So, Brainfuck programs are really hard to understand. For example, this is an implementation of the classic &ldquo;Hello World&rdquo; program written in Brainfuck:
+
+  
+  
+  
+  
+
+
+<figure class="highlight brainfuck">
+  <figcaption>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="brainfuck code-highlight">&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;[&gt;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&gt;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&gt;&#43;&#43;&#43;&gt;&#43;&lt;&lt;&lt;&lt;-]
+&gt;&#43;&#43;.&gt;&#43;.&#43;&#43;&#43;&#43;&#43;&#43;&#43;..&#43;&#43;&#43;.&gt;&#43;&#43;.&lt;&lt;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;&#43;.&gt;.&#43;&#43;&#43;.------.--------.&gt;&#43;.&gt;.</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure></p>
+
+<h1 id="hello-assembly">Hello Assembly</h1>
+
+<p>For this post, I will assume you are familiarized with x86-64 assembly code. To compare the previous example, I wrote a Hello World in x86-64 assembly code.</p>
+
+
+  
+  
+  
+  
+
+
+<figure class="highlight x86asm">
+  <figcaption>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="x86asm code-highlight">global _start
+
+section .text
+_start:
+mov rax, 1
+mov rdi, 1
+mov rsi, message
+mov rdx, 13
+syscall
+
+mov eax, 60
+xor rdi, rdi
+syscall
+
+message:
+db &#34;Hello, World&#34;, 10</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+
+<p>The <code>global _start</code> directive defines the entry point for our program. The <code>.text</code> section contains the program instructions and all constants we defined. This program calls two special functions, called system calls. System calls are functions executed by the kernel because they required higher privileges. These functions take parameters using registers, and they are invoked using the <code>syscall</code> instruction. This “hello world” program calls the  <code>sys_write</code> system call to print the string <code>&quot;Hello World&quot;</code>, and the <code>sys_exit</code> system call to exit the program. To check all the available system calls and their parameters, <a href="http://blog.rchapman.org/posts/Linux_System_Call_Table_for_x86_64/">check this list</a>.</p>
+
+<h1 id="translating-brainfuck-instructions-set-to-x64-assembly">Translating Brainfuck instructions set to x64 assembly</h1>
+
+<p>The first thing I needed to define was the buffer memory and the data pointer. I declared the buffer as a 30000 bytes zero-initialized array in the <code>.bss</code> section. In this section, the program declared static variables. These variables will be allocated and initialized by the program loader. All variables in the <code>.bss</code> section are zero-initialized. For the data pointer, I will use register <code>r9</code>. When the program starts, the buffer address will be stored in this register.</p>
+
+
+  
+  
+  
+  
+
+
+<figure class="highlight x86asm">
+  <figcaption>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="x86asm code-highlight">section .bss
+buffer: resb 30000
+
+_start:
+mov r9, buffer</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+
+<p>I will break Brainfuck instructions into four subsections: pointer instructions, data instructions, input/output instructions, and the loop instruction.</p>
+
+<h2 id="pointer-instructions">Pointer instructions</h2>
+
+<p>Instructions <code>&gt;</code> and <code>&lt;</code> move the data pointer through the buffer. For this task, address in register <code>r9</code> should move eight positions (so the address moves a byte) forward or backwards.</p>
+
+
+  
+  
+  
+  
+
+
+<figure class="highlight x86asm">
+  <figcaption>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="x86asm code-highlight">; &gt; move data pointer forward
+add r9, 8
+
+; &lt; move data pointer backward
+sub r9, 8</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+
+<h2 id="data-instructions">Data instructions</h2>
+
+<p>Here, the byte stored in the address in register <code>r9</code> is modified using a temporary register, <code>r10b</code>. Then, the result value is stored back into the same address.
+
+  
+  
+  
+  
+
+
+<figure class="highlight x86asm">
+  <figcaption>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="x86asm code-highlight">; &#43; add 1 to byte at data pointer
+mov byte r10b, [r9]
+add r10b, 1
+mov byte [r9], r10b
+
+; - subtract 1 to byte at data pointer
+mov byte r10b, [r9]
+sub r10b, 1
+mov byte [r9], r10b</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure></p>
+
+<h2 id="input-output-instructions">Input/Output instructions</h2>
+
+<p>To provide the input and output data streams, I used system calls. These are functions provided and executed by the kernel that allow a program to interact with higher level functionality. Before calling a system call the register <code>rax</code> must have the system call id number. Some system calls may take parameters from specific registers. The compiler uses the <code>sys_write</code> and <code>sys_read</code> system calls to read and write from <code>stdin</code> and <code>stdout</code> respectively.</p>
+
+<p>The <code>_print_byte</code> function prints an input byte on <code>stdout</code>. Input byte must be store on the register <code>rcx</code>. The function pushes the register <code>rcx</code> into the stack. Then, it prepares the registers needed by the system call <code>sys_write</code>. Register <code>rdi</code> contains the file descriptor. In this case <code>stdout</code> file descriptor is <code>1</code>. Register <code>rsi</code> has the address of the content to be written, in our case the stack address. Register <code>rdx</code> has the length of the buffer. Finally, register <code>rax</code> contains the system call id, for <code>sys_write</code> the id is <code>1</code>. Before calling <code>_print_byte</code> function, the program will store on register <code>cl</code> (lowest byte in register <code>rcx</code>) the byte at data pointer.</p>
+
+
+  
+  
+  
+  
+
+
+<figure class="highlight x86asm">
+  <figcaption>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="x86asm code-highlight">_print_byte:
+push rcx ; grow stack and push output byte to stack
+mov rdi, 1 ; file descriptor 1 is stdout
+mov rsi, rsp ; stack address
+mov rdx, 1 ; number of bytes to print
+mov rax, 1 ; system call 1 is write
+syscall ; call OS system call
+pop rcx ; decrease stack
+ret
+
+; . call _print_byte function
+mov cl, [r9]
+call _print_byte</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+
+<p>The <code>_read_byte</code> function is very similar to the <code>_print_byte</code> function. The only difference is that <code>sys_read</code> id number is <code>0</code>, and the file descriptor for <code>stdin</code> is also <code>0</code>. After calling <code>_read_byte</code> function, the program stores the byte returned by <code>_read_byte</code> on <code>cl</code> at data pointer.</p>
+
+
+  
+  
+  
+  
+
+
+<figure class="highlight x86asm">
+  <figcaption>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="x86asm code-highlight">_read_byte:
+sub rsp, 8 ; grow stack
+mov rsi, rsp ; stack address
+mov rdi, 0 ; file descriptor 0 is stdin
+mov rdx, 1 ; number of bytes
+mov rax, 0 ; syscall 0 is read
+syscall ; call OS system call
+pop rcx ; decrease stack and save input
+ret
+
+; , call _read_byte function
+call _read_byte
+mov byte [r9], cl</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+
+<h2 id="loop-instruction">Loop instruction</h2>
+
+<p>The instructions <code>[</code> and <code>]</code> are the C equivalent of <code>while (*ptr) { }</code>. The assembly loop jumps into the comparison between the byte at data pointer and zero. If the value is not zero, the program jumps to the <code>_cloop</code> tag. Between the <code>_cloop</code> and <code>_loop</code> tags, the compiler will put all the parsed Brainfuck code that was originally between <code>[</code> and <code>]</code> instructions.
+
+  
+  
+  
+  
+
+
+<figure class="highlight x86asm">
+  <figcaption>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="x86asm code-highlight">jmp _loop0
+_cloop0:
+; [loop code]
+_loop0:
+mov byte cl, [r9]
+cmp cl, 0
+jne _cloop0</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure></p>
+
+<h1 id="building-the-compiler">Building the compiler</h1>
+
+<p>Compiling a program can be described, in a very basic way, as a two parts process:</p>
+
+<ol>
+<li>Break the input program into the language components.</li>
+<li>Build the program using the language components and the language specification.</li>
+</ol>
+
+<p>This is where Lex-Yacc comes to use. Lex will help us parsing the input program from a series of characters to strings with certain meaning, called tokens. This process is known as lexical analysis. Yacc will generate a parser from a grammar. The parser will take the tokens and try to find a valid match for the grammar. In this process, the grammar rules will trigger actions that will create the output code.</p>
+
+<h2 id="lexical-analysis">Lexical analysis</h2>
+
+<p>Here, I will go into details about what the PLY Lex implementation needs to build a lexical analyzer. First thing, Lex requires a list of token names. I defined one token for each Brainfuck instruction.</p>
+
+<p>
+  
+  
+  
+  
+
+
+<figure class="highlight python">
+  <figcaption>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="python code-highlight">tokens = (
+    &#39;INCR_PTR&#39;, &#39;DECR_PTR&#39;, &#39;INCR_VAL&#39;, &#39;DECR_VAL&#39;, &#39;WRITE&#39;, &#39;READ&#39;, &#39;LB&#39;, &#39;RB&#39;
+)</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+Each token needs a rule to match the input with the token. Rules are defined as functions named as the token with the prefix <code>t_</code>. Some rules are simple, and can be defined as regular expressions. I defined simple regular expressions for each Brainfuck instruction.</p>
+
+<p>
+  
+  
+  
+  
+
+
+<figure class="highlight python">
+  <figcaption>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="python code-highlight"># Simple Tokens
+t_INCR_PTR = r&#39;\&gt;&#39;
+t_DECR_PTR = r&#39;\&lt;&#39;
+t_INCR_VAL = r&#39;\&#43;&#39;
+t_DECR_VAL = r&#39;\-&#39;
+t_WRITE = r&#39;\.&#39;
+t_READ = r&#39;\,&#39;
+t_LB = r&#39;\[&#39;
+t_RB = r&#39;\]&#39;
+
+t_ignore = &#34; \t&#34; # Ignored characters</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+Some rules need to perform an action for every token they find. For example, I will set a rule to count the number of lines in order to indicate the line number in a compilation error. Also, I will treat any other characters the input program might have as comments.</p>
+
+<p>
+  
+  
+  
+  
+
+
+<figure class="highlight python">
+  <figcaption>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="python code-highlight">def t_newline(t):
+    r&#39;\n&#43;&#39;
+    t.lexer.lineno &#43;= t.value.count(&#34;\n&#34;)
+
+def t_error(t):
+    &#34;&#34;&#34; Ignore all other characters &#34;&#34;&#34;
+    t.lexer.skip(1)</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+With these, we can tell Lex to build the lexical analyzer.
+
+  
+  
+  
+  
+
+
+<figure class="highlight python">
+  <figcaption>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="python code-highlight"># Build the lexer
+import ply.lex as lex
+lex.lex()</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure></p>
+
+<h2 id="parsing-the-tokens">Parsing the tokens</h2>
+
+<p>Yacc will generate our parser based on a <a href="https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form">Backus–Naur form (BNF) grammar</a>. The grammar I used is simple because Brainfuck programs are just a sequence of valid instructions. I defined two types of instructions: simple instructions (<code>&gt; &lt; + - . ,</code>) and loops (<code>[ ]</code>). Loops are treated as a different type of instructions because Brainfuck allows nested loops. The entire grammar is specified below.</p>
+
+
+  
+  
+  
+  
+
+
+<figure class="highlight ">
+  <figcaption>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class=" code-highlight">program : instruction
+
+instruction : simpleInstruction
+| loopInstruction
+| simpleInstruction instruction
+| loopInstruction instruction
+
+loopInstruction : LB instruction RB
+
+simpleInstruction : INCR_PTR
+| DECR_PTR
+| INCR_VAL
+| DECR_VAL
+| WRITE
+| READ</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+
+<p>Grammar rules are defined in Yacc as functions. These functions need the prefix <code>p_</code> and take one parameter named <code>p</code>. <code>p</code> is an array containing the values of each grammar symbol in the corresponding rule. The rule is written in a triple quote comment after the function definition. The function body will be the actions that the rule will perform if it founds a match. Rules that are reduced should save in <code>p[0]</code> the final result.</p>
+
+<p>The first rule defined will be the starting point for the parse. These is the starting rule for my compiler:
+
+  
+  
+  
+  
+
+
+<figure class="highlight python">
+  <figcaption>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="python code-highlight">def p_program(p):
+    &#39;&#39;&#39; program : instructions &#39;&#39;&#39;
+    global global_success
+    compile_program(p[1])
+    global_success = True</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+This rule will translate all the Brainfuck instructions into their assembly equivalents. The <code>compile_program</code> function will replace Brainfuck operations into assembly instructions and save the result on a file. The next rules reduce all the instructions into the final <code>instructions</code> symbol.</p>
+
+<p>
+  
+  
+  
+  
+
+
+<figure class="highlight python">
+  <figcaption>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="python code-highlight">def p_instructions_expansion(p):
+    &#39;&#39;&#39; instructions : simpleInstruction instructions
+    | loop_instruction instructions
+    &#39;&#39;&#39;
+    p[0] = p[1] &#43; p[2]
+
+def p_instructions(p):
+    &#39;&#39;&#39; instructions : simpleInstruction
+    | loop_instruction
+    &#39;&#39;&#39;
+    p[0] = p[1]</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+The rules to match the instructions will reduce the instruction within a wrapper structure. The wrapper will store the instruction type and the instruction (or instructions in case it is a loop).</p>
+
+
+  
+  
+  
+  
+
+
+<figure class="highlight python">
+  <figcaption>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="python code-highlight">def make_instruction_action(type, payload):
+    &#34;&#34;&#34; Wraps the instruction content into a struct &#34;&#34;&#34;
+    obj = {}
+    obj[INSTR_OBJ_PROP_TYPE] = type
+    obj[INSTR_OBJ_PROP_PAYLOAD] = payload
+    return obj
+
+def p_loop_instruction(p):
+    &#34;&#34;&#34; loop_instruction : LB instructions RB
+    &#34;&#34;&#34;
+    action = make_instruction_action(&#39;loop&#39;, p[2])
+    p[0] = [action]
+
+
+def p_simple_instruction(p):
+    &#34;&#34;&#34;simpleInstruction : INCR_PTR
+    | DECR_PTR
+    | INCR_VAL
+    | DECR_VAL
+    | WRITE
+    | READ
+    &#34;&#34;&#34;
+    action = make_instruction_action(&#39;op&#39;, p[1])
+    p[0] = [action]</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+
+<p>I also defined a rule in case the parser encounters a error in the input program.</p>
+
+<p>
+  
+  
+  
+  
+
+
+<figure class="highlight python">
+  <figcaption>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="python code-highlight">def p_error(p):
+    if p:
+        print(&#34;Syntax error at &#39;%s&#39;&#34; % p.value)
+    else:
+        print(&#34;Error, input program empty.&#34;)</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+Finally, I just need to build the parser and give the compiler a starting point.</p>
+
+
+  
+  
+  
+  
+
+
+<figure class="highlight python">
+  <figcaption>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="python code-highlight">import ply.yacc as yacc
+yacc.yacc()</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+
+
+  
+  
+  
+  
+
+
+<figure class="highlight python">
+  <figcaption>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="python code-highlight">def main():
+    global global_compiled_filename
+    parser = argparse.ArgumentParser()
+    parser.add_argument(&#34;file&#34;, help=&#34;Brainfuck input file to be parsed&#34;)
+    parser.add_argument(&#34;-o&#34;, help=&#34;file name for the output assembly code&#34;)
+    args = parser.parse_args()
+    if args.o:
+        global_compiled_filename = args.o
+    try:
+        f = open(args.file, &#39;r&#39;)
+        program_str = f.read()
+        f.close()
+        result = yacc.parse(program_str)
+
+    if(global_success):
+        print(&#34;Program compiled. To build the executable run:\
+        \n\tx86asm -f elf64 {0}.asm &amp;&amp; ld {0}.o -o {0}&#34;.format(global_compiled_filename))
+    except IOError:
+        sys.exit(&#39;Error, input file not found!&#39;)</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+
+<h1 id="improvement-proposals">Improvement proposals</h1>
+
+<ul>
+<li>Optimize the compiler. Group pointer and data instructions to no repeat a lot of assembly code.</li>
+<li>Support reading/writing files. Perhaps the memory buffer can be loaded from/saved into a file.</li>
+
+<li><p>Extend Brainfuck specification to support variables and string constants.</p>
+
+<h2 id="bigger-challenge">Bigger challenge</h2></li>
+
+<li><p>Create a compiler to translate a subset of the C language to Brainfuck. Then, use this compiler to translate the Brainfuck code into assembly.</p></li>
+</ul>
+
+<p><a class=button href="https://github.com/eariassoto/brasm/" target="_blank">Get the code on GitHub</a></p>
+              
+            </div>
+          </div>
+          <div id="post-footer" class="post-footer main-content-wrap">
+            
+              
+                
+                
+                  <div class="post-footer-tags">
+                    <span class="text-color-light text-small">TAGGED IN</span><br/>
+                    
+  <a class="tag tag--primary tag--small" href="https://eariassoto.github.io/tags/python/">Python</a>
+
+  <a class="tag tag--primary tag--small" href="https://eariassoto.github.io/tags/lex/yacc/">Lex/Yacc</a>
+
+  <a class="tag tag--primary tag--small" href="https://eariassoto.github.io/tags/compilers/">Compilers</a>
+
+                  </div>
+                
+              
+            
+            
+  <div class="post-actions-wrap">
+      <nav >
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--disabled">
+              
+                <i class="fa fa-angle-left"></i>
+                <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
+              </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://eariassoto.github.io/2017/04/building-a-basic-c/c---project-template/" data-tooltip="Building a basic C/C&#43;&#43; project template">
+              
+                <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
+                <i class="fa fa-angle-right"></i>
+              </a>
+            </li>
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=%25!s%28%3cnil%3e%29">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=%25!s%28%3cnil%3e%29">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+
+            
+              
+                <div id="disqus_thread">
+  <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+              
+            
+          </div>
+        </article>
+        <footer id="footer" class="main-content-wrap">
+  <span class="copyrights">
+    &copy; 2017 Emmanuel Arias. All Rights Reserved
+  </span>
+</footer>
+
+      </div>
+      <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+        
+  <div class="post-actions-wrap">
+      <nav >
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--disabled">
+              
+                <i class="fa fa-angle-left"></i>
+                <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
+              </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://eariassoto.github.io/2017/04/building-a-basic-c/c---project-template/" data-tooltip="Building a basic C/C&#43;&#43; project template">
+              
+                <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
+                <i class="fa fa-angle-right"></i>
+              </a>
+            </li>
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=%25!s%28%3cnil%3e%29">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=%25!s%28%3cnil%3e%29">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+
+      </div>
+      <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+  <i id="btn-close-shareoptions" class="fa fa-close"></i>
+  <ul class="share-options">
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Feariassoto.github.io%2F2017%2F07%2Fsource-to-source-compilation-with-lex-yacc%2F">
+          <i class="fa fa-facebook-official"></i><span>Share on Facebook</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=https%3A%2F%2Feariassoto.github.io%2F2017%2F07%2Fsource-to-source-compilation-with-lex-yacc%2F">
+          <i class="fa fa-twitter"></i><span>Share on Twitter</span>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+<div id="share-options-mask" class="share-options-mask"></div>
+    </div>
+    
+    <div id="about">
+  <div id="about-card">
+    <div id="about-btn-close">
+      <i class="fa fa-remove"></i>
+    </div>
+    
+      <img id="about-card-picture" src="//www.gravatar.com/avatar/34e6d94006f393aa22fbf320352b25b6?s=110" alt="Author&#39;s picture" />
+    
+    <h4 id="about-card-name">Emmanuel Arias</h4>
+    
+      <div id="about-card-bio">A software developer looking for his $PATH</div>
+    
+    
+      <div id="about-card-job">
+        <i class="fa fa-briefcase"></i>
+        <br/>
+        Software engineer
+      </div>
+    
+    
+      <div id="about-card-location">
+        <i class="fa fa-map-marker"></i>
+        <br/>
+        Costa Rica
+      </div>
+    
+  </div>
+</div>
+
+    <div id="algolia-search-modal" class="modal-container">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="close-button"><i class="fa fa-close"></i></span>
+      <a href="https://algolia.com" target="_blank" rel="noopener" class="searchby-algolia text-color-light link-unstyled">
+        <span class="searchby-algolia-text text-color-light text-small">by</span>
+        <img class="searchby-algolia-logo" src="https://www.algolia.com/static_assets/images/press/downloads/algolia-light.svg">
+      </a>
+      <i class="search-icon fa fa-search"></i>
+      <form id="algolia-search-form">
+        <input type="text" id="algolia-search-input" name="search"
+          class="form-control input--large search-input" placeholder="Search" />
+      </form>
+    </div>
+    <div class="modal-body">
+      <div class="no-result text-color-light text-center">no post found</div>
+      <div class="results">
+        
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="https://eariassoto.github.io/2017/07/source-to-source-compilation-with-lex-yacc/">
+                <h3 class="media-heading">Source-to-source compilation with Lex-Yacc</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jul 7, 2017
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather"><p>In this post, I will describe a source-to-source compiler that transforms a Brainfuck program into its equivalent 64 bits assembly code. The assembly program can be built into a executable, thus allowing you to run Brainfuck programs natively.
+</p></div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="https://eariassoto.github.io/2017/04/building-a-basic-c/c---project-template/">
+                <h3 class="media-heading">Building a basic C/C&#43;&#43; project template</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Apr 4, 2017
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather"><p>Starting a C/C++ project can be as easy or as difficult as you want. Personally, I don&rsquo;t like to fire up an IDE just for a small program. So, I end up using a text editor and compiling by terminal. However, the compilation process can get tedious. In this post, we will build a simple project template for a C/C++ program. This project will use the CMake tool to handle all the compilation process.
+</p></div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+          <div class="media">
+            
+            <div class="media-body">
+              <a class="link-unstyled" href="https://eariassoto.github.io/post/">
+                <h3 class="media-heading">Posts</h3>
+              </a>
+              <span class="media-meta">
+                <span class="media-date text-small">
+                  Jul 7, 2017
+                </span>
+              </span>
+              <div class="media-content hide-xs font-merryweather"></div>
+            </div>
+            <div style="clear:both;"></div>
+            <hr>
+          </div>
+        
+      </div>
+    </div>
+    <div class="modal-footer">
+      <p class="results-count text-medium"
+         data-message-zero="no post found"
+         data-message-one="1 post found"
+         data-message-other="{n} posts found">
+         3 posts found
+      </p>
+    </div>
+  </div>
+</div>
+    
+  
+    
+    <div id="cover" style="background-image:url('http://res.cloudinary.com/diuzz9apm/image/upload/v1505067115/startrails-485598_1920_t7xgvj_ym7u0q.jpg');"></div>
+  
+
+
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js" integrity="sha256-IFHWFEbU2/+wNycDECKgjIRSirRNIDp2acEB5fvdVRU=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.8.0/highlight.min.js" integrity="sha256-+mpyNVJsNt4rVXCw0F+pAOiB3YxmHgrbJsx4ecPuUaI=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.js" integrity="sha256-vMxgR/7FtLovVA+IPrR7+xTgIgARH7y9VZQnmmi0HDI=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-thumbs.min.js" integrity="sha256-N0qFUh7/9vLvia87dDndewmsgsyYoNkdA212tPc+2NI=" crossorigin="anonymous"></script>
+
+
+<script src="https://eariassoto.github.io/js/script-qi9wbxp2ya2j6p7wx1i6tgavftewndznf4v0hy2gvivk1rxgc3lm7njqb6bz.min.js"></script>
+
+
+<script>
+$(document).ready(function() {
+  hljs.configure({ classPrefix: '', useBR: false });
+  $('pre.code-highlight, pre > code').each(function(i, block) {
+    if (!$(this).hasClass('codeblock')) {
+      $(this).addClass('codeblock');
+    }
+    hljs.highlightBlock(block);
+  });
+});
+</script>
+
+  
+    
+      <script>
+        var disqus_config = function () {
+          this.page.url = 'https:\/\/eariassoto.github.io\/2017\/07\/source-to-source-compilation-with-lex-yacc\/';
+          
+            this.page.identifier = '\/2017\/07\/source-to-source-compilation-with-lex-yacc\/'
+          
+        };
+        (function() {
+          
+          
+          if (window.location.hostname == "localhost") {
+            return;
+          }
+          var d = document, s = d.createElement('script');
+          var disqus_shortname = 'hugo-tranquilpeak-theme';
+          s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+        })();
+      </script>
+    
+  
+
+
+
+    
+  </body>
+</html>
+

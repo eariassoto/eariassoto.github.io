@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Templates on Emmanuel Arias</title>
+    <link>https://eariassoto.github.io/tags/templates/</link>
+    <description>Recent content in Templates on Emmanuel Arias</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 17 Apr 2017 10:41:16 -0600</lastBuildDate>
+    
+	<atom:link href="https://eariassoto.github.io/tags/templates/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Building a basic C/C&#43;&#43; project template</title>
+      <link>https://eariassoto.github.io/2017/04/building-a-basic-c/c---project-template/</link>
+      <pubDate>Mon, 17 Apr 2017 10:41:16 -0600</pubDate>
+      
+      <guid>https://eariassoto.github.io/2017/04/building-a-basic-c/c---project-template/</guid>
+      <description>&lt;p&gt;Starting a C/C++ project can be as easy or as difficult as you want. Personally, I don&amp;rsquo;t like to fire up an IDE just for a small program. So, I end up using a text editor and compiling by terminal. However, the compilation process can get tedious. In this post, we will build a simple project template for a C/C++ program. This project will use the CMake tool to handle all the compilation process.
+&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

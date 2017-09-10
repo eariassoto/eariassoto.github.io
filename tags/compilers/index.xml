@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Compilers on Emmanuel Arias</title>
+    <link>https://eariassoto.github.io/tags/compilers/</link>
+    <description>Recent content in Compilers on Emmanuel Arias</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 15 Jul 2017 10:43:23 -0600</lastBuildDate>
+    
+	<atom:link href="https://eariassoto.github.io/tags/compilers/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Source-to-source compilation with Lex-Yacc</title>
+      <link>https://eariassoto.github.io/2017/07/source-to-source-compilation-with-lex-yacc/</link>
+      <pubDate>Sat, 15 Jul 2017 10:43:23 -0600</pubDate>
+      
+      <guid>https://eariassoto.github.io/2017/07/source-to-source-compilation-with-lex-yacc/</guid>
+      <description>&lt;p&gt;In this post, I will describe a source-to-source compiler that transforms a Brainfuck program into its equivalent 64 bits assembly code. The assembly program can be built into a executable, thus allowing you to run Brainfuck programs natively.
+&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

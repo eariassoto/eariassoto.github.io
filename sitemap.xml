@@ -1,26 +1,97 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-<url>
-<loc>http://eariassoto.github.io/blog/2017/07/15/source-to-source-compilation-with-lex-yacc/</loc>
-<lastmod>2017-07-15T18:20:23-06:00</lastmod>
-</url>
-<url>
-<loc>http://eariassoto.github.io/blog/2017/04/17/building-a-basic-c-slash-c-plus-plus-project-template/</loc>
-<lastmod>2017-04-17T20:22:00-06:00</lastmod>
-</url>
-<url>
-<loc>http://eariassoto.github.io/</loc>
-</url>
-<url>
-<loc>http://eariassoto.github.io/blog/archives/</loc>
-</url>
-<url>
-<loc>http://eariassoto.github.io/about/</loc>
-</url>
-<url>
-<loc>http://eariassoto.github.io/blog/categories/assembly/</loc>
-</url>
-<url>
-<loc>http://eariassoto.github.io/blog/categories/compilers/</loc>
-</url>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>https://eariassoto.github.io/2017/07/source-to-source-compilation-with-lex-yacc/</loc>
+    <lastmod>2017-07-15T10:43:23-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://eariassoto.github.io/2017/04/building-a-basic-c/c---project-template/</loc>
+    <lastmod>2017-04-17T10:41:16-06:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://eariassoto.github.io/archives/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://eariassoto.github.io/tags/c&#43;&#43;/</loc>
+    <lastmod>2017-04-17T10:41:16-06:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://eariassoto.github.io/categories/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://eariassoto.github.io/tags/cmake/</loc>
+    <lastmod>2017-04-17T10:41:16-06:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://eariassoto.github.io/tags/compilers/</loc>
+    <lastmod>2017-07-15T10:43:23-06:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://eariassoto.github.io/categories/development/</loc>
+    <lastmod>2017-07-15T10:43:23-06:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://eariassoto.github.io/</loc>
+    <lastmod>2017-07-15T10:43:23-06:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://eariassoto.github.io/tags/lex/yacc/</loc>
+    <lastmod>2017-07-15T10:43:23-06:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://eariassoto.github.io/post/</loc>
+    <lastmod>2017-07-15T10:43:23-06:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://eariassoto.github.io/categories/projects/</loc>
+    <lastmod>2017-07-15T10:43:23-06:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://eariassoto.github.io/tags/python/</loc>
+    <lastmod>2017-07-15T10:43:23-06:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://eariassoto.github.io/tags/</loc>
+    <lastmod>2017-04-17T10:41:16-06:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://eariassoto.github.io/tags/templates/</loc>
+    <lastmod>2017-04-17T10:41:16-06:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://eariassoto.github.io/categories/tutorials/</loc>
+    <lastmod>2017-04-17T10:41:16-06:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
 </urlset>
