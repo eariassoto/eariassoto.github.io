@@ -22,7 +22,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="Hugo 0.26 with theme Tranquilpeak 0.4.0-BETA">
-    <title>Building a basic C/C&#43;&#43; project template</title>
+    <title>First Steps With Go</title>
     <meta name="author" content="Emmanuel Arias">
     <meta name="keywords" content="">
 
@@ -30,17 +30,17 @@
     
 
     
-    <meta name="description" content="Starting a C/C&#43;&#43; project can be as easy or as difficult as you want. Personally, I don&rsquo;t like to fire up an IDE just for a small program. So, I end up using a text editor and compiling by terminal. However, the compilation process can get tedious. In this post, we will build a simple project template for a C/C&#43;&#43; program. This project will use the CMake tool to handle all the compilation process.
+    <meta name="description" content="Go is a simple and powerful programming language. Its syntax is familiar to C/C&#43;&#43; but it definately has improvements in comparison. It has a bunch of great features such as static types, memory safety, garbage collection, and it is targeted to concurrent programming. I discovered it very recently, so I want to start simple and learn the basics of this language. In this post, we will write our first Go program and library. Also, we will learn how to unit tests our Go programs.
 ">
-    <meta property="og:description" content="Starting a C/C&#43;&#43; project can be as easy or as difficult as you want. Personally, I don&rsquo;t like to fire up an IDE just for a small program. So, I end up using a text editor and compiling by terminal. However, the compilation process can get tedious. In this post, we will build a simple project template for a C/C&#43;&#43; program. This project will use the CMake tool to handle all the compilation process.
+    <meta property="og:description" content="Go is a simple and powerful programming language. Its syntax is familiar to C/C&#43;&#43; but it definately has improvements in comparison. It has a bunch of great features such as static types, memory safety, garbage collection, and it is targeted to concurrent programming. I discovered it very recently, so I want to start simple and learn the basics of this language. In this post, we will write our first Go program and library. Also, we will learn how to unit tests our Go programs.
 ">
     <meta property="og:type" content="blog">
-    <meta property="og:title" content="Building a basic C/C&#43;&#43; project template">
-    <meta property="og:url" content="/2017/04/building-a-basic-c/c---project-template/">
+    <meta property="og:title" content="First Steps With Go">
+    <meta property="og:url" content="/2017/09/first-steps-with-go/">
     <meta property="og:site_name" content="Emmanuel Arias">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Emmanuel Arias">
-    <meta name="twitter:description" content="Starting a C/C&#43;&#43; project can be as easy or as difficult as you want. Personally, I don&rsquo;t like to fire up an IDE just for a small program. So, I end up using a text editor and compiling by terminal. However, the compilation process can get tedious. In this post, we will build a simple project template for a C/C&#43;&#43; program. This project will use the CMake tool to handle all the compilation process.
+    <meta name="twitter:description" content="Go is a simple and powerful programming language. Its syntax is familiar to C/C&#43;&#43; but it definately has improvements in comparison. It has a bunch of great features such as static types, memory safety, garbage collection, and it is targeted to concurrent programming. I discovered it very recently, so I want to start simple and learn the basics of this language. In this post, we will write our first Go program and library. Also, we will learn how to unit tests our Go programs.
 ">
     
     
@@ -216,15 +216,15 @@ ga('send', 'pageview');
             <div class="post-header main-content-wrap text-left">
   
     <h1 class="post-title" itemprop="headline">
-      Building a basic C/C&#43;&#43; project template
+      First Steps With Go
     </h1>
   
   
   <div class="postShorten-meta post-meta">
     
-      <time itemprop="datePublished" datetime="2017-04-17T10:41:16-06:00">
+      <time itemprop="datePublished" datetime="2017-09-10T18:03:18-06:00">
         
-  April 17, 2017
+  September 10, 2017
 
       </time>
     
@@ -233,9 +233,9 @@ ga('send', 'pageview');
   
     <span>in</span>
     
-      <a class="category-link" href="https://eariassoto.github.io/categories/development">Development</a>, 
+      <a class="category-link" href="https://eariassoto.github.io/categories/tutorials">tutorials</a>, 
     
-      <a class="category-link" href="https://eariassoto.github.io/categories/tutorials">Tutorials</a>
+      <a class="category-link" href="https://eariassoto.github.io/categories/development">development</a>
     
   
 
@@ -246,45 +246,13 @@ ga('send', 'pageview');
           
           <div class="post-content markdown" itemprop="articleBody">
             <div class="main-content-wrap">
-              <p>Starting a C/C++ project can be as easy or as difficult as you want. Personally, I don&rsquo;t like to fire up an IDE just for a small program. So, I end up using a text editor and compiling by terminal. However, the compilation process can get tedious. In this post, we will build a simple project template for a C/C++ program. This project will use the CMake tool to handle all the compilation process.
+              <p>Go is a simple and powerful programming language. Its syntax is familiar to C/C++ but it definately has improvements in comparison. It has a bunch of great features such as static types, memory safety, garbage collection, and it is targeted to concurrent programming. I discovered it very recently, so I want to start simple and learn the basics of this language. In this post, we will write our first Go program and library. Also, we will learn how to unit tests our Go programs.
 </p>
 
-<p><a class=button href="https://github.com/eariassoto/cpp-project-template" target="%5fblank">Get the code on GitHub</a></p>
+<h1 id="installing-go">Installing Go</h1>
 
-<h1 id="requirements">Requirements</h1>
+<p>I will show you how to install Go in Linux. For Windows and Mac, the process should be very similar. First, you need to visit <a href="https://golang.org/dl/">this page</a> and copy the link for the Linux version. In my case, I need the <code>go1.9.linux-amd64</code> version. We need to extract the file somewhere in our computer.</p>
 
-<h2 id="c-c-code-compiler">C/C++ Code Compiler</h2>
-
-<p>The first thing we need is a C/C++ compiler. Most Linux distribution will have <a href="https://gcc.gnu.org/">GCC</a> installed by default. To check if you have GCC install run:
-
-  
-  
-  
-  
-
-
-<figure class="highlight bash">
-  <figcaption>
-    
-  </figcaption>
-  <table>
-    <tbody>
-      <tr>
-        <td class="gutter">
-          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre>
-        </td>
-        <td class="code">
-          <pre class="bash code-highlight">$ gcc --version
-gcc (Ubuntu 6.3.0-12ubuntu2) 6.3.0 20170406
-Copyright (C) 2016 Free Software Foundation, Inc.
-This is free software; see the source for copying conditions. There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</pre>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</figure>
-If you don&rsquo;t get a similar message you need to install GCC. For Debian based distributions (Ubuntu, Linux Mint) you can install the <strong>build-essential</strong> package:
 
   
   
@@ -303,18 +271,16 @@ If you don&rsquo;t get a similar message you need to install GCC. For Debian bas
           <pre><span class="line">1</span><br><span class="line">2</span><br></pre>
         </td>
         <td class="code">
-          <pre class="bash code-highlight">$ sudo apt-get update
-$ sudo apt-get install build-essential</pre>
+          <pre class="bash code-highlight">cd /opt
+curl https://storage.googleapis.com/golang/go1.9.linux-amd64.tar.gz | tar zxf -</pre>
         </td>
       </tr>
     </tbody>
   </table>
 </figure>
-<strong>build-essential</strong> package includes GCC and other required packages. In case you are using Windows, you can install <a href="http://www.mingw.org/">MinGW</a> to install and setup GCC.</p>
 
-<h2 id="cmake">CMake</h2>
+<p>Now, we need to create our Go home directory. In that folder, we will keep our source files, third-party libraries, and install the executables for our programs. Go ahead and create this folder in your home directory:</p>
 
-<p>CMake is an open-source cross-platform project that provides a set of tools to build, test and install software. It uses configuration files to control the configuration process. The installation process should be easy, and for Debian bases distributions, you just need to run the command:
 
   
   
@@ -330,22 +296,26 @@ $ sudo apt-get install build-essential</pre>
     <tbody>
       <tr>
         <td class="gutter">
-          <pre><span class="line">1</span><br></pre>
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre>
         </td>
         <td class="code">
-          <pre class="bash code-highlight">$ sudo apt-get install cmake</pre>
+          <pre class="bash code-highlight">go/
+├── bin
+└── src</pre>
         </td>
       </tr>
     </tbody>
   </table>
 </figure>
-For other Linux distributions or other OS check out <a href="https://cmake.org/">CMake official page</a>.</p>
 
-<h1 id="project-structure">Project structure</h1>
+<p>Finally, we need to set two environment variables: <code>GOROOT</code> and <code>GOPATH</code>. Go binaries will assume they have been installed in <code>/usr/local/go</code> (or <code>c:\Go</code> in Windows). In case you installed them somewhere else, set <code>GOROOT</code> to your Go binaries folder.</p>
 
-<p>This is how our project folder will look:
 
   
+    
+  
+  
+    
   
   
   
@@ -354,113 +324,7 @@ For other Linux distributions or other OS check out <a href="https://cmake.org/"
 <figure class="highlight bash">
   <figcaption>
     
-  </figcaption>
-  <table>
-    <tbody>
-      <tr>
-        <td class="gutter">
-          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre>
-        </td>
-        <td class="code">
-          <pre class="bash code-highlight">cpp-project-template/
-├── CMakeLists.txt
-├── include
-├── src
-│   └── main.cpp</pre>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</figure>
-<code>CMakeLists.txt</code> is the configuration file for CMake. We will put our header files on <code>/include</code> and our source files on <code>/src</code>.</p>
-
-<h1 id="cmake-configuration-file">CMake configuration file</h1>
-
-<p>Let&rsquo;s see the first configuration file in more details:
-
-  
-    
-  
-  
-    
-  
-  
-  
-
-
-<figure class="highlight cmake">
-  <figcaption>
-    
-      <span>CMakeLists.txt</span>
-    
-  </figcaption>
-  <table>
-    <tbody>
-      <tr>
-        <td class="gutter">
-          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre>
-        </td>
-        <td class="code">
-          <pre class="cmake code-highlight">cmake_minimum_required (VERSION 2.8)
-
-set (PROY cpp-project-template)
-project (${PROY} C CXX)</pre>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</figure>
-First, we need to set the minimum CMake version, in our case version 2.8. Then, we need to define a name for our project. Change the project name for one of your preference, the executable will be name after this.
-
-  
-    
-  
-  
-    
-  
-  
-  
-
-
-<figure class="highlight cmake">
-  <figcaption>
-    
-      <span>CMakeLists.txt</span>
-    
-  </figcaption>
-  <table>
-    <tbody>
-      <tr>
-        <td class="gutter">
-          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre>
-        </td>
-        <td class="code">
-          <pre class="cmake code-highlight"># Source files folder
-set (SRC_DIR src)
-
-# Header files folder
-set (INCL_DIR include)</pre>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</figure>
-Here we set the folders that contain our code. If you are going to create additional folders, make sure to create proper variables for those folders too. We will need these variables to include our files.
-
-  
-    
-  
-  
-    
-  
-  
-  
-
-
-<figure class="highlight cmake">
-  <figcaption>
-    
-      <span>CMakeLists.txt</span>
+      <span>~/.bashrc</span>
     
   </figcaption>
   <table>
@@ -470,93 +334,19 @@ Here we set the folders that contain our code. If you are going to create additi
           <pre><span class="line">1</span><br><span class="line">2</span><br></pre>
         </td>
         <td class="code">
-          <pre class="cmake code-highlight"># Compilation flags
-set(CMAKE_CXX_FLAGS &#34;${CMAKE_CXX_FLAGS} -std=c&#43;&#43;11 -Wall -Werror&#34;)</pre>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</figure>
-We can set our compilation flags in the <code>CMAKE_CXX_FLAGS</code> variable. For our project we will be using C++11 version. The <code>-Wall</code> flag enables all warning, and the <code>-Werror</code> flag treat warnings as errors.</p>
-
-<p>
-  
-    
-  
-  
-    
-  
-  
-  
-
-
-<figure class="highlight cmake">
-  <figcaption>
-    
-      <span>CMakeLists.txt</span>
-    
-  </figcaption>
-  <table>
-    <tbody>
-      <tr>
-        <td class="gutter">
-          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre>
-        </td>
-        <td class="code">
-          <pre class="cmake code-highlight">include_directories (${PROJECT_SOURCE_DIR}/${INCL_DIR})
-
-# Important: Include all source files on this list
-set (SOURCE
-${SRC_DIR}/main.cpp
-)</pre>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</figure>
-<code>include_directories</code> command will include our headers to the build. Also, we need to fill in <code>SOURCE</code> variable with all of our source files. Otherwise, CMake will not compile our source files.</p>
-
-
-  
-    
-  
-  
-    
-  
-  
-  
-
-
-<figure class="highlight cmake">
-  <figcaption>
-    
-      <span>CMakeLists.txt</span>
-    
-  </figcaption>
-  <table>
-    <tbody>
-      <tr>
-        <td class="gutter">
-          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre>
-        </td>
-        <td class="code">
-          <pre class="cmake code-highlight">set(CMAKE_RUNTIME_OUTPUT_DIRECTORY &#34;${PROJECT_SOURCE_DIR}/bin&#34;)
-
-add_executable (${PROY} ${SOURCE})
-
-# Unit tests
-add_subdirectory(tests)</pre>
+          <pre class="bash code-highlight"># Point to the local installation of golang.
+export GOROOT=/opt/go</pre>
         </td>
       </tr>
     </tbody>
   </table>
 </figure>
 
-<p><code>CMAKE_RUNTIME_OUTPUT_DIRECTORY</code> specifies where CMake will save our output files. In our case, executables will be on <code>/bin</code> folder. Finally, the <code>add_executable</code> command will create a executable file with our source files.</p>
+<p>The <code>GOPATH</code> variable, as discussed <a href="https://golang.org/cmd/go/#hdr-GOPATH_environment_variable">here</a>:</p>
 
-<h1 id="using-the-template">Using the template</h1>
-
-<p>Let&rsquo;s define a <code>Vector</code> class. For simplicity, we are going to represent 2D vectors. Also, our class will implement some basic operations between vectors.</p>
+<blockquote>
+<p>[&hellip;] lists places to look for Go code. On Unix, the value is a colon-separated string. On Windows, the value is a semicolon-separated string.</p>
+</blockquote>
 
 
   
@@ -569,55 +359,28 @@ add_subdirectory(tests)</pre>
   
 
 
-<figure class="highlight c&#43;&#43;">
+<figure class="highlight bash">
   <figcaption>
     
-      <span>include/Vector.h</span>
+      <span>~/.bashrc</span>
     
   </figcaption>
   <table>
     <tbody>
       <tr>
         <td class="gutter">
-          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre>
+          <pre><span class="line">1</span><br><span class="line">2</span><br></pre>
         </td>
         <td class="code">
-          <pre class="c&#43;&#43; code-highlight">#ifndef __VECTOR_H__
-#define __VECTOR_H__
-
-// System includes
-#include &lt;iostream&gt;
-
-class Vector {
-public:
-  Vector(double a1, double a2) : a1(a1), a2(a2){};
-
-  Vector sum(const Vector &amp;vec);
-  Vector substract(const Vector &amp;vec);
-  Vector scale(const double k);
-  double dot(const Vector &amp;vec);
-
-  inline int getA1() const { return a1; };
-
-  inline int getA2() const { return a2; };
-
-  friend std::ostream &amp;operator&lt;&lt;(std::ostream &amp;os, const Vector &amp;vec) {
-    os &lt;&lt; &#39;(&#39; &lt;&lt; vec.a1 &lt;&lt; &#34;, &#34; &lt;&lt; vec.a2 &lt;&lt; &#39;)&#39;;
-    return os;
-  }
-
-private:
-  double a1;
-  double a2;
-};
-
-#endif /* __VECTOR_H__ */</pre>
+          <pre class="bash code-highlight"># Point to the location beneath which source and binaries are installed.
+export GOPATH=$HOME/go</pre>
         </td>
       </tr>
     </tbody>
   </table>
 </figure>
 
+<p>Finally, let&rsquo;s add Go binaries and our /bin folders to the $PATH variable. This way, we can use the Go tools and our programs from the console.
 
   
     
@@ -629,146 +392,141 @@ private:
   
 
 
-<figure class="highlight c&#43;&#43;">
+<figure class="highlight bash">
   <figcaption>
     
-      <span>src/Vector.cpp</span>
+      <span>~/.bashrc</span>
     
   </figcaption>
   <table>
     <tbody>
       <tr>
         <td class="gutter">
-          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre>
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre>
         </td>
         <td class="code">
-          <pre class="c&#43;&#43; code-highlight">#include &#34;Vector.h&#34;
+          <pre class="bash code-highlight"># Ensure that the binary-release is on your PATH.
+export PATH=${PATH}:${GOROOT}/bin
 
-Vector Vector::sum(const Vector &amp;vec) {
-  return Vector{a1 &#43; vec.getA1(), a2 &#43; vec.getA2()};
-}
-
-Vector Vector::substract(const Vector &amp;vec) {
-  return Vector{a1 - vec.getA1(), a2 - vec.getA2()};
-}
-Vector Vector::scale(const double k) { return Vector{k * a1, k * a2}; }
-double Vector::dot(const Vector &amp;vec) {
-  return a1 * vec.getA1() &#43; a2 * vec.getA2();
-}</pre>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</figure>
-
-<p>Let&rsquo;s create a couple of vectors and output the results on our main function:</p>
-
-
-  
-    
-  
-  
-    
-  
-  
-  
-
-
-<figure class="highlight c&#43;&#43;">
-  <figcaption>
-    
-      <span>src/main.cpp</span>
-    
-  </figcaption>
-  <table>
-    <tbody>
-      <tr>
-        <td class="gutter">
-          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre>
-        </td>
-        <td class="code">
-          <pre class="c&#43;&#43; code-highlight">// System includes
-#include &lt;iostream&gt;
-
-// Program includes
-#include &#34;Vector.h&#34;
-
-int main(int argc, char *argv[]) {
-  Vector vector1(3, 2);
-  Vector vector2(10, 5);
-  double k = (double)3 / 10;
-  std::cout &lt;&lt; &#34;Vector 1: &#34; &lt;&lt; vector1 &lt;&lt; &#39;\n&#39;;
-  std::cout &lt;&lt; &#34;Vector 2: &#34; &lt;&lt; vector2 &lt;&lt; &#39;\n&#39;;
-  std::cout &lt;&lt; &#34;Vector 1 &#43; Vector 2: &#34; &lt;&lt; vector1.sum(vector2) &lt;&lt; &#39;\n&#39;;
-  std::cout &lt;&lt; &#34;Vector 1 - Vector 2: &#34; &lt;&lt; vector1.substract(vector2) &lt;&lt; &#39;\n&#39;;
-  std::cout &lt;&lt; k &lt;&lt; &#34; * Vector 2: &#34; &lt;&lt; vector1.scale(k) &lt;&lt; &#39;\n&#39;;
-  std::cout &lt;&lt; &#34;Vector 1 dot product Vector 2: &#34; &lt;&lt; vector1.dot(vector2)
-            &lt;&lt; &#39;\n&#39;;
-  return 0;
-}</pre>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</figure>
-
-<p>Finally, we have to change the project name and include our new source files. Here are the <code>CMakeLists.txt</code> file with the necessary changes:
-
-  
-    
-  
-  
-    
-  
-  
-  
-
-
-<figure class="highlight cmake">
-  <figcaption>
-    
-      <span>CMakeLists.txt</span>
-    
-  </figcaption>
-  <table>
-    <tbody>
-      <tr>
-        <td class="gutter">
-          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre>
-        </td>
-        <td class="code">
-          <pre class="cmake code-highlight">cmake_minimum_required (VERSION 2.8)
-
-set (PROY math-vector-example)
-project (${PROY} C CXX)
-
-# Source files folder
-set (SRC_DIR src)
-
-# Header files folder
-set (INCL_DIR include)
-
-# Compiler flags
-set(CMAKE_CXX_FLAGS &#34;${CMAKE_CXX_FLAGS} -std=c&#43;&#43;11 -Wall -Werror&#34;)
-
-include_directories (${PROJECT_SOURCE_DIR}/${INCL_DIR})
-
-set (SOURCE
-${SRC_DIR}/main.cpp
-${SRC_DIR}/Vector.cpp
-)
-
-# Output folder
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY &#34;${PROJECT_SOURCE_DIR}/bin&#34;)
-
-add_executable (${PROY} ${SOURCE})</pre>
+# Ensure that compiled binaries are also on your PATH.
+export PATH=${PATH}:$HOME/go/bin</pre>
         </td>
       </tr>
     </tbody>
   </table>
 </figure></p>
 
-<p>To compile our program, we will need to run these commands:
+<p>Save the <code>~/.bashrc</code> file, and check that Go is correctly installed:</p>
+
+
+  
+  
+  
+  
+
+
+<figure class="highlight bash">
+  <figcaption>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="bash code-highlight">$ source .bashrc
+$ go version
+go version go1.9 linux/amd64</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+
+<h1 id="writing-our-first-hello-world-program">Writing our first &ldquo;Hello World!&rdquo; program</h1>
+
+<p>Let&rsquo;s create our first Go program. For this, we need to create a <code>hello_world</code> folder inside <code>$HOME/go/src</code>. Go files end with the <code>.go</code> extension. Let&rsquo;s add a <code>main.go</code> file with this code:</p>
+
+
+  
+    
+  
+  
+    
+  
+  
+  
+
+
+<figure class="highlight go">
+  <figcaption>
+    
+      <span>main.go</span>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="go code-highlight">package main
+
+import (
+    &#34;fmt&#34;
+)
+
+func main() {
+    fmt.Println(&#34;hello world!&#34;)
+}</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+
+<p>The first statement in any Go source file will be the package name. Packages are a way to separate files in your projects. For executable projects, there should always be a <code>main</code> package.</p>
+
+<p>The <code>import</code> keyword allow us to import packages in our source file. The <code>fmt</code> package is part of the Go&rsquo;s standard library. We will use &ldquo;fmt&rdquo; to print to <code>stdout</code>. Later in this post, we will see how to import our own libraries.</p>
+
+<p>Finally, we need to define the <code>main</code> function. This will be the starting point of our program and it is always required in executable projects.</p>
+
+<h1 id="building-and-installing-our-program">Building and installing our program</h1>
+
+<p>To simple compile and run our program, we can use the <code>run</code> command.</p>
+
+
+  
+  
+  
+  
+
+
+<figure class="highlight bash">
+  <figcaption>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="bash code-highlight">$ cd $HOME/go/src/hello_world
+$ go run main.go
+Hello world!</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+
+<p>This will not create an executable file. However, the <code>build</code> command will do it:</p>
+
 
   
   
@@ -787,16 +545,47 @@ add_executable (${PROY} ${SOURCE})</pre>
           <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre>
         </td>
         <td class="code">
-          <pre class="bash code-highlight">$ mkdir build
-$ cd build
-$ cmake ..
-$ make</pre>
+          <pre class="bash code-highlight">$ cd $HOME/go/src/hello_world
+$ go build .
+$ ./hello_world
+Hello world!</pre>
         </td>
       </tr>
     </tbody>
   </table>
 </figure>
-You only need to create the <code>build/</code> folder once. The <code>cmake ..</code> command will generate the makefiles and <code>make</code> will build the program. If everything went all right, the executable will be saved in the <code>bin/</code> folder. Let&rsquo;s run our example:</p>
+
+<p>Additionally, the <code>install</code> command will build and copy the executable in the <code>go/bin</code> folder. We added this folder to our <code>$PATH</code>, so the executable will get installed in our computer.</p>
+
+
+  
+  
+  
+  
+
+
+<figure class="highlight bash">
+  <figcaption>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="bash code-highlight">$ cd $HOME/go/src/hello_world
+$ go install .
+$ ./hello_world
+Hello world!</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+
+<p>So far, this is how your Go home folder should look like:</p>
 
 
   
@@ -816,22 +605,308 @@ You only need to create the <code>build/</code> folder once. The <code>cmake ..<
           <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre>
         </td>
         <td class="code">
-          <pre class="bash code-highlight">$ ./../bin/math-vector-example
-Vector 1: (3, 2)
-Vector 2: (10, 5)
-Vector 1 &#43; Vector 2: (13, 7)
-Vector 1 - Vector 2: (-7, -3)
-0.3 * Vector 2: (0.9, 0.6)
-Vector 1 dot product Vector 2: 40</pre>
+          <pre class="bash code-highlight">go
+├── bin
+│   └── hello_world
+└── src
+    └── hello_world
+        ├── hello_world
+        └── main.go</pre>
         </td>
       </tr>
     </tbody>
   </table>
 </figure>
 
-<p>That&rsquo;s pretty much it. Now go and write your own programs without much hassle.</p>
+<h1 id="writing-our-own-library">Writing our own library</h1>
 
-<p><a class=button href="https://github.com/eariassoto/cpp-project-template" target="%5fblank">Get the code on GitHub</a></p>
+<p>A library in Go is a project that does not define a <code>main</code> package and will not bild an executable file. For our first library, let&rsquo;s create a <code>strcaseconv</code> folder in <code>$HOME/go/src</code>. We will use this library in our <code>hello_world</code> folder. Inside <code>strcaseconv</code>, we will add a <code>strcase.go</code> file with this code:</p>
+
+
+  
+    
+  
+  
+    
+  
+  
+  
+
+
+<figure class="highlight go">
+  <figcaption>
+    
+      <span>strcase.go</span>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="go code-highlight">package strcaseconv
+
+func ToMixCase(s string) string {
+        b := []byte(s)
+        for i := 0; i &lt; len(b); i &#43;= 1 {
+                if b[i] &gt;= &#39;a&#39; &amp;&amp; b[i] &lt;= &#39;z&#39; {
+                        b[i] &#43;= 32
+                } else if b[i] &gt;= &#39;A&#39; &amp;&amp; b[i] &lt;= &#39;Z&#39; {
+                        b[i] -= 32
+                }
+        }
+        return string(b)
+}</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+
+<p>Compile the library to check for any errors:</p>
+
+
+  
+  
+  
+  
+
+
+<figure class="highlight bash">
+  <figcaption>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="bash code-highlight">$ cd $HOME/go/src/strcaseconv
+$ go build .</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+
+<p>Now, go back to your <code>hello_world</code> projectd and modify <code>main.go</code> to use our new library:</p>
+
+
+  
+    
+  
+  
+    
+  
+  
+  
+
+
+<figure class="highlight go">
+  <figcaption>
+    
+      <span>main.go</span>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="go code-highlight">package main
+
+import (
+    &#34;fmt&#34;
+    &#34;strcaseconv&#34;
+)
+
+
+func main() {
+    fmt.Println(strcaseconv.ToMixCase(&#34;hello world!&#34;))
+}</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+
+<h1 id="unit-testing-our-projects">Unit testing our projects</h1>
+
+<p>In Go, the unit test framework comes for free. This framework consists in the <code>test</code> command and the <code>testing</code> package. All test should be written in files ending with <code>_test.go</code>. The unit test functions should be named following the <code>TestXXX</code> convention. The functions&rsquo; signature ought to be <code>func (t *testing.T)</code>.</p>
+
+<p>The <code>test</code> command will run all unit test functions. Those function who calls <code>t.Error</code> or <code>t.Fail</code> are considered as failed tests. Let&rsquo;s unit test our <code>strcaseconv</code> library in <code>strcase_test.go</code>:</p>
+
+
+  
+    
+  
+  
+    
+  
+  
+  
+
+
+<figure class="highlight go">
+  <figcaption>
+    
+      <span>strcase_test.go</span>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="go code-highlight">package strcaseconv
+
+import &#34;testing&#34;
+
+func TestTryUpper(t *testing.T) {
+    cases := []struct {
+        in, out byte
+    }{
+        {&#39;a&#39;, &#39;A&#39;},
+        {&#39;S&#39;, &#39;S&#39;},
+        {&#39;!&#39;, &#39;!&#39;},
+    }
+
+    for _, c := range cases {
+        got := tryUpper(c.in)
+        if got != c.out {
+            t.Errorf(&#34;tryUpper(%q) == %q, want %q&#34;, c.in, got, c.out)
+        }
+    }
+}
+
+func TestTryLower(t *testing.T) {
+    cases := []struct {
+        in, out byte
+    }{
+        {&#39;a&#39;, &#39;a&#39;},
+        {&#39;S&#39;, &#39;s&#39;},
+        {&#39;#&#39;, &#39;#&#39;},
+    }
+
+    for _, c := range cases {
+        got := tryLower(c.in)
+        if got != c.out {
+            t.Errorf(&#34;tryLower(%q) == %q, want %q&#34;, c.in, got, c.out)
+        }
+    }
+}
+
+func TestToMixCase(t *testing.T) {
+    cases := []struct {
+        in, out string
+    }{
+        {&#34;hello, world&#34;, &#34;HeLlO, wOrLd&#34;},
+        {&#34;It is a nice day&#34;, &#34;It iS A NiCe dAy&#34;},
+        {&#34;&#34;, &#34;&#34;},
+    }
+
+    for _, c := range cases {
+        got := ToMixCase(c.in)
+        if got != c.out {
+            t.Errorf(&#34;ToMixCase(%q) == %q, want %q&#34;, c.in, got, c.out)
+        }
+    }
+}</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+
+<p>To run them, use the <code>test</code> command:</p>
+
+
+  
+  
+  
+  
+
+
+<figure class="highlight bash">
+  <figcaption>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="bash code-highlight">$ cd go/src/strcaseconv
+$ go test
+PASS
+ok      strcaseconv    0.001s</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+
+<p>You can find more information about the <code>testing</code> package <a href="https://godoc.org/testing">here</a></p>
+
+<h1 id="more-useful-commands">More useful commands</h1>
+
+<p>To install someone else&rsquo;s library or program, Go offers the <code>get</code> command. To try it, let&rsquo;s download this hello world program I made a little while ago:</p>
+
+
+  
+  
+  
+  
+
+
+<figure class="highlight bash">
+  <figcaption>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="bash code-highlight">$ go get github.com/eariassoto/hello_go
+$ cd go/src/github.com/eariassoto/hello_go/
+$ go run main.go 
+What is your name?: Emmanuel
+Hello Emmanuel!</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+
+<p>Go will install new libraries in the first folder pointed by <code>GOPATH</code>. In our setup, it will be in the <code>$HOME/go/src</code> folder.</p>
+
+<p>Another useful feature is the <code>fmt</code> command. This command will take as parameters Go source files and it will format them using Go conventions.</p>
+
+<p>If you are a Vim user, there is a nice <a href="https://github.com/fatih/vim-go">plugin</a> for Go development.</p>
+
+<h1 id="where-to-go-next">Where to go next?</h1>
+
+<p>There are a lot of resources and documentation about Go. If you want to learn more about Go visit these websites:</p>
+
+<ul>
+<li><a href="https://play.golang.org/">Go Playground</a> Online Go editor and compiler</li>
+<li><a href="https://tour.golang.org/welcome/1">A Tour of Go</a> Official Go tutorial</li>
+<li><a href="https://gobyexample.com/">Go by Example</a> Excellent hand-on introduction on Go</li>
+<li><a href="https://golang.org/doc/">Go Documentation</a> Official Go documentation</li>
+</ul>
               
             </div>
           </div>
@@ -843,11 +918,7 @@ Vector 1 dot product Vector 2: 40</pre>
                   <div class="post-footer-tags">
                     <span class="text-color-light text-small">TAGGED IN</span><br/>
                     
-  <a class="tag tag--primary tag--small" href="https://eariassoto.github.io/tags/c&#43;&#43;/">C&#43;&#43;</a>
-
-  <a class="tag tag--primary tag--small" href="https://eariassoto.github.io/tags/cmake/">cmake</a>
-
-  <a class="tag tag--primary tag--small" href="https://eariassoto.github.io/tags/templates/">templates</a>
+  <a class="tag tag--primary tag--small" href="https://eariassoto.github.io/tags/go/">go</a>
 
                   </div>
                 
@@ -859,7 +930,7 @@ Vector 1 dot product Vector 2: 40</pre>
         <ul class="post-actions post-action-nav">
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="https://eariassoto.github.io/2017/07/source-to-source-compilation-with-lex-yacc/" data-tooltip="Source-to-source compilation with Lex-Yacc">
+                <a class="post-action-btn btn btn--disabled">
               
                 <i class="fa fa-angle-left"></i>
                 <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
@@ -867,7 +938,7 @@ Vector 1 dot product Vector 2: 40</pre>
             </li>
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--disabled">
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://eariassoto.github.io/2017/07/source-to-source-compilation-with-lex-yacc/" data-tooltip="Source-to-source compilation with Lex-Yacc">
               
                 <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
                 <i class="fa fa-angle-right"></i>
@@ -937,7 +1008,7 @@ Vector 1 dot product Vector 2: 40</pre>
         <ul class="post-actions post-action-nav">
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="https://eariassoto.github.io/2017/07/source-to-source-compilation-with-lex-yacc/" data-tooltip="Source-to-source compilation with Lex-Yacc">
+                <a class="post-action-btn btn btn--disabled">
               
                 <i class="fa fa-angle-left"></i>
                 <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
@@ -945,7 +1016,7 @@ Vector 1 dot product Vector 2: 40</pre>
             </li>
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--disabled">
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://eariassoto.github.io/2017/07/source-to-source-compilation-with-lex-yacc/" data-tooltip="Source-to-source compilation with Lex-Yacc">
               
                 <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
                 <i class="fa fa-angle-right"></i>
@@ -998,13 +1069,13 @@ Vector 1 dot product Vector 2: 40</pre>
   <ul class="share-options">
     
       <li class="share-option">
-        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Feariassoto.github.io%2F2017%2F04%2Fbuilding-a-basic-c%2Fc---project-template%2F">
+        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Feariassoto.github.io%2F2017%2F09%2Ffirst-steps-with-go%2F">
           <i class="fa fa-facebook-official"></i><span>Share on Facebook</span>
         </a>
       </li>
     
       <li class="share-option">
-        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=https%3A%2F%2Feariassoto.github.io%2F2017%2F04%2Fbuilding-a-basic-c%2Fc---project-template%2F">
+        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=https%3A%2F%2Feariassoto.github.io%2F2017%2F09%2Ffirst-steps-with-go%2F">
           <i class="fa fa-twitter"></i><span>Share on Twitter</span>
         </a>
       </li>
@@ -1178,9 +1249,9 @@ $(document).ready(function() {
     
       <script>
         var disqus_config = function () {
-          this.page.url = 'https:\/\/eariassoto.github.io\/2017\/04\/building-a-basic-c\/c---project-template\/';
+          this.page.url = 'https:\/\/eariassoto.github.io\/2017\/09\/first-steps-with-go\/';
           
-            this.page.identifier = '\/2017\/04\/building-a-basic-c\/c---project-template\/'
+            this.page.identifier = '\/2017\/09\/first-steps-with-go\/'
           
         };
         (function() {

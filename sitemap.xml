@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://eariassoto.github.io/2017/09/first-steps-with-go/</loc>
+    <lastmod>2017-09-10T18:03:18-06:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://eariassoto.github.io/2017/07/source-to-source-compilation-with-lex-yacc/</loc>
     <lastmod>2017-07-15T10:43:23-06:00</lastmod>
   </url>
@@ -42,13 +47,19 @@
   
   <url>
     <loc>https://eariassoto.github.io/categories/development/</loc>
-    <lastmod>2017-07-15T10:43:23-06:00</lastmod>
+    <lastmod>2017-09-10T18:03:18-06:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://eariassoto.github.io/</loc>
-    <lastmod>2017-07-15T10:43:23-06:00</lastmod>
+    <lastmod>2017-09-10T18:03:18-06:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://eariassoto.github.io/tags/go/</loc>
+    <lastmod>2017-09-10T18:03:18-06:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -60,7 +71,7 @@
   
   <url>
     <loc>https://eariassoto.github.io/post/</loc>
-    <lastmod>2017-07-15T10:43:23-06:00</lastmod>
+    <lastmod>2017-09-10T18:03:18-06:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -90,7 +101,7 @@
   
   <url>
     <loc>https://eariassoto.github.io/categories/tutorials/</loc>
-    <lastmod>2017-04-17T10:41:16-06:00</lastmod>
+    <lastmod>2017-09-10T18:03:18-06:00</lastmod>
     <priority>0</priority>
   </url>
   

@@ -6,10 +6,20 @@
     <description>Recent content on Emmanuel Arias</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 15 Jul 2017 10:43:23 -0600</lastBuildDate>
+    <lastBuildDate>Sun, 10 Sep 2017 18:03:18 -0600</lastBuildDate>
     
 	<atom:link href="https://eariassoto.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>First Steps With Go</title>
+      <link>https://eariassoto.github.io/2017/09/first-steps-with-go/</link>
+      <pubDate>Sun, 10 Sep 2017 18:03:18 -0600</pubDate>
+      
+      <guid>https://eariassoto.github.io/2017/09/first-steps-with-go/</guid>
+      <description>&lt;p&gt;Go is a simple and powerful programming language. Its syntax is familiar to C/C++ but it definately has improvements in comparison. It has a bunch of great features such as static types, memory safety, garbage collection, and it is targeted to concurrent programming. I discovered it very recently, so I want to start simple and learn the basics of this language. In this post, we will write our first Go program and library. Also, we will learn how to unit tests our Go programs.
+&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Source-to-source compilation with Lex-Yacc</title>
