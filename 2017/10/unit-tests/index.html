@@ -22,7 +22,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="Hugo 0.26 with theme Tranquilpeak 0.4.0-BETA">
-    <title>Building a basic C/C&#43;&#43; project template</title>
+    <title>Unit Tests</title>
     <meta name="author" content="Emmanuel Arias">
     <meta name="keywords" content="">
 
@@ -30,17 +30,17 @@
     
 
     
-    <meta name="description" content="Starting a C/C&#43;&#43; project can be as easy or as difficult as you want. Personally, I don&rsquo;t like to fire up an IDE just for a small program. So, I end up using a text editor and compiling by terminal. However, the compilation process can get tedious. In this post, we will build a simple project template for a C/C&#43;&#43; program. This project will use the CMake tool to handle all the compilation process.
+    <meta name="description" content="In a previous post, I showed you a CMake template you can use for your C/C&#43;&#43; project. I felt that the template needed a testing framework. Since the template targets smalls projects, I think unit testing project template.
 ">
-    <meta property="og:description" content="Starting a C/C&#43;&#43; project can be as easy or as difficult as you want. Personally, I don&rsquo;t like to fire up an IDE just for a small program. So, I end up using a text editor and compiling by terminal. However, the compilation process can get tedious. In this post, we will build a simple project template for a C/C&#43;&#43; program. This project will use the CMake tool to handle all the compilation process.
+    <meta property="og:description" content="In a previous post, I showed you a CMake template you can use for your C/C&#43;&#43; project. I felt that the template needed a testing framework. Since the template targets smalls projects, I think unit testing project template.
 ">
     <meta property="og:type" content="blog">
-    <meta property="og:title" content="Building a basic C/C&#43;&#43; project template">
-    <meta property="og:url" content="/2017/04/building-a-basic-c/c---project-template/">
+    <meta property="og:title" content="Unit Tests">
+    <meta property="og:url" content="/2017/10/unit-tests/">
     <meta property="og:site_name" content="Emmanuel Arias">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Emmanuel Arias">
-    <meta name="twitter:description" content="Starting a C/C&#43;&#43; project can be as easy or as difficult as you want. Personally, I don&rsquo;t like to fire up an IDE just for a small program. So, I end up using a text editor and compiling by terminal. However, the compilation process can get tedious. In this post, we will build a simple project template for a C/C&#43;&#43; program. This project will use the CMake tool to handle all the compilation process.
+    <meta name="twitter:description" content="In a previous post, I showed you a CMake template you can use for your C/C&#43;&#43; project. I felt that the template needed a testing framework. Since the template targets smalls projects, I think unit testing project template.
 ">
     
     
@@ -216,29 +216,19 @@ ga('send', 'pageview');
             <div class="post-header main-content-wrap text-left">
   
     <h1 class="post-title" itemprop="headline">
-      Building a basic C/C&#43;&#43; project template
+      Unit Tests
     </h1>
   
   
   <div class="postShorten-meta post-meta">
     
-      <time itemprop="datePublished" datetime="2017-04-17T10:41:16-06:00">
+      <time itemprop="datePublished" datetime="2017-10-21T01:53:18Z">
         
-  April 17, 2017
+  October 21, 2017
 
       </time>
     
     
-  
-  
-    <span>in</span>
-    
-      <a class="category-link" href="https://eariassoto.github.io/categories/development">Development</a>, 
-    
-      <a class="category-link" href="https://eariassoto.github.io/categories/tutorials">Tutorials</a>
-    
-  
-
 
   </div>
 
@@ -246,45 +236,18 @@ ga('send', 'pageview');
           
           <div class="post-content markdown" itemprop="articleBody">
             <div class="main-content-wrap">
-              <p>Starting a C/C++ project can be as easy or as difficult as you want. Personally, I don&rsquo;t like to fire up an IDE just for a small program. So, I end up using a text editor and compiling by terminal. However, the compilation process can get tedious. In this post, we will build a simple project template for a C/C++ program. This project will use the CMake tool to handle all the compilation process.
+              <p>In a previous post, I showed you a CMake template you can use for your C/C++ project. I felt that the template needed a testing framework. Since the template targets smalls projects, I think unit testing project template.
 </p>
 
-<p><a class=button href="https://github.com/eariassoto/cpp-project-template/tree/basic-template" target="%5fblank">Get the code on GitHub</a></p>
+<p>I will assume that you are familiarized with unit testing methods. In case you do not know about the Google Test framework, here is a basic introduction to this library. This post will be more of a tutorial rather than a technical post. My plan is to write about test driven development (TDD) in the future.</p>
 
-<h1 id="requirements">Requirements</h1>
+<h2 id="requirements">Requirements</h2>
 
-<h2 id="c-c-code-compiler">C/C++ Code Compiler</h2>
+<p>I will show you how to install the Google Test in my CMake template project. The template is <a href="https://github.com/eariassoto/cpp-project-template/tree/basic-template">here</a>, and the post where I go step by step over it is <a href="https://eariassoto.github.io/2017/04/building-a-basic-c/c---project-template/">here</a>. Feel free to read it and then come back here. If you have your own CMake project, you can follow the steps and install Google Test on your own. You only need <code>CMake</code> and a C/C++ compiler, which I assume you should already have.</p>
 
-<p>The first thing we need is a C/C++ compiler. Most Linux distribution will have <a href="https://gcc.gnu.org/">GCC</a> installed by default. To check if you have GCC install run:
+<h2 id="folder-structure">Folder structure</h2>
 
-  
-  
-  
-  
-
-
-<figure class="highlight bash">
-  <figcaption>
-    
-  </figcaption>
-  <table>
-    <tbody>
-      <tr>
-        <td class="gutter">
-          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre>
-        </td>
-        <td class="code">
-          <pre class="bash code-highlight">$ gcc --version
-gcc (Ubuntu 6.3.0-12ubuntu2) 6.3.0 20170406
-Copyright (C) 2016 Free Software Foundation, Inc.
-This is free software; see the source for copying conditions. There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</pre>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</figure>
-If you don&rsquo;t get a similar message you need to install GCC. For Debian based distributions (Ubuntu, Linux Mint) you can install the <strong>build-essential</strong> package:
+<p>Our project will now look like this:
 
   
   
@@ -300,152 +263,28 @@ If you don&rsquo;t get a similar message you need to install GCC. For Debian bas
     <tbody>
       <tr>
         <td class="gutter">
-          <pre><span class="line">1</span><br><span class="line">2</span><br></pre>
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre>
         </td>
         <td class="code">
-          <pre class="bash code-highlight">$ sudo apt-get update
-$ sudo apt-get install build-essential</pre>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</figure>
-<strong>build-essential</strong> package includes GCC and other required packages. In case you are using Windows, you can install <a href="http://www.mingw.org/">MinGW</a> to install and setup GCC.</p>
-
-<h2 id="cmake">CMake</h2>
-
-<p>CMake is an open-source cross-platform project that provides a set of tools to build, test and install software. It uses configuration files to control the configuration process. The installation process should be easy, and for Debian bases distributions, you just need to run the command:
-
-  
-  
-  
-  
-
-
-<figure class="highlight bash">
-  <figcaption>
-    
-  </figcaption>
-  <table>
-    <tbody>
-      <tr>
-        <td class="gutter">
-          <pre><span class="line">1</span><br></pre>
-        </td>
-        <td class="code">
-          <pre class="bash code-highlight">$ sudo apt-get install cmake</pre>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</figure>
-For other Linux distributions or other OS check out <a href="https://cmake.org/">CMake official page</a>.</p>
-
-<h1 id="project-structure">Project structure</h1>
-
-<p>This is how our project folder will look:
-
-  
-  
-  
-  
-
-
-<figure class="highlight bash">
-  <figcaption>
-    
-  </figcaption>
-  <table>
-    <tbody>
-      <tr>
-        <td class="gutter">
-          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre>
-        </td>
-        <td class="code">
-          <pre class="bash code-highlight">cpp-project-template/
+          <pre class="bash code-highlight">cpp-project-template
 ├── CMakeLists.txt
 ├── include
 ├── src
-│   └── main.cpp</pre>
+└── tests
+    ├── CMakeLists.txt
+    ├── CMakeLists.txt.in
+    └── main.cpp</pre>
         </td>
       </tr>
     </tbody>
   </table>
-</figure>
-<code>CMakeLists.txt</code> is the configuration file for CMake. We will put our header files on <code>/include</code> and our source files on <code>/src</code>.</p>
+</figure></p>
 
-<h1 id="cmake-configuration-file">CMake configuration file</h1>
+<p>The <code>tests/</code> folder will have our unit testing project by adding the  <code>tests/CMakeLists.txt</code> file. The <code>tests/CMakeLists.txt.in</code> will help <code>tests/CMakeLists.txt</code> include the Google Test library.</p>
 
-<p>Let&rsquo;s see the first configuration file in more details:
+<h2 id="setting-up-cmake">Setting up CMake</h2>
 
-  
-    
-  
-  
-    
-  
-  
-  
-
-
-<figure class="highlight cmake">
-  <figcaption>
-    
-      <span>CMakeLists.txt</span>
-    
-  </figcaption>
-  <table>
-    <tbody>
-      <tr>
-        <td class="gutter">
-          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre>
-        </td>
-        <td class="code">
-          <pre class="cmake code-highlight">cmake_minimum_required (VERSION 2.8)
-
-set (PROY cpp-project-template)
-project (${PROY} C CXX)</pre>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</figure>
-First, we need to set the minimum CMake version, in our case version 2.8. Then, we need to define a name for our project. Change the project name for one of your preference, the executable will be name after this.
-
-  
-    
-  
-  
-    
-  
-  
-  
-
-
-<figure class="highlight cmake">
-  <figcaption>
-    
-      <span>CMakeLists.txt</span>
-    
-  </figcaption>
-  <table>
-    <tbody>
-      <tr>
-        <td class="gutter">
-          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre>
-        </td>
-        <td class="code">
-          <pre class="cmake code-highlight"># Source files folder
-set (SRC_DIR src)
-
-# Header files folder
-set (INCL_DIR include)</pre>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</figure>
-Here we set the folders that contain our code. If you are going to create additional folders, make sure to create proper variables for those folders too. We will need these variables to include our files.
+<p>In our <code>CMakeLists.txt</code> file we only need to add this line:
 
   
     
@@ -470,14 +309,91 @@ Here we set the folders that contain our code. If you are going to create additi
           <pre><span class="line">1</span><br><span class="line">2</span><br></pre>
         </td>
         <td class="code">
-          <pre class="cmake code-highlight"># Compilation flags
-set(CMAKE_CXX_FLAGS &#34;${CMAKE_CXX_FLAGS} -std=c&#43;&#43;11 -Wall -Werror&#34;)</pre>
+          <pre class="cmake code-highlight"># Unit tests
+add_subdirectory(tests)</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure></p>
+
+<p>The <code>add_subdirectory</code> command will add the <code>tests</code> project. Let&rsquo;s go over the <code>tests/CMakeLists.txt</code> file:</p>
+
+
+  
+    
+  
+  
+    
+  
+  
+  
+
+
+<figure class="highlight cmake">
+  <figcaption>
+    
+      <span>tests/CMakeLists.txt</span>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="cmake code-highlight">cmake_minimum_required(VERSION 2.8)
+set (PROJECT_TEST_NAME ${PROJECT_NAME}-ut)
+
+# Download and unpack googletest at configure time
+configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
+execute_process(COMMAND &#34;${CMAKE_COMMAND}&#34; -G &#34;${CMAKE_GENERATOR}&#34; .
+      WORKING_DIRECTORY &#34;${CMAKE_BINARY_DIR}/tests/googletest-download&#34; )
+execute_process(COMMAND &#34;${CMAKE_COMMAND}&#34; --build .
+      WORKING_DIRECTORY &#34;${CMAKE_BINARY_DIR}/tests/googletest-download&#34; )
+# Add googletest directly to our build. This adds
+# the following targets: gtest, gtest_main, gmock
+# and gmock_main
+add_subdirectory(&#34;${CMAKE_BINARY_DIR}/googletest-src&#34;
+                 &#34;${CMAKE_BINARY_DIR}/googletest-build&#34;)
+
+# Test folder
+set (TESTS_DIR tests)
+# Header files folder
+set (INCL_DIR include)
+include_directories (${PROJECT_SOURCE_DIR}/${TESTS_DIR}/${INCL_DIR})
+
+set(PROY_UT_SRC
+    main.cpp
+)
+
+set (MAIN_SRC_DIR ../src)
+include_directories (${PROJECT_SOURCE_DIR}/${INCL_DIR})
+# Include all project source files here
+# for example: ${MAIN_SRC_DIR}/myClass.cpp
+set (MAIN_SOURCE)
+
+add_executable (${PROJECT_TEST_NAME} ${PROY_UT_SRC} ${MAIN_SOURCE})
+
+set_target_properties(${PROJECT_TEST_NAME}
+                      PROPERTIES
+                      COMPILE_FLAGS &#34;-std=c&#43;&#43;11 -Wall -Werror&#34;
+)
+# Link libraries
+target_link_libraries(${PROJECT_TEST_NAME}
+                      gtest
+                      gmock_main
+)</pre>
         </td>
       </tr>
     </tbody>
   </table>
 </figure>
-We can set our compilation flags in the <code>CMAKE_CXX_FLAGS</code> variable. For our project we will be using C++11 version. The <code>-Wall</code> flag enables all warning, and the <code>-Werror</code> flag treat warnings as errors.</p>
+
+<p>There are several ways I could have included the Google Test library in the project. I could have use the <code>find_package</code> command, but the library needs to be installed in the computer. Another option would have been to manually copy the library in my project and compile it there. Luckily, I found a cleaner and more portable way to install the library. We will tell CMake to automatically clone and compile the library when it builds the project.</p>
+
+<p>The line 5 of <code>tests/CMakeLists.txt</code> is actually creating a new submodule. It is copying <code>tests/CMakeLists.txt.in</code> to a new sub folder. This file has the data to load Google Tests as an external project:</p>
 
 <p>
   
@@ -493,364 +409,83 @@ We can set our compilation flags in the <code>CMAKE_CXX_FLAGS</code> variable. F
 <figure class="highlight cmake">
   <figcaption>
     
-      <span>CMakeLists.txt</span>
+      <span>tests/CMakeLists.txt.in</span>
     
   </figcaption>
   <table>
     <tbody>
       <tr>
         <td class="gutter">
-          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre>
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre>
         </td>
         <td class="code">
-          <pre class="cmake code-highlight">include_directories (${PROJECT_SOURCE_DIR}/${INCL_DIR})
-
-# Important: Include all source files on this list
-set (SOURCE
-${SRC_DIR}/main.cpp
+          <pre class="cmake code-highlight">cmake_minimum_required(VERSION 2.8.2)
+project(googletest-download NONE)
+ 
+include(ExternalProject)
+ExternalProject_Add(googletest
+  GIT_REPOSITORY    https://github.com/google/googletest.git
+  GIT_TAG           master
+  SOURCE_DIR        &#34;${CMAKE_BINARY_DIR}/googletest-src&#34;
+  BINARY_DIR        &#34;${CMAKE_BINARY_DIR}/googletest-build&#34;
+  CONFIGURE_COMMAND &#34;&#34;
+  BUILD_COMMAND     &#34;&#34;
+  INSTALL_COMMAND   &#34;&#34;
+  TEST_COMMAND      &#34;&#34;
 )</pre>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</figure>
-<code>include_directories</code> command will include our headers to the build. Also, we need to fill in <code>SOURCE</code> variable with all of our source files. Otherwise, CMake will not compile our source files.</p>
-
-
-  
-    
-  
-  
-    
-  
-  
-  
-
-
-<figure class="highlight cmake">
-  <figcaption>
-    
-      <span>CMakeLists.txt</span>
-    
-  </figcaption>
-  <table>
-    <tbody>
-      <tr>
-        <td class="gutter">
-          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre>
-        </td>
-        <td class="code">
-          <pre class="cmake code-highlight">set(CMAKE_RUNTIME_OUTPUT_DIRECTORY &#34;${PROJECT_SOURCE_DIR}/bin&#34;)
-
-add_executable (${PROY} ${SOURCE})
-
-# Unit tests
-add_subdirectory(tests)</pre>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</figure>
-
-<p><code>CMAKE_RUNTIME_OUTPUT_DIRECTORY</code> specifies where CMake will save our output files. In our case, executables will be on <code>/bin</code> folder. Finally, the <code>add_executable</code> command will create a executable file with our source files.</p>
-
-<h1 id="using-the-template">Using the template</h1>
-
-<p>Let&rsquo;s define a <code>Vector</code> class. For simplicity, we are going to represent 2D vectors. Also, our class will implement some basic operations between vectors.</p>
-
-
-  
-    
-  
-  
-    
-  
-  
-  
-
-
-<figure class="highlight c&#43;&#43;">
-  <figcaption>
-    
-      <span>include/Vector.h</span>
-    
-  </figcaption>
-  <table>
-    <tbody>
-      <tr>
-        <td class="gutter">
-          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre>
-        </td>
-        <td class="code">
-          <pre class="c&#43;&#43; code-highlight">#ifndef __VECTOR_H__
-#define __VECTOR_H__
-
-// System includes
-#include &lt;iostream&gt;
-
-class Vector {
-public:
-  Vector(double a1, double a2) : a1(a1), a2(a2){};
-
-  Vector sum(const Vector &amp;vec);
-  Vector substract(const Vector &amp;vec);
-  Vector scale(const double k);
-  double dot(const Vector &amp;vec);
-
-  inline int getA1() const { return a1; };
-
-  inline int getA2() const { return a2; };
-
-  friend std::ostream &amp;operator&lt;&lt;(std::ostream &amp;os, const Vector &amp;vec) {
-    os &lt;&lt; &#39;(&#39; &lt;&lt; vec.a1 &lt;&lt; &#34;, &#34; &lt;&lt; vec.a2 &lt;&lt; &#39;)&#39;;
-    return os;
-  }
-
-private:
-  double a1;
-  double a2;
-};
-
-#endif /* __VECTOR_H__ */</pre>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</figure>
-
-
-  
-    
-  
-  
-    
-  
-  
-  
-
-
-<figure class="highlight c&#43;&#43;">
-  <figcaption>
-    
-      <span>src/Vector.cpp</span>
-    
-  </figcaption>
-  <table>
-    <tbody>
-      <tr>
-        <td class="gutter">
-          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre>
-        </td>
-        <td class="code">
-          <pre class="c&#43;&#43; code-highlight">#include &#34;Vector.h&#34;
-
-Vector Vector::sum(const Vector &amp;vec) {
-  return Vector{a1 &#43; vec.getA1(), a2 &#43; vec.getA2()};
-}
-
-Vector Vector::substract(const Vector &amp;vec) {
-  return Vector{a1 - vec.getA1(), a2 - vec.getA2()};
-}
-Vector Vector::scale(const double k) { return Vector{k * a1, k * a2}; }
-double Vector::dot(const Vector &amp;vec) {
-  return a1 * vec.getA1() &#43; a2 * vec.getA2();
-}</pre>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</figure>
-
-<p>Let&rsquo;s create a couple of vectors and output the results on our main function:</p>
-
-
-  
-    
-  
-  
-    
-  
-  
-  
-
-
-<figure class="highlight c&#43;&#43;">
-  <figcaption>
-    
-      <span>src/main.cpp</span>
-    
-  </figcaption>
-  <table>
-    <tbody>
-      <tr>
-        <td class="gutter">
-          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre>
-        </td>
-        <td class="code">
-          <pre class="c&#43;&#43; code-highlight">// System includes
-#include &lt;iostream&gt;
-
-// Program includes
-#include &#34;Vector.h&#34;
-
-int main(int argc, char *argv[]) {
-  Vector vector1(3, 2);
-  Vector vector2(10, 5);
-  double k = (double)3 / 10;
-  std::cout &lt;&lt; &#34;Vector 1: &#34; &lt;&lt; vector1 &lt;&lt; &#39;\n&#39;;
-  std::cout &lt;&lt; &#34;Vector 2: &#34; &lt;&lt; vector2 &lt;&lt; &#39;\n&#39;;
-  std::cout &lt;&lt; &#34;Vector 1 &#43; Vector 2: &#34; &lt;&lt; vector1.sum(vector2) &lt;&lt; &#39;\n&#39;;
-  std::cout &lt;&lt; &#34;Vector 1 - Vector 2: &#34; &lt;&lt; vector1.substract(vector2) &lt;&lt; &#39;\n&#39;;
-  std::cout &lt;&lt; k &lt;&lt; &#34; * Vector 2: &#34; &lt;&lt; vector1.scale(k) &lt;&lt; &#39;\n&#39;;
-  std::cout &lt;&lt; &#34;Vector 1 dot product Vector 2: &#34; &lt;&lt; vector1.dot(vector2)
-            &lt;&lt; &#39;\n&#39;;
-  return 0;
-}</pre>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</figure>
-
-<p>Finally, we have to change the project name and include our new source files. Here are the <code>CMakeLists.txt</code> file with the necessary changes:
-
-  
-    
-  
-  
-    
-  
-  
-  
-
-
-<figure class="highlight cmake">
-  <figcaption>
-    
-      <span>CMakeLists.txt</span>
-    
-  </figcaption>
-  <table>
-    <tbody>
-      <tr>
-        <td class="gutter">
-          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre>
-        </td>
-        <td class="code">
-          <pre class="cmake code-highlight">cmake_minimum_required (VERSION 2.8)
-
-set (PROY math-vector-example)
-project (${PROY} C CXX)
-
-# Source files folder
-set (SRC_DIR src)
-
-# Header files folder
-set (INCL_DIR include)
-
-# Compiler flags
-set(CMAKE_CXX_FLAGS &#34;${CMAKE_CXX_FLAGS} -std=c&#43;&#43;11 -Wall -Werror&#34;)
-
-include_directories (${PROJECT_SOURCE_DIR}/${INCL_DIR})
-
-set (SOURCE
-${SRC_DIR}/main.cpp
-${SRC_DIR}/Vector.cpp
-)
-
-# Output folder
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY &#34;${PROJECT_SOURCE_DIR}/bin&#34;)
-
-add_executable (${PROY} ${SOURCE})</pre>
         </td>
       </tr>
     </tbody>
   </table>
 </figure></p>
 
-<p>To compile our program, we will need to run these commands:
+<p>Basically, this file just tells CMake where to download the project. Lines 8-16 of <code>tests/CMakeLists.txt</code> trigger the commands to build the library and add it as a submodule. The linking of the library is made in lines 40-43/ Notice that this library will only be linked to the unit testing project&rsquo;s main code.</p>
+
+<p>The rest of the <code>tests/CMakeLists.txt</code> file should be familiar to your. Similarly to our main project, your can keep your headers in <code>tests/include</code> and your source code in <code>tests/src</code>. It is important that you also include the headers and source files of your main project. Otherwise, your tests will fail to compile.</p>
+
+<p>The main file of our unit testing project will search for tests and run them:
 
   
+    
+  
+  
+    
   
   
   
 
 
-<figure class="highlight bash">
+<figure class="highlight cpp">
   <figcaption>
+    
+      <span>tests/main.cpp</span>
     
   </figcaption>
   <table>
     <tbody>
       <tr>
         <td class="gutter">
-          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre>
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre>
         </td>
         <td class="code">
-          <pre class="bash code-highlight">$ mkdir build
-$ cd build
-$ cmake ..
-$ make</pre>
+          <pre class="cpp code-highlight">#include &lt;gtest/gtest.h&gt;
+
+int main(int argc, char **argv) {
+  testing::InitGoogleTest(&amp;argc, argv);
+  return RUN_ALL_TESTS();
+}</pre>
         </td>
       </tr>
     </tbody>
   </table>
-</figure>
-You only need to create the <code>build/</code> folder once. The <code>cmake ..</code> command will generate the makefiles and <code>make</code> will build the program. If everything went all right, the executable will be saved in the <code>bin/</code> folder. Let&rsquo;s run our example:</p>
+</figure></p>
 
-
-  
-  
-  
-  
-
-
-<figure class="highlight bash">
-  <figcaption>
-    
-  </figcaption>
-  <table>
-    <tbody>
-      <tr>
-        <td class="gutter">
-          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre>
-        </td>
-        <td class="code">
-          <pre class="bash code-highlight">$ ./../bin/math-vector-example
-Vector 1: (3, 2)
-Vector 2: (10, 5)
-Vector 1 &#43; Vector 2: (13, 7)
-Vector 1 - Vector 2: (-7, -3)
-0.3 * Vector 2: (0.9, 0.6)
-Vector 1 dot product Vector 2: 40</pre>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</figure>
-
-<p>That&rsquo;s pretty much it. Now go and write your own programs without much hassle.</p>
-
-<p><a class=button href="https://github.com/eariassoto/cpp-project-template/tree/basic-template" target="%5fblank">Get the code on GitHub</a></p>
+<p>We do not need additional commands to compile our unit testing project. After you build the main project, the executable for the unit tests will be under the <code>bin/</code> folder. The executable is named as the main project, but it will have the <code>-ut</code> suffix.</p>
               
             </div>
           </div>
           <div id="post-footer" class="post-footer main-content-wrap">
             
-              
-                
-                
-                  <div class="post-footer-tags">
-                    <span class="text-color-light text-small">TAGGED IN</span><br/>
-                    
-  <a class="tag tag--primary tag--small" href="https://eariassoto.github.io/tags/c&#43;&#43;/">C&#43;&#43;</a>
-
-  <a class="tag tag--primary tag--small" href="https://eariassoto.github.io/tags/cmake/">cmake</a>
-
-  <a class="tag tag--primary tag--small" href="https://eariassoto.github.io/tags/templates/">templates</a>
-
-                  </div>
-                
               
             
             
@@ -859,7 +494,7 @@ Vector 1 dot product Vector 2: 40</pre>
         <ul class="post-actions post-action-nav">
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="https://eariassoto.github.io/2017/07/source-to-source-compilation-with-lex-yacc/" data-tooltip="Source-to-source compilation with Lex-Yacc">
+                <a class="post-action-btn btn btn--disabled">
               
                 <i class="fa fa-angle-left"></i>
                 <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
@@ -867,7 +502,7 @@ Vector 1 dot product Vector 2: 40</pre>
             </li>
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--disabled">
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://eariassoto.github.io/2017/09/first-steps-with-go/" data-tooltip="First Steps With Go">
               
                 <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
                 <i class="fa fa-angle-right"></i>
@@ -937,7 +572,7 @@ Vector 1 dot product Vector 2: 40</pre>
         <ul class="post-actions post-action-nav">
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="https://eariassoto.github.io/2017/07/source-to-source-compilation-with-lex-yacc/" data-tooltip="Source-to-source compilation with Lex-Yacc">
+                <a class="post-action-btn btn btn--disabled">
               
                 <i class="fa fa-angle-left"></i>
                 <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
@@ -945,7 +580,7 @@ Vector 1 dot product Vector 2: 40</pre>
             </li>
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--disabled">
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://eariassoto.github.io/2017/09/first-steps-with-go/" data-tooltip="First Steps With Go">
               
                 <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
                 <i class="fa fa-angle-right"></i>
@@ -998,13 +633,13 @@ Vector 1 dot product Vector 2: 40</pre>
   <ul class="share-options">
     
       <li class="share-option">
-        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Feariassoto.github.io%2F2017%2F04%2Fbuilding-a-basic-c%2Fc---project-template%2F">
+        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Feariassoto.github.io%2F2017%2F10%2Funit-tests%2F">
           <i class="fa fa-facebook-official"></i><span>Share on Facebook</span>
         </a>
       </li>
     
       <li class="share-option">
-        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=https%3A%2F%2Feariassoto.github.io%2F2017%2F04%2Fbuilding-a-basic-c%2Fc---project-template%2F">
+        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=https%3A%2F%2Feariassoto.github.io%2F2017%2F10%2Funit-tests%2F">
           <i class="fa fa-twitter"></i><span>Share on Twitter</span>
         </a>
       </li>
@@ -1196,9 +831,9 @@ $(document).ready(function() {
     
       <script>
         var disqus_config = function () {
-          this.page.url = 'https:\/\/eariassoto.github.io\/2017\/04\/building-a-basic-c\/c---project-template\/';
+          this.page.url = 'https:\/\/eariassoto.github.io\/2017\/10\/unit-tests\/';
           
-            this.page.identifier = '\/2017\/04\/building-a-basic-c\/c---project-template\/'
+            this.page.identifier = '\/2017\/10\/unit-tests\/'
           
         };
         (function() {
