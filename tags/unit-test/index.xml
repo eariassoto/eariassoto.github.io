@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Unit Test on Emmanuel Arias</title>
+    <link>https://eariassoto.github.io/tags/unit-test/</link>
+    <description>Recent content in Unit Test on Emmanuel Arias</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 31 Oct 2017 01:53:18 +0000</lastBuildDate>
+    
+	<atom:link href="https://eariassoto.github.io/tags/unit-test/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Test your C&#43;&#43; code with the Google Test framework</title>
+      <link>https://eariassoto.github.io/2017/10/test-your-c---code-with-the-google-test-framework/</link>
+      <pubDate>Tue, 31 Oct 2017 01:53:18 +0000</pubDate>
+      
+      <guid>https://eariassoto.github.io/2017/10/test-your-c---code-with-the-google-test-framework/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;https://eariassoto.github.io/2017/04/building-a-basic-c/c---project-template/&#34;&gt;In a previous post&lt;/a&gt;, I showed you a C/C++ template that you can use for a project. I felt that it needed a basic testing framework. Therefore, we are going to learn how to install and use the Google Test framework to write tests. When we have finished this tutorial, we will have an executable that will run tests for our code.
+&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

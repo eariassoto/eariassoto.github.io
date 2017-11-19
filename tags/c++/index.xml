@@ -6,10 +6,30 @@
     <description>Recent content in C&#43;&#43; on Emmanuel Arias</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 17 Apr 2017 10:41:16 -0600</lastBuildDate>
+    <lastBuildDate>Sat, 18 Nov 2017 15:57:42 +0000</lastBuildDate>
     
 	<atom:link href="https://eariassoto.github.io/tags/c++/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Analyze the testing coverage of your C&#43;&#43; code</title>
+      <link>https://eariassoto.github.io/2017/11/analyze-the-testing-coverage-of-your-c---code/</link>
+      <pubDate>Sat, 18 Nov 2017 15:57:42 +0000</pubDate>
+      
+      <guid>https://eariassoto.github.io/2017/11/analyze-the-testing-coverage-of-your-c---code/</guid>
+      <description>&lt;p&gt;Writing unit tests is a great way to ensure that your code is behaving correctly. But how can you tell how much of your code are you testing? The GCC compiler provides tools to analyze the testing coverage of your project. In this post, I will show you how to integrate these tools in a CMake project.
+&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Test your C&#43;&#43; code with the Google Test framework</title>
+      <link>https://eariassoto.github.io/2017/10/test-your-c---code-with-the-google-test-framework/</link>
+      <pubDate>Tue, 31 Oct 2017 01:53:18 +0000</pubDate>
+      
+      <guid>https://eariassoto.github.io/2017/10/test-your-c---code-with-the-google-test-framework/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;https://eariassoto.github.io/2017/04/building-a-basic-c/c---project-template/&#34;&gt;In a previous post&lt;/a&gt;, I showed you a C/C++ template that you can use for a project. I felt that it needed a basic testing framework. Therefore, we are going to learn how to install and use the Google Test framework to write tests. When we have finished this tutorial, we will have an executable that will run tests for our code.
+&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Building a basic C/C&#43;&#43; project template</title>
