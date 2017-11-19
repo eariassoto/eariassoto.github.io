@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://eariassoto.github.io/2017/11/analyze-the-testing-coverage-of-your-c---code/</loc>
+    <lastmod>2017-11-18T15:57:42+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://eariassoto.github.io/2017/10/test-your-c---code-with-the-google-test-framework/</loc>
     <lastmod>2017-10-31T01:53:18+00:00</lastmod>
   </url>
@@ -58,7 +63,7 @@
   
   <url>
     <loc>https://eariassoto.github.io/</loc>
-    <lastmod>2017-10-31T01:53:18+00:00</lastmod>
+    <lastmod>2017-11-18T15:57:42+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -76,7 +81,7 @@
   
   <url>
     <loc>https://eariassoto.github.io/post/</loc>
-    <lastmod>2017-10-31T01:53:18+00:00</lastmod>
+    <lastmod>2017-11-18T15:57:42+00:00</lastmod>
     <priority>0</priority>
   </url>
   

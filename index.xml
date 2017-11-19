@@ -6,10 +6,20 @@
     <description>Recent content on Emmanuel Arias</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 31 Oct 2017 01:53:18 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 18 Nov 2017 15:57:42 +0000</lastBuildDate>
     
 	<atom:link href="https://eariassoto.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Analyze the testing coverage of your C&#43;&#43; code</title>
+      <link>https://eariassoto.github.io/2017/11/analyze-the-testing-coverage-of-your-c---code/</link>
+      <pubDate>Sat, 18 Nov 2017 15:57:42 +0000</pubDate>
+      
+      <guid>https://eariassoto.github.io/2017/11/analyze-the-testing-coverage-of-your-c---code/</guid>
+      <description>&lt;p&gt;Writing unit tests is a great way to ensure that your code is behaving correctly. But how can you tell how much of your code are you testing? The GCC compiler provides tools to analyze the testing coverage of your project. In this post, I will show you how to integrate these tools in a CMake project.
+&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Test your C&#43;&#43; code with the Google Test framework</title>
