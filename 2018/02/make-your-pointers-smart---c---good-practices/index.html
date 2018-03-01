@@ -22,7 +22,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="generator" content="Hugo 0.25.1 with theme Tranquilpeak 0.4.0-BETA">
-    <title>Analyze the testing coverage of your C&#43;&#43; code</title>
+    <title>Make your pointers smart - C&#43;&#43; good practices</title>
     <meta name="author" content="Emmanuel Arias">
     <meta name="keywords" content="">
 
@@ -30,18 +30,15 @@
     
 
     
-    <meta name="description" content="Writing unit tests is a great way to ensure that your code is behaving correctly. But how can you tell how much of your code are you testing? The GCC compiler provides tools to analyze the testing coverage of your project. In this post, I will show you how to integrate these tools in a CMake project.
-">
-    <meta property="og:description" content="Writing unit tests is a great way to ensure that your code is behaving correctly. But how can you tell how much of your code are you testing? The GCC compiler provides tools to analyze the testing coverage of your project. In this post, I will show you how to integrate these tools in a CMake project.
-">
+    <meta name="description" content="Ever since the C&#43;&#43; language was first standardized, new and delete were defined as the methods to create/delete objects dynamically. The new operator allocates a memory block to construct an object and then calls the proper class&rsquo; constructor to initialize it. If successful, this operator will return a pointer to the location of the memory block. Otherwise, it will return nullptr or it will throw an exception. The delete operator executes the inverse operation, it deallocates object&rsquo;s memory block.">
+    <meta property="og:description" content="Ever since the C&#43;&#43; language was first standardized, new and delete were defined as the methods to create/delete objects dynamically. The new operator allocates a memory block to construct an object and then calls the proper class&rsquo; constructor to initialize it. If successful, this operator will return a pointer to the location of the memory block. Otherwise, it will return nullptr or it will throw an exception. The delete operator executes the inverse operation, it deallocates object&rsquo;s memory block.">
     <meta property="og:type" content="blog">
-    <meta property="og:title" content="Analyze the testing coverage of your C&#43;&#43; code">
-    <meta property="og:url" content="/2017/11/analyze-the-testing-coverage-of-your-c---code/">
+    <meta property="og:title" content="Make your pointers smart - C&#43;&#43; good practices">
+    <meta property="og:url" content="/2018/02/make-your-pointers-smart---c---good-practices/">
     <meta property="og:site_name" content="Emmanuel Arias">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Emmanuel Arias">
-    <meta name="twitter:description" content="Writing unit tests is a great way to ensure that your code is behaving correctly. But how can you tell how much of your code are you testing? The GCC compiler provides tools to analyze the testing coverage of your project. In this post, I will show you how to integrate these tools in a CMake project.
-">
+    <meta name="twitter:description" content="Ever since the C&#43;&#43; language was first standardized, new and delete were defined as the methods to create/delete objects dynamically. The new operator allocates a memory block to construct an object and then calls the proper class&rsquo; constructor to initialize it. If successful, this operator will return a pointer to the location of the memory block. Otherwise, it will return nullptr or it will throw an exception. The delete operator executes the inverse operation, it deallocates object&rsquo;s memory block.">
     
     
 
@@ -216,15 +213,15 @@ ga('send', 'pageview');
             <div class="post-header main-content-wrap text-left">
   
     <h1 class="post-title" itemprop="headline">
-      Analyze the testing coverage of your C&#43;&#43; code
+      Make your pointers smart - C&#43;&#43; good practices
     </h1>
   
   
   <div class="postShorten-meta post-meta">
     
-      <time itemprop="datePublished" datetime="2017-11-18T15:57:42Z">
+      <time itemprop="datePublished" datetime="2018-02-28T21:05:41-06:00">
         
-  November 18, 2017
+  February 28, 2018
 
       </time>
     
@@ -246,12 +243,11 @@ ga('send', 'pageview');
           
           <div class="post-content markdown" itemprop="articleBody">
             <div class="main-content-wrap">
-              <p>Writing unit tests is a great way to ensure that your code is behaving correctly. But how can you tell how much of your code are you testing? The GCC compiler provides tools to analyze the testing coverage of your project. In this post, I will show you how to integrate these tools in a CMake project.
-</p>
+              
 
-<p><a class=button href="https://github.com/eariassoto/cpp-project-template" target="%5fblank">Get the code on GitHub</a></p>
+<p>Ever since the C++ language was first standardized, <code>new</code> and <code>delete</code> were defined as the methods to create/delete objects dynamically. The <code>new</code> operator allocates a memory block to construct an object and then calls the proper class&rsquo; constructor to initialize it. If successful, this operator will return a pointer to the location of the memory block. Otherwise, it will return <code>nullptr</code> or it will throw an exception. The <code>delete</code> operator executes the inverse operation, it deallocates object&rsquo;s memory block. Before freeing the memory, <code>delete</code> calls the object&rsquo;s destructor. The destructor is used to free memory that the object must delete.</p>
 
-<p>GCC provides a testing coverage tool called <code>gcov</code>. It creates log files that register how many times a code line has been executed. Using <code>gcov</code> out of the box is as easy as compiling your code with some special flags:</p>
+<p>Let&rsquo;s create a small example that created objects dynamically with <code>new</code> and <code>delete</code>:</p>
 
 
   
@@ -260,7 +256,7 @@ ga('send', 'pageview');
   
 
 
-<figure class="highlight bash">
+<figure class="highlight c&#43;&#43;">
   <figcaption>
     
   </figcaption>
@@ -268,17 +264,46 @@ ga('send', 'pageview');
     <tbody>
       <tr>
         <td class="gutter">
-          <pre><span class="line">1</span><br></pre>
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre>
         </td>
         <td class="code">
-          <pre class="bash code-highlight">gcc -Wall -fprofile-arcs -ftest-coverage -O0 main.c</pre>
+          <pre class="c&#43;&#43; code-highlight">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;sstream&gt;
+
+class Contact {
+ public:
+  Contact(const std::string&amp; name, const std::string&amp; email)
+      : name{name}, email{email} {
+    std::cout &lt;&lt; &#34;Constructed: [&#34; &lt;&lt; this &lt;&lt; &#34;]\n&#34;;
+  }
+  ~Contact() { std::cout &lt;&lt; &#34;Destructing: [&#34; &lt;&lt; this &lt;&lt; &#34;]\n&#34;; };
+
+  const std::string print() {
+    std::stringstream printStream;
+    printStream &lt;&lt; &#34;{Name:&#34; &lt;&lt; name &lt;&lt; &#34;, Email:&#34; &lt;&lt; email &lt;&lt; &#34;}&#34;;
+    return printStream.str();
+  }
+
+ protected:
+  std::string name;
+  std::string email;
+};
+
+int main() {
+  Contact* contact = new Contact(&#34;John Doe&#34;, &#34;jdoe@mail.com&#34;);
+  std::cout &lt;&lt; &#34;Contact: &#34; &lt;&lt; contact-&gt;print() &lt;&lt; &#39;\n&#39;;
+  delete contact;
+  return 0;
+}</pre>
         </td>
       </tr>
     </tbody>
   </table>
 </figure>
 
-<p>Then, you run all the tests for that code, and call <code>gcov</code>. This is an example output:
+<p>If we run this program we will get:</p>
+
 
   
   
@@ -297,151 +322,58 @@ ga('send', 'pageview');
           <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre>
         </td>
         <td class="code">
-          <pre class="bash code-highlight">$ gcov main.c 
- 88.89% of 9 source lines executed in file main.c
-Creating main.c.gcov</pre>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</figure></p>
-
-<p>The generated <code>.gcov</code> files are copies of our source files, but with counters for every line that was executed. Though these <code>.gcov</code> files give you the information you need, it would be great if we could generate more detailed reports. We can actually do this using <code>lcov</code>, a tool that creates HTML reports based on <code>gcov</code>&rsquo;s output.</p>
-
-<h2 id="requirements">Requirements</h2>
-
-<p>To install the coverage tools, you ought to have <code>GCC</code>, <code>CMake</code>, and <code>lcov</code> installed. To get my CMake template project, go over to <a href="https://eariassoto.github.io/2017/10/test-your-c---code-with-the-google-test-framework/">my previous post</a>, and follow the steps. The template already has a sample program with unit tests. However, you can follow this post, and install the coverage tools in your own CMake project.</p>
-
-<h2 id="getting-the-test-coverage-module">Getting the test coverage module</h2>
-
-<p>Configuring <code>gcov</code> and <code>lcov</code> for CMake can be quite complicated. To make things easier, we will download a CMake module from <a href="https://github.com/bilke/cmake-modules/blob/master/CodeCoverage.cmake">this repo</a>. Let&rsquo;s create a folder called <code>CMakeModules</code> in our project, and save the module file there.</p>
-
-<h2 id="setting-out-our-cmake">Setting out our CMake</h2>
-
-<p>First, we need to declare the name of our testing executable in <code>CMakeLists.txt</code>. This is the executable that our coverage tool will run for the testing coverage analysis.</p>
-
-
-  
-    
-  
-  
-    
-  
-  
-  
-
-
-<figure class="highlight cmake">
-  <figcaption>
-    
-      <span>CMakeLists.txt</span>
-    
-  </figcaption>
-  <table>
-    <tbody>
-      <tr>
-        <td class="gutter">
-          <pre><span class="line">1</span><br></pre>
-        </td>
-        <td class="code">
-          <pre class="cmake code-highlight">set (PROJECT_TEST_NAME ${PROJECT_NAME}-ut)</pre>
+          <pre class="bash code-highlight">Constructed: [0x162bc80]
+Contact: {Name:John Doe, Email:jdoe@mail.com}
+Destructing: [0x162bc80]</pre>
         </td>
       </tr>
     </tbody>
   </table>
 </figure>
 
-<p>Next, we need to set our CMake module folder to <code>CMakeModules</code>:</p>
+<p>Using regular pointers, like this example can give you problems. If you miss a <code>delete</code> call on an object, the object&rsquo;s memory blocks will not be reassigned to another process. This problem is called memory leak. Leaking memory can exhaust all of the system&rsquo;s memory!</p>
+
+<p>Another problem related to <code>new</code> and <code>delete</code> is pointer ownership. A regular pointer does not have the context to indicate who is its owner. By ownership, I mean whose object is in charge of deleting the pointer&rsquo;s reference. If no one deletes the memory, we will get our memory leaked. If <code>delete</code> gets called twice for the same object, we will get a segmentation fault. Further, if someone deletes an object, and another object tries to reference it, we will also hit a segmentation fault. With regular pointers, you must handle memory deallocation carefully. The larger your program grows, the harder will be to not make mistakes.</p>
+
+<h1 id="introducing-smart-pointers">Introducing smart pointers</h1>
+
+<p>Both ownership and memory deallocation are addressed by the new pointer types, introduced by the C++11 specification. Let&rsquo;s will talk about <code>unique_ptr</code> first. The <code>unique_ptr</code> type wraps dynamic memory and disposes of it when the pointer goes out of scope. A <code>unique_ptr</code> can only have one owner. Ownership can be passed between objects using the <code>std::move()</code> function. This type implements both the <code>*</code> and <code>-&gt;</code> operators to dereference memory, just like regular pointers. You can also get a raw pointer with the <code>get()</code> function.</p>
+
+<p>Let&rsquo;s change our main function so it uses <code>unique_ptr</code> instead:</p>
 
 
   
-    
-  
-  
-    
   
   
   
 
 
-<figure class="highlight cmake">
+<figure class="highlight c&#43;&#43;">
   <figcaption>
-    
-      <span>CMakeLists.txt</span>
     
   </figcaption>
   <table>
     <tbody>
       <tr>
         <td class="gutter">
-          <pre><span class="line">1</span><br><span class="line">2</span><br></pre>
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre>
         </td>
         <td class="code">
-          <pre class="cmake code-highlight"># Folder where the Coverage module is
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMakeModules)</pre>
+          <pre class="c&#43;&#43; code-highlight">#include &lt;memory&gt;
+
+int main() {
+  std::cout &lt;&lt; &#34;Foo\n&#34;;
+  std::unique_ptr&lt;Contact&gt; contact =
+      std::unique_ptr&lt;Contact&gt;(new Contact(&#34;John Doe&#34;, &#34;jdoe@mail.com&#34;));
+  std::cout &lt;&lt; &#34;Contact: &#34; &lt;&lt; contact-&gt;print() &lt;&lt; &#39;\n&#39;;
+  std::cout &lt;&lt; &#34;Bar\n&#34;;
+  return 0;
+}</pre>
         </td>
       </tr>
     </tbody>
   </table>
 </figure>
-
-<p>Finally, we need to configure the coverage target:
-
-  
-    
-  
-  
-    
-  
-  
-  
-
-
-<figure class="highlight cmake">
-  <figcaption>
-    
-      <span>CMakeLists.txt</span>
-    
-  </figcaption>
-  <table>
-    <tbody>
-      <tr>
-        <td class="gutter">
-          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre>
-        </td>
-        <td class="code">
-          <pre class="cmake code-highlight"># Code coverage
-if (CMAKE_BUILD_TYPE STREQUAL &#34;Coverage&#34;)
-    set_target_properties(${PROJECT_NAME}
-        PROPERTIES
-        COMPILE_FLAGS &#34;-O0 -fprofile-arcs -ftest-coverage&#34;
-    )
-    include(CodeCoverage)
-    set(COVERAGE_EXCLUDES
-        &#39;/usr/*&#39;
-		&#39;${PROJECT_SOURCE_DIR}/tests/*&#39;
-		&#39;${CMAKE_BINARY_DIR}/googletest-src/googletest/include/gtest/*&#39;
-		&#39;${CMAKE_BINARY_DIR}/googletest-src/googletest/src/*&#39;
-		&#39;${CMAKE_BINARY_DIR}/googletest-src/googlemock/include/gmock/*&#39;
-        &#39;${CMAKE_BINARY_DIR}/googletest-src/googlemock/src/*&#39;
-    )
-    SETUP_TARGET_FOR_COVERAGE(
-	NAME coverage
-	EXECUTABLE ${PROJECT_TEST_NAME}
-	DEPENDENCIES ${PROJECT_NAME}
-    )
-endif() #CMAKE_BUILD_TYPE STREQUAL &#34;Coverage&#34;</pre>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</figure></p>
-
-<p>First thing we need to do here is add the compiler flags to enable <code>gcov</code>. We also need to add the flag to disable optimizations. The <code>include</code> command will add the CMake module we downloaded to our project. Then, we need to declare all the folders we want to exclude from the analysis. Finally, the <code>SETUP_TARGET_FOR_COVERAGE</code> command makes all the magic happen. We will have a <code>coverage</code> target that will run the executable we declared, and create the coverage report in our <code>build</code> folder.</p>
-
-<h2 id="running-the-test-coverage-analysis">Running the test coverage analysis</h2>
-
-<p>To run the analysis, we need to build the project using the <code>Coverage</code> build type:</p>
 
 
   
@@ -461,29 +393,21 @@ endif() #CMAKE_BUILD_TYPE STREQUAL &#34;Coverage&#34;</pre>
           <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre>
         </td>
         <td class="code">
-          <pre class="bash code-highlight">mkdir build
-cd build
-cmake -DCMAKE_BUILD_TYPE=Coverage ..
-make
-make coverage</pre>
+          <pre class="bash code-highlight">Foo
+Constructed: [0x1e68c80]
+Contact: {Name:John Doe, Email:jdoe@mail.com}
+Bar
+Destructing: [0x1e68c80]</pre>
         </td>
       </tr>
     </tbody>
   </table>
 </figure>
 
-<p>If these commands executed succesfully, open <code>build/coverage/index.html</code> file in a web browser. It will look like this:</p>
-
-<p><img src="https://eariassoto.github.io/static/img/lcov1.PNG" alt="Initial analysis" /></p>
-
-<p>Now you have all your coverage information in one report! You can navigate through your code and check which parts need testing. Let&rsquo;s modify our sample program a little bit, and add some validations to our <code>Person</code> constructor. We will change it to throw an exception if the name comes empty:</p>
+<p>I added two logs so you can verify that <code>contact</code> deletes the object after &ldquo;Bar&rdquo; is logged. This happens because <code>contact</code> is owned by <code>main</code>, and <code>main</code> goes out of scope after this log. Let&rsquo;s surround <code>contact</code> with an anonymous scope:</p>
 
 
   
-    
-  
-  
-    
   
   
   
@@ -492,7 +416,166 @@ make coverage</pre>
 <figure class="highlight c&#43;&#43;">
   <figcaption>
     
-      <span>src/person.cpp</span>
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="c&#43;&#43; code-highlight">int main() {
+  std::cout &lt;&lt; &#34;Foo\n&#34;;
+  {
+    std::unique_ptr&lt;Contact&gt; contact =
+        std::unique_ptr&lt;Contact&gt;(new Contact(&#34;John Doe&#34;, &#34;jdoe@mail.com&#34;));
+    std::cout &lt;&lt; &#34;Contact: &#34; &lt;&lt; contact-&gt;print() &lt;&lt; &#39;\n&#39;;
+  }
+  std::cout &lt;&lt; &#34;Bar\n&#34;;
+  return 0;
+}</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+
+
+  
+  
+  
+  
+
+
+<figure class="highlight bash">
+  <figcaption>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="bash code-highlight">Foo
+Constructed: [0x1e68c80]
+Contact: {Name:John Doe, Email:jdoe@mail.com}
+Destructing: [0x1e68c80]
+Bar</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+
+<p>Now the object is deleted when the anonymous scope goes out of scope, right before the &ldquo;Bar&rdquo; log. Notice that in both examples, there is no <code>delete</code> call. We can even get rid of the <code>new</code> operator with C++14&rsquo;s <code>make_unique</code> function:</p>
+
+
+  
+  
+  
+  
+
+
+<figure class="highlight c&#43;&#43;">
+  <figcaption>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="c&#43;&#43; code-highlight">  std::unique_ptr&lt;Contact&gt; contact =
+      std::make_unique&lt;Contact&gt;(&#34;John Doe&#34;, &#34;jdoe@mail.com&#34;);
+}</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+
+<p>There are cases where we need to share the ownership of an object. For this, C++11 introduced the <code>shared_ptr</code> type. Several <code>shared_ptr</code>s can refer to the same object, thus sharing ownership. Internally, these pointers keep a use counter. This counter indicates how many <code>shared_ptr</code> are sharing ownership of an object. The last <code>shared_ptr</code> owning an object deletes the object once it goes out of scope. This pointer type allows you to distribute ownership with the safety that memory will be properly freed. Let&rsquo;s add to our example a <code>compare</code> function that receives a copy <code>shared_ptr</code> as a parameter. I added logs so we can check the pointers&rsquo; use counter:</p>
+
+
+  
+  
+  
+  
+
+
+<figure class="highlight c&#43;&#43;">
+  <figcaption>
+    
+  </figcaption>
+  <table>
+    <tbody>
+      <tr>
+        <td class="gutter">
+          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre>
+        </td>
+        <td class="code">
+          <pre class="c&#43;&#43; code-highlight">class Contact {
+ public:
+  Contact(const std::string&amp; name, const std::string&amp; email)
+      : name{name}, email{email} {
+    std::cout &lt;&lt; &#34;Constructed: [&#34; &lt;&lt; this &lt;&lt; &#34;]\n&#34;;
+  }
+  ~Contact() { std::cout &lt;&lt; &#34;Destructing: [&#34; &lt;&lt; this &lt;&lt; &#34;]\n&#34;; };
+
+  const std::string print() {
+    std::stringstream printStream;
+    printStream &lt;&lt; &#34;{Name:&#34; &lt;&lt; name &lt;&lt; &#34;, Email:&#34; &lt;&lt; email &lt;&lt; &#34;}&#34;;
+    return printStream.str();
+  }
+
+  bool compare(std::shared_ptr&lt;Contact&gt; otherContact) {
+    if (otherContact == nullptr) {
+      std::cout &lt;&lt; &#34;Invalid parameter(s)\n&#34;;
+      return false;
+    }
+    std::cout &lt;&lt; __FUNCTION__ &lt;&lt; &#34; otherContact: &#34; &lt;&lt; otherContact
+              &lt;&lt; &#34; reference count: &#34; &lt;&lt; otherContact.use_count() &lt;&lt; &#39;\n&#39;;
+    return name == otherContact-&gt;name &amp;&amp; email == otherContact-&gt;email;
+  }
+
+ protected:
+  std::string name;
+  std::string email;
+};
+
+int main() {
+  std::cout &lt;&lt; &#34;Foo\n&#34;;
+  std::shared_ptr&lt;Contact&gt; contactJohn =
+      std::make_shared&lt;Contact&gt;(&#34;John Doe&#34;, &#34;jdoe@mail.com&#34;);
+  std::shared_ptr&lt;Contact&gt; contactJane =
+      std::make_shared&lt;Contact&gt;(&#34;Jane Smith&#34;, &#34;jsmith@mail.com&#34;);
+  std::cout &lt;&lt; &#34;ContactJane pointer: &#34; &lt;&lt; contactJane
+            &lt;&lt; &#34; reference count: &#34; &lt;&lt; contactJane.use_count() &lt;&lt; &#39;\n&#39;;
+  std::cout &lt;&lt; &#34;Are they equals?: &#34; &lt;&lt; contactJohn-&gt;compare(contactJane) &lt;&lt; &#39;\n&#39;;
+  std::cout &lt;&lt; &#34;ContactJane pointer: &#34; &lt;&lt; contactJane
+            &lt;&lt; &#34; use count: &#34; &lt;&lt; contactJane.use_count() &lt;&lt; &#39;\n&#39;;
+  std::cout &lt;&lt; &#34;Bar\n&#34;;
+  return 0;
+}</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</figure>
+
+
+  
+  
+  
+  
+
+
+<figure class="highlight bash">
+  <figcaption>
     
   </figcaption>
   <table>
@@ -502,82 +585,31 @@ make coverage</pre>
           <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre>
         </td>
         <td class="code">
-          <pre class="c&#43;&#43; code-highlight">#include &lt;stdexcept&gt;
-#include &#34;Person.h&#34;
-
-Person::Person(std::string name) {
-	if(name.empty()){
-	    throw std::invalid_argument(&#34;Name cannot be empty.&#34;);
-	}
-	this-&gt;name = name;
-};</pre>
+          <pre class="bash code-highlight">Constructed: [0x1bf4c30]
+Constructed: [0x1bf4cc0]                                             
+ContactJane pointer: 0x1bf4cc0 use count: 1
+compare otherContact: 0x1bf4cc0 use count: 2
+Are they equals?: 0
+ContactJane pointer: 0x1bf4cc0 use count: 1
+Bar
+Destructing: [0x1bf4cc0]
+Destructing: [0x1bf4c30]</pre>
         </td>
       </tr>
     </tbody>
   </table>
 </figure>
 
-<p>Let&rsquo;s run the analysis again with <code>make coverage</code>:</p>
+<p>Notice how calling <code>compare</code> increases the use counter for <code>contactJane</code> to two. Then, <code>compare</code> returns and the use counter goes back to one. When <code>main</code> finishes, the counter goes to zero, and memory is properly deleted. We do not have to worry about whether <code>compare</code> will invalidate our memory or not. Another problem solved by the smart pointers!</p>
 
-<p><img src="https://eariassoto.github.io/static/img/lcov2.PNG" alt="Initial analysis" /></p>
+<p>In conclusion, you should avoid the use of regular pointers and start using <code>unique_ptr</code> and <code>shared_ptr</code> pointers. They will save you a lot of headaches and you will get the most out of the modern C++ language.</p>
 
-<p>We can see that line 6 is not being executed by any unit test. Let&rsquo;s add two unit test to be sure we are covering both branches of the constructor:</p>
-
-
-  
-    
-  
-  
-    
-  
-  
-  
-
-
-<figure class="highlight c&#43;&#43;">
-  <figcaption>
-    
-      <span>tests/src/personTests.cpp</span>
-    
-  </figcaption>
-  <table>
-    <tbody>
-      <tr>
-        <td class="gutter">
-          <pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre>
-        </td>
-        <td class="code">
-          <pre class="c&#43;&#43; code-highlight">TEST(GreeterTests, PersonValidCtorTest) {
-	ASSERT_NO_THROW({
-		Person p{&#34;Alexa&#34;};
-	});
-}
-
-TEST(GreeterTests, PersonInvalidCtorTest) {
-	ASSERT_THROW({
-		Person p{&#34;&#34;};
-	}, std::invalid_argument);
-}</pre>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</figure>
-
-<p>A final run of the analysis will tell us that our code is 100% covered again:</p>
-
-<p><img src="https://eariassoto.github.io/static/img/lcov3.PNG" alt="Initial analysis" /></p>
-
-<p>That&rsquo;s pretty much it, now you have a tool to measure the coverage of your tests. You can use this coverage tool to analyze the coverage of other tests, such as component and feature tests. Further, you can integrate this analysis in CI services, like <a href="https://travis-ci.org/">Travis CI</a> and <a href="https://jenkins.io/index.html">Jenkins</a>.</p>
-
-<h2 id="useful-links">Useful links</h2>
+<h1 id="more-resources">More resources</h1>
 
 <ul>
-<li><a href="https://gcc.gnu.org/onlinedocs/gcc-5.3.0/gcc/Gcov.html">gcov reference page</a></li>
-<li><a href="http://ltp.sourceforge.net/coverage/lcov.php">lcov official website</a></li>
+<li><a href="http://en.cppreference.com/w/cpp/memory">C++ Dynamic memory management reference documentation</a></li>
 </ul>
 
-<p><a class=button href="https://github.com/eariassoto/cpp-project-template" target="%5fblank">Get the code on GitHub</a></p>
               
             </div>
           </div>
@@ -591,11 +623,7 @@ TEST(GreeterTests, PersonInvalidCtorTest) {
                     
   <a class="tag tag--primary tag--small" href="https://eariassoto.github.io/tags/c&#43;&#43;/">C&#43;&#43;</a>
 
-  <a class="tag tag--primary tag--small" href="https://eariassoto.github.io/tags/cmake/">cmake</a>
-
-  <a class="tag tag--primary tag--small" href="https://eariassoto.github.io/tags/templates/">templates</a>
-
-  <a class="tag tag--primary tag--small" href="https://eariassoto.github.io/tags/coverage/">coverage</a>
+  <a class="tag tag--primary tag--small" href="https://eariassoto.github.io/tags/pointers/">pointers</a>
 
                   </div>
                 
@@ -607,7 +635,7 @@ TEST(GreeterTests, PersonInvalidCtorTest) {
         <ul class="post-actions post-action-nav">
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="https://eariassoto.github.io/2018/02/make-your-pointers-smart---c---good-practices/" data-tooltip="Make your pointers smart - C&#43;&#43; good practices">
+                <a class="post-action-btn btn btn--disabled">
               
                 <i class="fa fa-angle-left"></i>
                 <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
@@ -615,7 +643,7 @@ TEST(GreeterTests, PersonInvalidCtorTest) {
             </li>
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="https://eariassoto.github.io/2017/10/test-your-c---code-with-the-google-test-framework/" data-tooltip="Test your C&#43;&#43; code with the Google Test framework">
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://eariassoto.github.io/2017/11/analyze-the-testing-coverage-of-your-c---code/" data-tooltip="Analyze the testing coverage of your C&#43;&#43; code">
               
                 <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
                 <i class="fa fa-angle-right"></i>
@@ -685,7 +713,7 @@ TEST(GreeterTests, PersonInvalidCtorTest) {
         <ul class="post-actions post-action-nav">
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="https://eariassoto.github.io/2018/02/make-your-pointers-smart---c---good-practices/" data-tooltip="Make your pointers smart - C&#43;&#43; good practices">
+                <a class="post-action-btn btn btn--disabled">
               
                 <i class="fa fa-angle-left"></i>
                 <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
@@ -693,7 +721,7 @@ TEST(GreeterTests, PersonInvalidCtorTest) {
             </li>
             <li class="post-action">
               
-                <a class="post-action-btn btn btn--default tooltip--top" href="https://eariassoto.github.io/2017/10/test-your-c---code-with-the-google-test-framework/" data-tooltip="Test your C&#43;&#43; code with the Google Test framework">
+                <a class="post-action-btn btn btn--default tooltip--top" href="https://eariassoto.github.io/2017/11/analyze-the-testing-coverage-of-your-c---code/" data-tooltip="Analyze the testing coverage of your C&#43;&#43; code">
               
                 <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
                 <i class="fa fa-angle-right"></i>
@@ -746,13 +774,13 @@ TEST(GreeterTests, PersonInvalidCtorTest) {
   <ul class="share-options">
     
       <li class="share-option">
-        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Feariassoto.github.io%2F2017%2F11%2Fanalyze-the-testing-coverage-of-your-c---code%2F">
+        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Feariassoto.github.io%2F2018%2F02%2Fmake-your-pointers-smart---c---good-practices%2F">
           <i class="fa fa-facebook-official"></i><span>Share on Facebook</span>
         </a>
       </li>
     
       <li class="share-option">
-        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=https%3A%2F%2Feariassoto.github.io%2F2017%2F11%2Fanalyze-the-testing-coverage-of-your-c---code%2F">
+        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=https%3A%2F%2Feariassoto.github.io%2F2018%2F02%2Fmake-your-pointers-smart---c---good-practices%2F">
           <i class="fa fa-twitter"></i><span>Share on Twitter</span>
         </a>
       </li>
@@ -979,9 +1007,9 @@ $(document).ready(function() {
     
       <script>
         var disqus_config = function () {
-          this.page.url = 'https:\/\/eariassoto.github.io\/2017\/11\/analyze-the-testing-coverage-of-your-c---code\/';
+          this.page.url = 'https:\/\/eariassoto.github.io\/2018\/02\/make-your-pointers-smart---c---good-practices\/';
           
-            this.page.identifier = '\/2017\/11\/analyze-the-testing-coverage-of-your-c---code\/'
+            this.page.identifier = '\/2018\/02\/make-your-pointers-smart---c---good-practices\/'
           
         };
         (function() {
