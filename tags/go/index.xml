@@ -1,24 +1,25 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Go on Emmanuel Arias</title>
-    <link>https://eariassoto.github.io/tags/go/</link>
-    <description>Recent content in Go on Emmanuel Arias</description>
+    <title>go on Emmanuel Arias</title>
+    <link>/tags/go/</link>
+    <description>Recent content in go on Emmanuel Arias</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
+    <language>en</language>
+    <copyright>©2020 Emmanuel Arias.</copyright>
     <lastBuildDate>Sun, 10 Sep 2017 18:03:18 -0600</lastBuildDate>
     
-	<atom:link href="https://eariassoto.github.io/tags/go/index.xml" rel="self" type="application/rss+xml" />
+        <atom:link href="/tags/go/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>First Steps With Go</title>
-      <link>https://eariassoto.github.io/2017/09/first-steps-with-go/</link>
+      <link>/post/first-steps-with-go/</link>
       <pubDate>Sun, 10 Sep 2017 18:03:18 -0600</pubDate>
       
-      <guid>https://eariassoto.github.io/2017/09/first-steps-with-go/</guid>
-      <description>&lt;p&gt;Go is a simple and powerful programming language. Its syntax is familiar to C/C++ but it definately has improvements in comparison. It has a bunch of great features such as static types, memory safety, garbage collection, and it is targeted to concurrent programming. I discovered it very recently, so I want to start simple and learn the basics of this language. In this post, we will write our first Go program and library. Also, we will learn how to unit tests our Go programs.
-&lt;/p&gt;</description>
+      <guid>/post/first-steps-with-go/</guid>
+      <description>&lt;p&gt;Go is a simple and powerful programming language. Its syntax is familiar to C/C++ but it definately has improvements in comparison. It has a bunch of great features such as static types, memory safety, garbage collection, and it is targeted to concurrent programming. I discovered it very recently, so I want to start simple and learn the basics of this language. In this post, we will write our first Go program and library. Also, we will learn how to unit tests our Go programs.&lt;/p&gt;</description>
+      
     </item>
     
   </channel>

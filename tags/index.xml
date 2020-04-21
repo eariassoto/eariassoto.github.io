@@ -1,104 +1,115 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Tags on Emmanuel Arias</title>
-    <link>https://eariassoto.github.io/tags/</link>
+    <link>/tags/</link>
     <description>Recent content in Tags on Emmanuel Arias</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
+    <language>en</language>
+    <copyright>©2020 Emmanuel Arias.</copyright>
     <lastBuildDate>Wed, 28 Feb 2018 21:05:41 -0600</lastBuildDate>
     
-	<atom:link href="https://eariassoto.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+        <atom:link href="/tags/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>C&#43;&#43;</title>
-      <link>https://eariassoto.github.io/tags/c&#43;&#43;/</link>
+      <link>/tags/c&#43;&#43;/</link>
       <pubDate>Wed, 28 Feb 2018 21:05:41 -0600</pubDate>
       
-      <guid>https://eariassoto.github.io/tags/c&#43;&#43;/</guid>
+      <guid>/tags/c&#43;&#43;/</guid>
       <description></description>
+      
     </item>
     
     <item>
-      <title>Cmake</title>
-      <link>https://eariassoto.github.io/tags/cmake/</link>
+      <title>pointers</title>
+      <link>/tags/pointers/</link>
+      <pubDate>Wed, 28 Feb 2018 21:05:41 -0600</pubDate>
+      
+      <guid>/tags/pointers/</guid>
+      <description></description>
+      
+    </item>
+    
+    <item>
+      <title>cmake</title>
+      <link>/tags/cmake/</link>
       <pubDate>Sat, 18 Nov 2017 15:57:42 +0000</pubDate>
       
-      <guid>https://eariassoto.github.io/tags/cmake/</guid>
+      <guid>/tags/cmake/</guid>
       <description></description>
+      
+    </item>
+    
+    <item>
+      <title>coverage</title>
+      <link>/tags/coverage/</link>
+      <pubDate>Sat, 18 Nov 2017 15:57:42 +0000</pubDate>
+      
+      <guid>/tags/coverage/</guid>
+      <description></description>
+      
+    </item>
+    
+    <item>
+      <title>templates</title>
+      <link>/tags/templates/</link>
+      <pubDate>Sat, 18 Nov 2017 15:57:42 +0000</pubDate>
+      
+      <guid>/tags/templates/</guid>
+      <description></description>
+      
+    </item>
+    
+    <item>
+      <title>unit test</title>
+      <link>/tags/unit-test/</link>
+      <pubDate>Tue, 31 Oct 2017 01:53:18 +0000</pubDate>
+      
+      <guid>/tags/unit-test/</guid>
+      <description></description>
+      
+    </item>
+    
+    <item>
+      <title>go</title>
+      <link>/tags/go/</link>
+      <pubDate>Sun, 10 Sep 2017 18:03:18 -0600</pubDate>
+      
+      <guid>/tags/go/</guid>
+      <description></description>
+      
     </item>
     
     <item>
       <title>Compilers</title>
-      <link>https://eariassoto.github.io/tags/compilers/</link>
+      <link>/tags/compilers/</link>
       <pubDate>Sat, 15 Jul 2017 10:43:23 -0600</pubDate>
       
-      <guid>https://eariassoto.github.io/tags/compilers/</guid>
+      <guid>/tags/compilers/</guid>
       <description></description>
-    </item>
-    
-    <item>
-      <title>Coverage</title>
-      <link>https://eariassoto.github.io/tags/coverage/</link>
-      <pubDate>Sat, 18 Nov 2017 15:57:42 +0000</pubDate>
       
-      <guid>https://eariassoto.github.io/tags/coverage/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Go</title>
-      <link>https://eariassoto.github.io/tags/go/</link>
-      <pubDate>Sun, 10 Sep 2017 18:03:18 -0600</pubDate>
-      
-      <guid>https://eariassoto.github.io/tags/go/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Lex/Yacc</title>
-      <link>https://eariassoto.github.io/tags/lex/yacc/</link>
-      <pubDate>Sat, 15 Jul 2017 10:43:23 -0600</pubDate>
-      
-      <guid>https://eariassoto.github.io/tags/lex/yacc/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Pointers</title>
-      <link>https://eariassoto.github.io/tags/pointers/</link>
-      <pubDate>Wed, 28 Feb 2018 21:05:41 -0600</pubDate>
-      
-      <guid>https://eariassoto.github.io/tags/pointers/</guid>
-      <description></description>
     </item>
     
     <item>
       <title>Python</title>
-      <link>https://eariassoto.github.io/tags/python/</link>
+      <link>/tags/python/</link>
       <pubDate>Sat, 15 Jul 2017 10:43:23 -0600</pubDate>
       
-      <guid>https://eariassoto.github.io/tags/python/</guid>
+      <guid>/tags/python/</guid>
       <description></description>
+      
     </item>
     
     <item>
-      <title>Templates</title>
-      <link>https://eariassoto.github.io/tags/templates/</link>
-      <pubDate>Sat, 18 Nov 2017 15:57:42 +0000</pubDate>
+      <title>Lex/Yacc</title>
+      <link>/tags/lex/yacc/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://eariassoto.github.io/tags/templates/</guid>
+      <guid>/tags/lex/yacc/</guid>
       <description></description>
-    </item>
-    
-    <item>
-      <title>Unit Test</title>
-      <link>https://eariassoto.github.io/tags/unit-test/</link>
-      <pubDate>Tue, 31 Oct 2017 01:53:18 +0000</pubDate>
       
-      <guid>https://eariassoto.github.io/tags/unit-test/</guid>
-      <description></description>
     </item>
     
   </channel>

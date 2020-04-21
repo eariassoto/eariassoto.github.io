@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en"><meta charset="utf-8"><meta name="generator" content="Hugo 0.69.0" /><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="supported-color-schemes" content="light dark"><title>Building a basic C/C&#43;&#43; project template&nbsp;&ndash;&nbsp;Emmanuel Arias</title><link rel="stylesheet" href="/css/core.min.b1b309139dc19672eb80b6a0dfcccc126e5f08ca3047bccb2d8e929ed6de3f2b91c5dc97e3f0e470e503f77726a1f08a.css" integrity="sha384-sbMJE53BlnLrgLag38zMEm5fCMowR7zLLY6SntbePyuRxdyX4/DkcOUD93cmofCK"><meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="Building a basic C/C&#43;&#43; project template" /><body>
+    <div class="base-body"><section id="header" class="site header">
+    <div class="header wrap"><span class="header left-side"><a class="site home" href="/"><span class="site name">Emmanuel Arias</span></a></span>
+        <span class="header right-side"><div class="nav wrap"><nav class="nav"><a class="nav item" href="/categories/">Categories</a><a class="nav item" href="/tags/">Tags</a></nav></div></span></div><div class="site slogan"><span class="title">A software developer looking for his <span style='font-family: monospace;'>$PATH</span></span></div></section><div id="content"><div class="article-container"><section class="article header">
+    <h1 class="article title">Building a basic C/C++ project template</h1><p class="article date">Apr 17, 2017</p></section><article class="article markdown-body"><p>Starting a C/C++ project can be as easy or as difficult as you want. Personally, I don&rsquo;t like to fire up an IDE just for a small program. So, I end up using a text editor and compiling by terminal. However, the compilation process can get tedious. In this post, we will build a simple project template for a C/C++ program. This project will use the CMake tool to handle all the compilation process.</p>
+<p><a class=button href="https://github.com/eariassoto/cpp-project-template/tree/basic-template" target="%5fblank">Get the code on GitHub</a></p>
+<h1 id="requirements">Requirements</h1>
+<h2 id="cc-code-compiler">C/C++ Code Compiler</h2>
+<p>The first thing we need is a C/C++ compiler. Most Linux distribution will have <a href="https://gcc.gnu.org/"target="_blank">GCC</a> installed by default. To check if you have GCC install run:</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ gcc --version
+gcc <span style="color:#719e07">(</span>Ubuntu 6.3.0-12ubuntu2<span style="color:#719e07">)</span> 6.3.0 20170406
+Copyright <span style="color:#719e07">(</span>C<span style="color:#719e07">)</span> <span style="color:#2aa198">2016</span> Free Software Foundation, Inc.
+This is free software; see the <span style="color:#b58900">source</span> <span style="color:#719e07">for</span> copying conditions. There is NO
+warranty; not even <span style="color:#719e07">for</span> MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+</code></pre></div><p>If you don&rsquo;t get a similar message you need to install GCC. For Debian based distributions (Ubuntu, Linux Mint) you can install the <strong>build-essential</strong> package:</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ sudo apt-get update
+$ sudo apt-get install build-essential
+</code></pre></div><p><strong>build-essential</strong> package includes GCC and other required packages. In case you are using Windows, you can install <a href="http://www.mingw.org/"target="_blank">MinGW</a> to install and setup GCC.</p>
+<h2 id="cmake">CMake</h2>
+<p>CMake is an open-source cross-platform project that provides a set of tools to build, test and install software. It uses configuration files to control the configuration process. The installation process should be easy, and for Debian bases distributions, you just need to run the command:</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ sudo apt-get install cmake
+</code></pre></div><p>For other Linux distributions or other OS check out <a href="https://cmake.org/"target="_blank">CMake official page</a>.</p>
+<h1 id="project-structure">Project structure</h1>
+<p>This is how our project folder will look:</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">cpp-project-template/
+├── CMakeLists.txt
+├── include
+├── src
+│   └── main.cpp
+</code></pre></div><p><code>CMakeLists.txt</code> is the configuration file for CMake. We will put our header files on <code>/include</code> and our source files on <code>/src</code>.</p>
+<h1 id="cmake-configuration-file">CMake configuration file</h1>
+<p>Let&rsquo;s see the first configuration file in more details:</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cmake" data-lang="cmake"><span style="color:#b58900">cmake_minimum_required</span> (<span style="color:#2aa198">VERSION</span> <span style="color:#2aa198">2.8</span>)
+
+<span style="color:#b58900">set</span> (<span style="color:#2aa198">PROY</span> <span style="color:#2aa198">cpp-project-template</span>)
+<span style="color:#b58900">project</span> (<span style="color:#719e07">${</span><span style="color:#268bd2">PROY</span><span style="color:#719e07">}</span> <span style="color:#2aa198">C</span> <span style="color:#2aa198">CXX</span>)
+</code></pre></div><p>First, we need to set the minimum CMake version, in our case version 2.8. Then, we need to define a name for our project. Change the project name for one of your preference, the executable will be name after this.</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cmake" data-lang="cmake"><span style="color:#586e75"># Source files folder
+</span><span style="color:#586e75"></span><span style="color:#b58900">set</span> (<span style="color:#2aa198">SRC_DIR</span> <span style="color:#2aa198">src</span>)
+
+<span style="color:#586e75"># Header files folder
+</span><span style="color:#586e75"></span><span style="color:#b58900">set</span> (<span style="color:#2aa198">INCL_DIR</span> <span style="color:#2aa198">include</span>)
+</code></pre></div><p>Here we set the folders that contain our code. If you are going to create additional folders, make sure to create proper variables for those folders too. We will need these variables to include our files.</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cmake" data-lang="cmake"><span style="color:#586e75"># Compilation flags
+</span><span style="color:#586e75"></span><span style="color:#b58900">set</span>(<span style="color:#2aa198">CMAKE_CXX_FLAGS</span> <span style="color:#2aa198">&#34;${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Werror&#34;</span>)
+</code></pre></div><p>We can set our compilation flags in the <code>CMAKE_CXX_FLAGS</code> variable. For our project we will be using C++11 version. The <code>-Wall</code> flag enables all warning, and the <code>-Werror</code> flag treat warnings as errors.</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cmake" data-lang="cmake"><span style="color:#b58900">include_directories</span> (<span style="color:#719e07">${</span><span style="color:#268bd2">PROJECT_SOURCE_DIR</span><span style="color:#719e07">}</span><span style="color:#2aa198">/</span><span style="color:#719e07">${</span><span style="color:#268bd2">INCL_DIR</span><span style="color:#719e07">}</span>)
+
+<span style="color:#586e75"># Important: Include all source files on this list
+</span><span style="color:#586e75"></span><span style="color:#b58900">set</span> (<span style="color:#2aa198">SOURCE</span>
+<span style="color:#719e07">${</span><span style="color:#268bd2">SRC_DIR</span><span style="color:#719e07">}</span><span style="color:#2aa198">/main.cpp</span>
+)
+</code></pre></div><p><code>include_directories</code> command will include our headers to the build. Also, we need to fill in <code>SOURCE</code> variable with all of our source files. Otherwise, CMake will not compile our source files.</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cmake" data-lang="cmake"><span style="color:#b58900">set</span>(<span style="color:#2aa198">CMAKE_RUNTIME_OUTPUT_DIRECTORY</span> <span style="color:#2aa198">&#34;${PROJECT_SOURCE_DIR}/bin&#34;</span>)
+
+<span style="color:#b58900">add_executable</span> (<span style="color:#719e07">${</span><span style="color:#268bd2">PROY</span><span style="color:#719e07">}</span> <span style="color:#719e07">${</span><span style="color:#268bd2">SOURCE</span><span style="color:#719e07">}</span>)
+
+<span style="color:#586e75"># Unit tests
+</span><span style="color:#586e75"></span><span style="color:#b58900">add_subdirectory</span>(<span style="color:#2aa198">tests</span>)
+</code></pre></div><p><code>CMAKE_RUNTIME_OUTPUT_DIRECTORY</code> specifies where CMake will save our output files. In our case, executables will be on <code>/bin</code> folder. Finally, the <code>add_executable</code> command will create a executable file with our source files.</p>
+<h1 id="using-the-template">Using the template</h1>
+<p>Let&rsquo;s define a <code>Vector</code> class. For simplicity, we are going to represent 2D vectors. Also, our class will implement some basic operations between vectors.</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#719e07">#ifndef __VECTOR_H__
+</span><span style="color:#719e07">#define __VECTOR_H__
+</span><span style="color:#719e07"></span>
+<span style="color:#586e75">// System includes
+</span><span style="color:#586e75"></span><span style="color:#719e07">#include</span> <span style="color:#719e07">&lt;iostream&gt;</span><span style="color:#719e07">
+</span><span style="color:#719e07"></span>
+<span style="color:#719e07">class</span> <span style="color:#268bd2">Vector</span> {
+<span style="color:#719e07">public</span><span style="color:#719e07">:</span>
+  Vector(<span style="color:#dc322f">double</span> a1, <span style="color:#dc322f">double</span> a2) <span style="color:#719e07">:</span> a1(a1), a2(a2){};
+
+  Vector <span style="color:#268bd2">sum</span>(<span style="color:#719e07">const</span> Vector <span style="color:#719e07">&amp;</span>vec);
+  Vector <span style="color:#268bd2">substract</span>(<span style="color:#719e07">const</span> Vector <span style="color:#719e07">&amp;</span>vec);
+  Vector <span style="color:#268bd2">scale</span>(<span style="color:#719e07">const</span> <span style="color:#dc322f">double</span> k);
+  <span style="color:#dc322f">double</span> <span style="color:#268bd2">dot</span>(<span style="color:#719e07">const</span> Vector <span style="color:#719e07">&amp;</span>vec);
+
+  <span style="color:#268bd2">inline</span> <span style="color:#dc322f">int</span> <span style="color:#268bd2">getA1</span>() <span style="color:#719e07">const</span> { <span style="color:#719e07">return</span> a1; };
+
+  <span style="color:#268bd2">inline</span> <span style="color:#dc322f">int</span> <span style="color:#268bd2">getA2</span>() <span style="color:#719e07">const</span> { <span style="color:#719e07">return</span> a2; };
+
+  <span style="color:#719e07">friend</span> std<span style="color:#719e07">::</span>ostream <span style="color:#719e07">&amp;</span><span style="color:#719e07">operator</span><span style="color:#719e07">&lt;&lt;</span>(std<span style="color:#719e07">::</span>ostream <span style="color:#719e07">&amp;</span>os, <span style="color:#719e07">const</span> Vector <span style="color:#719e07">&amp;</span>vec) {
+    os <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#39;(&#39;</span> <span style="color:#719e07">&lt;&lt;</span> vec.a1 <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;, &#34;</span> <span style="color:#719e07">&lt;&lt;</span> vec.a2 <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#39;)&#39;</span>;
+    <span style="color:#719e07">return</span> os;
+  }
+
+<span style="color:#719e07">private</span><span style="color:#719e07">:</span>
+  <span style="color:#dc322f">double</span> a1;
+  <span style="color:#dc322f">double</span> a2;
+};
+
+<span style="color:#719e07">#endif </span><span style="color:#586e75">/* __VECTOR_H__ */</span><span style="color:#719e07">
+</span></code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#719e07">#include</span> <span style="color:#719e07">&#34;Vector.h&#34;</span><span style="color:#719e07">
+</span><span style="color:#719e07"></span>
+Vector Vector<span style="color:#719e07">::</span>sum(<span style="color:#719e07">const</span> Vector <span style="color:#719e07">&amp;</span>vec) {
+  <span style="color:#719e07">return</span> Vector{a1 <span style="color:#719e07">+</span> vec.getA1(), a2 <span style="color:#719e07">+</span> vec.getA2()};
+}
+
+Vector Vector<span style="color:#719e07">::</span>substract(<span style="color:#719e07">const</span> Vector <span style="color:#719e07">&amp;</span>vec) {
+  <span style="color:#719e07">return</span> Vector{a1 <span style="color:#719e07">-</span> vec.getA1(), a2 <span style="color:#719e07">-</span> vec.getA2()};
+}
+Vector Vector<span style="color:#719e07">::</span>scale(<span style="color:#719e07">const</span> <span style="color:#dc322f">double</span> k) { <span style="color:#719e07">return</span> Vector{k <span style="color:#719e07">*</span> a1, k <span style="color:#719e07">*</span> a2}; }
+<span style="color:#dc322f">double</span> Vector<span style="color:#719e07">::</span>dot(<span style="color:#719e07">const</span> Vector <span style="color:#719e07">&amp;</span>vec) {
+  <span style="color:#719e07">return</span> a1 <span style="color:#719e07">*</span> vec.getA1() <span style="color:#719e07">+</span> a2 <span style="color:#719e07">*</span> vec.getA2();
+}
+</code></pre></div><p>Let&rsquo;s create a couple of vectors and output the results on our main function:</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#586e75">// System includes
+</span><span style="color:#586e75"></span><span style="color:#719e07">#include</span> <span style="color:#719e07">&lt;iostream&gt;</span><span style="color:#719e07">
+</span><span style="color:#719e07"></span>
+<span style="color:#586e75">// Program includes
+</span><span style="color:#586e75"></span><span style="color:#719e07">#include</span> <span style="color:#719e07">&#34;Vector.h&#34;</span><span style="color:#719e07">
+</span><span style="color:#719e07"></span>
+<span style="color:#dc322f">int</span> <span style="color:#268bd2">main</span>(<span style="color:#dc322f">int</span> argc, <span style="color:#dc322f">char</span> <span style="color:#719e07">*</span>argv[]) {
+  Vector vector1(<span style="color:#2aa198">3</span>, <span style="color:#2aa198">2</span>);
+  Vector vector2(<span style="color:#2aa198">10</span>, <span style="color:#2aa198">5</span>);
+  <span style="color:#dc322f">double</span> k <span style="color:#719e07">=</span> (<span style="color:#dc322f">double</span>)<span style="color:#2aa198">3</span> <span style="color:#719e07">/</span> <span style="color:#2aa198">10</span>;
+  std<span style="color:#719e07">::</span>cout <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;Vector 1: &#34;</span> <span style="color:#719e07">&lt;&lt;</span> vector1 <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#39;\n&#39;</span>;
+  std<span style="color:#719e07">::</span>cout <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;Vector 2: &#34;</span> <span style="color:#719e07">&lt;&lt;</span> vector2 <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#39;\n&#39;</span>;
+  std<span style="color:#719e07">::</span>cout <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;Vector 1 + Vector 2: &#34;</span> <span style="color:#719e07">&lt;&lt;</span> vector1.sum(vector2) <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#39;\n&#39;</span>;
+  std<span style="color:#719e07">::</span>cout <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;Vector 1 - Vector 2: &#34;</span> <span style="color:#719e07">&lt;&lt;</span> vector1.substract(vector2) <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#39;\n&#39;</span>;
+  std<span style="color:#719e07">::</span>cout <span style="color:#719e07">&lt;&lt;</span> k <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34; * Vector 2: &#34;</span> <span style="color:#719e07">&lt;&lt;</span> vector1.scale(k) <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#39;\n&#39;</span>;
+  std<span style="color:#719e07">::</span>cout <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;Vector 1 dot product Vector 2: &#34;</span> <span style="color:#719e07">&lt;&lt;</span> vector1.dot(vector2)
+            <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#39;\n&#39;</span>;
+  <span style="color:#719e07">return</span> <span style="color:#2aa198">0</span>;
+}
+</code></pre></div><p>Finally, we have to change the project name and include our new source files. Here are the <code>CMakeLists.txt</code> file with the necessary changes:</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cmake" data-lang="cmake"><span style="color:#b58900">cmake_minimum_required</span> (<span style="color:#2aa198">VERSION</span> <span style="color:#2aa198">2.8</span>)
+
+<span style="color:#b58900">set</span> (<span style="color:#2aa198">PROY</span> <span style="color:#2aa198">math-vector-example</span>)
+<span style="color:#b58900">project</span> (<span style="color:#719e07">${</span><span style="color:#268bd2">PROY</span><span style="color:#719e07">}</span> <span style="color:#2aa198">C</span> <span style="color:#2aa198">CXX</span>)
+
+<span style="color:#586e75"># Source files folder
+</span><span style="color:#586e75"></span><span style="color:#b58900">set</span> (<span style="color:#2aa198">SRC_DIR</span> <span style="color:#2aa198">src</span>)
+
+<span style="color:#586e75"># Header files folder
+</span><span style="color:#586e75"></span><span style="color:#b58900">set</span> (<span style="color:#2aa198">INCL_DIR</span> <span style="color:#2aa198">include</span>)
+
+<span style="color:#586e75"># Compiler flags
+</span><span style="color:#586e75"></span><span style="color:#b58900">set</span>(<span style="color:#2aa198">CMAKE_CXX_FLAGS</span> <span style="color:#2aa198">&#34;${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Werror&#34;</span>)
+
+<span style="color:#b58900">include_directories</span> (<span style="color:#719e07">${</span><span style="color:#268bd2">PROJECT_SOURCE_DIR</span><span style="color:#719e07">}</span><span style="color:#2aa198">/</span><span style="color:#719e07">${</span><span style="color:#268bd2">INCL_DIR</span><span style="color:#719e07">}</span>)
+
+<span style="color:#b58900">set</span> (<span style="color:#2aa198">SOURCE</span>
+<span style="color:#719e07">${</span><span style="color:#268bd2">SRC_DIR</span><span style="color:#719e07">}</span><span style="color:#2aa198">/main.cpp</span>
+<span style="color:#719e07">${</span><span style="color:#268bd2">SRC_DIR</span><span style="color:#719e07">}</span><span style="color:#2aa198">/Vector.cpp</span>
+)
+
+<span style="color:#586e75"># Output folder
+</span><span style="color:#586e75"></span><span style="color:#b58900">set</span>(<span style="color:#2aa198">CMAKE_RUNTIME_OUTPUT_DIRECTORY</span> <span style="color:#2aa198">&#34;${PROJECT_SOURCE_DIR}/bin&#34;</span>)
+
+<span style="color:#b58900">add_executable</span> (<span style="color:#719e07">${</span><span style="color:#268bd2">PROY</span><span style="color:#719e07">}</span> <span style="color:#719e07">${</span><span style="color:#268bd2">SOURCE</span><span style="color:#719e07">}</span>)
+</code></pre></div><p>To compile our program, we will need to run these commands:</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ mkdir build
+$ <span style="color:#b58900">cd</span> build
+$ cmake ..
+$ make
+</code></pre></div><p>You only need to create the <code>build/</code> folder once. The <code>cmake ..</code> command will generate the makefiles and <code>make</code> will build the program. If everything went all right, the executable will be saved in the <code>bin/</code> folder. Let&rsquo;s run our example:</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ ./../bin/math-vector-example
+Vector 1: <span style="color:#719e07">(</span>3, 2<span style="color:#719e07">)</span>
+Vector 2: <span style="color:#719e07">(</span>10, 5<span style="color:#719e07">)</span>
+Vector <span style="color:#2aa198">1</span> + Vector 2: <span style="color:#719e07">(</span>13, 7<span style="color:#719e07">)</span>
+Vector <span style="color:#2aa198">1</span> - Vector 2: <span style="color:#719e07">(</span>-7, -3<span style="color:#719e07">)</span>
+0.3 * Vector 2: <span style="color:#719e07">(</span>0.9, 0.6<span style="color:#719e07">)</span>
+Vector <span style="color:#2aa198">1</span> dot product Vector 2: 40
+</code></pre></div><p>That&rsquo;s pretty much it. Now go and write your own programs without much hassle.</p>
+<p><a class=button href="https://github.com/eariassoto/cpp-project-template/tree/basic-template" target="%5fblank">Get the code on GitHub</a></p></article><section class="article labels"><a class="category" href=/categories/development/>Development</a><a class="category" href=/categories/tutorials/>Tutorials</a><a class="tag" href=/tags/c&#43;&#43;/>C&#43;&#43;</a><a class="tag" href=/tags/cmake/>cmake</a><a class="tag" href=/tags/templates/>templates</a></section></div><section class="article navigation"><p><a class="link" href="/post/source-to-source-compilation-with-lex-yacc/"><span class="li">&larr;</span>Source-to-source compilation with Lex-Yacc</a></p></section></div><section id="footer" class="footer"><div class="footer-wrap">
+    <p class="copyright">©2020 Emmanuel Arias.</p>
+    <p class="powerby"><span>Powered by </span><a href="https://gohugo.io" 
+        target="_blank">Hugo</a><span> and the </span><a href="https://themes.gohugo.io/hugo-notepadium/" 
+        target="_blank">Notepadium</a></p>
+</div></section></div>
+</body>
+
+</html>

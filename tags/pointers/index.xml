@@ -1,23 +1,25 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Pointers on Emmanuel Arias</title>
-    <link>https://eariassoto.github.io/tags/pointers/</link>
-    <description>Recent content in Pointers on Emmanuel Arias</description>
+    <title>pointers on Emmanuel Arias</title>
+    <link>/tags/pointers/</link>
+    <description>Recent content in pointers on Emmanuel Arias</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
+    <language>en</language>
+    <copyright>©2020 Emmanuel Arias.</copyright>
     <lastBuildDate>Wed, 28 Feb 2018 21:05:41 -0600</lastBuildDate>
     
-	<atom:link href="https://eariassoto.github.io/tags/pointers/index.xml" rel="self" type="application/rss+xml" />
+        <atom:link href="/tags/pointers/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Make your pointers smart - C&#43;&#43; good practices</title>
-      <link>https://eariassoto.github.io/2018/02/make-your-pointers-smart---c---good-practices/</link>
+      <link>/post/smart-pointers-cpp-good-practices/</link>
       <pubDate>Wed, 28 Feb 2018 21:05:41 -0600</pubDate>
       
-      <guid>https://eariassoto.github.io/2018/02/make-your-pointers-smart---c---good-practices/</guid>
+      <guid>/post/smart-pointers-cpp-good-practices/</guid>
       <description>Ever since the C++ language was first standardized, new and delete were defined as the methods to create/delete objects dynamically. The new operator allocates a memory block to construct an object and then calls the proper class&amp;rsquo; constructor to initialize it. If successful, this operator will return a pointer to the location of the memory block. Otherwise, it will return nullptr or it will throw an exception. The delete operator executes the inverse operation, it deallocates object&amp;rsquo;s memory block.</description>
+      
     </item>
     
   </channel>

@@ -1,44 +1,45 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Templates on Emmanuel Arias</title>
-    <link>https://eariassoto.github.io/tags/templates/</link>
-    <description>Recent content in Templates on Emmanuel Arias</description>
+    <title>templates on Emmanuel Arias</title>
+    <link>/tags/templates/</link>
+    <description>Recent content in templates on Emmanuel Arias</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
+    <language>en</language>
+    <copyright>©2020 Emmanuel Arias.</copyright>
     <lastBuildDate>Sat, 18 Nov 2017 15:57:42 +0000</lastBuildDate>
     
-	<atom:link href="https://eariassoto.github.io/tags/templates/index.xml" rel="self" type="application/rss+xml" />
+        <atom:link href="/tags/templates/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Analyze the testing coverage of your C&#43;&#43; code</title>
-      <link>https://eariassoto.github.io/2017/11/analyze-the-testing-coverage-of-your-c---code/</link>
+      <link>/post/coverage/</link>
       <pubDate>Sat, 18 Nov 2017 15:57:42 +0000</pubDate>
       
-      <guid>https://eariassoto.github.io/2017/11/analyze-the-testing-coverage-of-your-c---code/</guid>
-      <description>&lt;p&gt;Writing unit tests is a great way to ensure that your code is behaving correctly. But how can you tell how much of your code are you testing? The GCC compiler provides tools to analyze the testing coverage of your project. In this post, I will show you how to integrate these tools in a CMake project.
-&lt;/p&gt;</description>
+      <guid>/post/coverage/</guid>
+      <description>&lt;p&gt;Writing unit tests is a great way to ensure that your code is behaving correctly. But how can you tell how much of your code are you testing? The GCC compiler provides tools to analyze the testing coverage of your project. In this post, I will show you how to integrate these tools in a CMake project.&lt;/p&gt;</description>
+      
     </item>
     
     <item>
       <title>Test your C&#43;&#43; code with the Google Test framework</title>
-      <link>https://eariassoto.github.io/2017/10/test-your-c---code-with-the-google-test-framework/</link>
+      <link>/post/unit-tests/</link>
       <pubDate>Tue, 31 Oct 2017 01:53:18 +0000</pubDate>
       
-      <guid>https://eariassoto.github.io/2017/10/test-your-c---code-with-the-google-test-framework/</guid>
-      <description>&lt;p&gt;&lt;a href=&#34;https://eariassoto.github.io/2017/04/building-a-basic-c/c---project-template/&#34;&gt;In a previous post&lt;/a&gt;, I showed you a C/C++ template that you can use for a project. I felt that it needed a basic testing framework. Therefore, we are going to learn how to install and use the Google Test framework to write tests. When we have finished this tutorial, we will have an executable that will run tests for our code.
-&lt;/p&gt;</description>
+      <guid>/post/unit-tests/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;https://eariassoto.github.io/2017/04/building-a-basic-c/c---project-template/&#34;target=&#34;_blank&#34;&gt;In a previous post&lt;/a&gt;, I showed you a C/C++ template that you can use for a project. I felt that it needed a basic testing framework. Therefore, we are going to learn how to install and use the Google Test framework to write tests. When we have finished this tutorial, we will have an executable that will run tests for our code.&lt;/p&gt;</description>
+      
     </item>
     
     <item>
       <title>Building a basic C/C&#43;&#43; project template</title>
-      <link>https://eariassoto.github.io/2017/04/building-a-basic-c/c---project-template/</link>
+      <link>/post/building-a-basic-c-slash-c-plus-plus-project-template/</link>
       <pubDate>Mon, 17 Apr 2017 10:41:16 -0600</pubDate>
       
-      <guid>https://eariassoto.github.io/2017/04/building-a-basic-c/c---project-template/</guid>
-      <description>&lt;p&gt;Starting a C/C++ project can be as easy or as difficult as you want. Personally, I don&amp;rsquo;t like to fire up an IDE just for a small program. So, I end up using a text editor and compiling by terminal. However, the compilation process can get tedious. In this post, we will build a simple project template for a C/C++ program. This project will use the CMake tool to handle all the compilation process.
-&lt;/p&gt;</description>
+      <guid>/post/building-a-basic-c-slash-c-plus-plus-project-template/</guid>
+      <description>&lt;p&gt;Starting a C/C++ project can be as easy or as difficult as you want. Personally, I don&amp;rsquo;t like to fire up an IDE just for a small program. So, I end up using a text editor and compiling by terminal. However, the compilation process can get tedious. In this post, we will build a simple project template for a C/C++ program. This project will use the CMake tool to handle all the compilation process.&lt;/p&gt;</description>
+      
     </item>
     
   </channel>

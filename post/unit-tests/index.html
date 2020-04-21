@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en"><meta charset="utf-8"><meta name="generator" content="Hugo 0.69.0" /><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="supported-color-schemes" content="light dark"><title>Test your C&#43;&#43; code with the Google Test framework&nbsp;&ndash;&nbsp;Emmanuel Arias</title><link rel="stylesheet" href="/css/core.min.b1b309139dc19672eb80b6a0dfcccc126e5f08ca3047bccb2d8e929ed6de3f2b91c5dc97e3f0e470e503f77726a1f08a.css" integrity="sha384-sbMJE53BlnLrgLag38zMEm5fCMowR7zLLY6SntbePyuRxdyX4/DkcOUD93cmofCK"><meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="Test your C&#43;&#43; code with the Google Test framework" /><body>
+    <div class="base-body"><section id="header" class="site header">
+    <div class="header wrap"><span class="header left-side"><a class="site home" href="/"><span class="site name">Emmanuel Arias</span></a></span>
+        <span class="header right-side"><div class="nav wrap"><nav class="nav"><a class="nav item" href="/categories/">Categories</a><a class="nav item" href="/tags/">Tags</a></nav></div></span></div><div class="site slogan"><span class="title">A software developer looking for his <span style='font-family: monospace;'>$PATH</span></span></div></section><div id="content"><div class="article-container"><section class="article header">
+    <h1 class="article title">Test your C++ code with the Google Test framework</h1><p class="article date">Oct 31, 2017</p></section><article class="article markdown-body"><p><a href="https://eariassoto.github.io/2017/04/building-a-basic-c/c---project-template/"target="_blank">In a previous post</a>, I showed you a C/C++ template that you can use for a project. I felt that it needed a basic testing framework. Therefore, we are going to learn how to install and use the Google Test framework to write tests. When we have finished this tutorial, we will have an executable that will run tests for our code.</p>
+<p><a class=button href="https://github.com/eariassoto/cpp-project-template/tree/template-with-ut" target="%5fblank">Get the code on GitHub</a></p>
+<p>I will assume that you are familiarized with unit testing methods. In case you do not know about the Google Test framework, <a href="https://github.com/google/googletest/blob/master/googletest/docs/Primer.md"target="_blank">here</a> is a basic introduction to this library. This post will be more of a tutorial rather than a technical post. I plan to write about test driven development (TDD) in the future.</p>
+<h2 id="requirements">Requirements</h2>
+<p>We need to have installed a C/C++ compiler and CMake on our machine. Next, we need to download the C/C++ template project. <a href="https://github.com/eariassoto/cpp-project-template/tree/basic-template"target="_blank">Here</a> is the link to the repo where you can get it. As I mentioned before, <a href="https://eariassoto.github.io/2017/04/building-a-basic-c/c---project-template/"target="_blank">in this post</a> I got further into details about this template. Feel free to read it, and then come back here to continue. If you have your own CMake project, you can follow the steps and install Google Test on your own project.</p>
+<h2 id="folder-structure">Folder structure</h2>
+<p>Our project should look like this now:</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">cpp-project-template
+├── CMakeLists.txt
+├── include
+│   ├── Greeter.h
+│   ├── IPerson.h
+│   └── Person.h
+├── src
+│   ├── greeter.cpp
+│   └── main.cpp
+└── tests
+    ├── CMakeLists.txt
+    ├── CMakeLists.txt.in
+    ├── include
+    │   └── mocks
+    │       └── MockPerson.h
+    └── src
+        ├── greeterTests.cpp
+        └── main.cpp
+</code></pre></div><p>The <code>tests/</code> folder will contain our unit testing project. It is also a CMake project, so it has its own <code>CMakeLists.txt</code> file. The <code>tests/CMakeLists.txt.in</code> file will help us include the Google Test library.</p>
+<h2 id="setting-up-cmake">Setting up CMake</h2>
+<p>To include our unit testing project, we only need to add this line at the end of our <code>CMakeLists.txt</code> file:</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cmake" data-lang="cmake"><span style="color:#586e75"># Unit tests
+</span><span style="color:#586e75"></span><span style="color:#b58900">add_subdirectory</span>(<span style="color:#2aa198">tests</span>)
+</code></pre></div><p>Now, let&rsquo;s go over the <code>tests/CMakeLists.txt</code> file:</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cmake" data-lang="cmake"><span style="color:#b58900">cmake_minimum_required</span>(<span style="color:#2aa198">VERSION</span> <span style="color:#2aa198">2.8</span>)
+<span style="color:#b58900">set</span> (<span style="color:#2aa198">PROJECT_TEST_NAME</span> <span style="color:#719e07">${</span><span style="color:#268bd2">PROJECT_NAME</span><span style="color:#719e07">}</span><span style="color:#2aa198">-ut</span>)
+
+<span style="color:#586e75"># Download and unpack googletest at configure time
+</span><span style="color:#586e75"></span><span style="color:#b58900">configure_file</span>(<span style="color:#2aa198">CMakeLists.txt.in</span> <span style="color:#2aa198">googletest-download/CMakeLists.txt</span>)
+<span style="color:#b58900">execute_process</span>(<span style="color:#2aa198">COMMAND</span> <span style="color:#2aa198">&#34;${CMAKE_COMMAND}&#34;</span> <span style="color:#2aa198">-G</span> <span style="color:#2aa198">&#34;${CMAKE_GENERATOR}&#34;</span> <span style="color:#2aa198">.</span>
+      <span style="color:#2aa198">WORKING_DIRECTORY</span> <span style="color:#2aa198">&#34;${CMAKE_BINARY_DIR}/tests/googletest-download&#34;</span> )
+<span style="color:#b58900">execute_process</span>(<span style="color:#2aa198">COMMAND</span> <span style="color:#2aa198">&#34;${CMAKE_COMMAND}&#34;</span> <span style="color:#2aa198">--build</span> <span style="color:#2aa198">.</span>
+      <span style="color:#2aa198">WORKING_DIRECTORY</span> <span style="color:#2aa198">&#34;${CMAKE_BINARY_DIR}/tests/googletest-download&#34;</span> )
+<span style="color:#586e75"># Add googletest directly to our build. This adds
+</span><span style="color:#586e75"># the following targets: gtest, gtest_main, gmock
+</span><span style="color:#586e75"># and gmock_main
+</span><span style="color:#586e75"></span><span style="color:#b58900">add_subdirectory</span>(<span style="color:#2aa198">&#34;${CMAKE_BINARY_DIR}/googletest-src&#34;</span><span style="color:#2aa198"></span>
+                 <span style="color:#2aa198">&#34;${CMAKE_BINARY_DIR}/googletest-build&#34;</span>)
+
+<span style="color:#586e75"># Test folder
+</span><span style="color:#586e75"></span><span style="color:#b58900">set</span> (<span style="color:#2aa198">TESTS_DIR</span> <span style="color:#2aa198">tests</span>)
+<span style="color:#586e75"># Header files folder
+</span><span style="color:#586e75"></span><span style="color:#b58900">set</span> (<span style="color:#2aa198">INCL_DIR</span> <span style="color:#2aa198">include</span>)
+<span style="color:#b58900">set</span> (<span style="color:#2aa198">MOCKS_DIR</span> <span style="color:#2aa198">mocks</span>)
+<span style="color:#b58900">include_directories</span> (<span style="color:#719e07">${</span><span style="color:#268bd2">PROJECT_SOURCE_DIR</span><span style="color:#719e07">}</span><span style="color:#2aa198">/</span><span style="color:#719e07">${</span><span style="color:#268bd2">TESTS_DIR</span><span style="color:#719e07">}</span><span style="color:#2aa198">/</span><span style="color:#719e07">${</span><span style="color:#268bd2">INCL_DIR</span><span style="color:#719e07">}</span>)
+<span style="color:#b58900">include_directories</span> (<span style="color:#719e07">${</span><span style="color:#268bd2">PROJECT_SOURCE_DIR</span><span style="color:#719e07">}</span><span style="color:#2aa198">/</span><span style="color:#719e07">${</span><span style="color:#268bd2">TESTS_DIR</span><span style="color:#719e07">}</span><span style="color:#2aa198">/</span><span style="color:#719e07">${</span><span style="color:#268bd2">INCL_DIR</span><span style="color:#719e07">}</span><span style="color:#2aa198">/</span><span style="color:#719e07">${</span><span style="color:#268bd2">MOCKS_DIR</span><span style="color:#719e07">}</span>)
+
+<span style="color:#b58900">set</span> (<span style="color:#2aa198">SRC_DIR</span> <span style="color:#2aa198">src</span>)
+<span style="color:#b58900">set</span>(<span style="color:#2aa198">PROY_UT_SRC</span>
+    <span style="color:#719e07">${</span><span style="color:#268bd2">SRC_DIR</span><span style="color:#719e07">}</span><span style="color:#2aa198">/main.cpp</span>
+    <span style="color:#719e07">${</span><span style="color:#268bd2">SRC_DIR</span><span style="color:#719e07">}</span><span style="color:#2aa198">/greeterTests.cpp</span>
+)
+
+<span style="color:#b58900">set</span> (<span style="color:#2aa198">MAIN_SRC_DIR</span> <span style="color:#2aa198">../src</span>)
+<span style="color:#b58900">include_directories</span> (<span style="color:#719e07">${</span><span style="color:#268bd2">PROJECT_SOURCE_DIR</span><span style="color:#719e07">}</span><span style="color:#2aa198">/</span><span style="color:#719e07">${</span><span style="color:#268bd2">INCL_DIR</span><span style="color:#719e07">}</span>)
+<span style="color:#586e75"># Include all project source files here
+</span><span style="color:#586e75"></span><span style="color:#b58900">set</span> (<span style="color:#2aa198">MAIN_SOURCE</span> <span style="color:#2aa198"></span>
+    <span style="color:#719e07">${</span><span style="color:#268bd2">MAIN_SRC_DIR</span><span style="color:#719e07">}</span><span style="color:#2aa198">/greeter.cpp</span>
+)
+
+<span style="color:#b58900">add_executable</span> (<span style="color:#719e07">${</span><span style="color:#268bd2">PROJECT_TEST_NAME</span><span style="color:#719e07">}</span> <span style="color:#719e07">${</span><span style="color:#268bd2">PROY_UT_SRC</span><span style="color:#719e07">}</span> <span style="color:#719e07">${</span><span style="color:#268bd2">MAIN_SOURCE</span><span style="color:#719e07">}</span>)
+
+<span style="color:#b58900">set_target_properties</span>(<span style="color:#719e07">${</span><span style="color:#268bd2">PROJECT_TEST_NAME</span><span style="color:#719e07">}</span><span style="color:#2aa198"></span>
+                      <span style="color:#2aa198">PROPERTIES</span>
+                      <span style="color:#2aa198">COMPILE_FLAGS</span> <span style="color:#2aa198">&#34;-std=c++11 -Wall -Werror&#34;</span><span style="color:#2aa198"></span>
+)
+<span style="color:#586e75"># Link libraries
+</span><span style="color:#586e75"></span><span style="color:#b58900">target_link_libraries</span>(<span style="color:#719e07">${</span><span style="color:#268bd2">PROJECT_TEST_NAME</span><span style="color:#719e07">}</span><span style="color:#2aa198"></span>
+                      <span style="color:#2aa198">gtest</span>
+                      <span style="color:#2aa198">gmock_main</span>
+)
+</code></pre></div><p>There are several ways I could have included the Google Test library in the project. The <code>find_package</code> command would have done it just fine, but the library needs to be installed in the computer. Another option would have been to manually copy the library in my project and compile it there. Luckily, I found a cleaner and more portable way to install the library. We will tell CMake to automatically clone and compile the library when it builds the project.</p>
+<p>The line 5 of <code>tests/CMakeLists.txt</code> is copying <code>tests/CMakeLists.txt.in</code> to a subdirectory under <code>build/</code>. This file has the information to download Google Tests as an external project:</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cmake" data-lang="cmake"><span style="color:#b58900">cmake_minimum_required</span>(<span style="color:#2aa198">VERSION</span> <span style="color:#2aa198">2.8.2</span>)
+<span style="color:#b58900">project</span>(<span style="color:#2aa198">googletest-download</span> <span style="color:#2aa198">NONE</span>)
+ 
+<span style="color:#b58900">include</span>(<span style="color:#2aa198">ExternalProject</span>)
+<span style="color:#b58900">ExternalProject_Add</span>(<span style="color:#2aa198">googletest</span>
+  <span style="color:#2aa198">GIT_REPOSITORY</span>    <span style="color:#2aa198">https://github.com/google/googletest.git</span>
+  <span style="color:#2aa198">GIT_TAG</span>           <span style="color:#2aa198">master</span>
+  <span style="color:#2aa198">SOURCE_DIR</span>        <span style="color:#2aa198">&#34;${CMAKE_BINARY_DIR}/googletest-src&#34;</span><span style="color:#2aa198"></span>
+  <span style="color:#2aa198">BINARY_DIR</span>        <span style="color:#2aa198">&#34;${CMAKE_BINARY_DIR}/googletest-build&#34;</span><span style="color:#2aa198"></span>
+  <span style="color:#2aa198">CONFIGURE_COMMAND</span> <span style="color:#2aa198">&#34;&#34;</span><span style="color:#2aa198"></span>
+  <span style="color:#2aa198">BUILD_COMMAND</span>     <span style="color:#2aa198">&#34;&#34;</span><span style="color:#2aa198"></span>
+  <span style="color:#2aa198">INSTALL_COMMAND</span>   <span style="color:#2aa198">&#34;&#34;</span><span style="color:#2aa198"></span>
+  <span style="color:#2aa198">TEST_COMMAND</span>      <span style="color:#2aa198">&#34;&#34;</span><span style="color:#2aa198"></span>
+)
+</code></pre></div><p>Lines 6-9 of <code>tests/CMakeLists.txt</code> execute the commands that download and build the library. Lines 13-14 add the library as a submodule. Finally, the linking of the library is made in lines 44-47. Notice that this library will only be available to our unit testing project.</p>
+<p>The rest of the <code>tests/CMakeLists.txt</code> file should be familiar to you. Similarly to our main project, your can keep your headers in <code>tests/include</code> and your source code in <code>tests/src</code>. It is important that you also include the headers and source files of your main project. Otherwise, your tests will fail to compile.</p>
+<p>We need a main function for out unit testing project&rsquo;s executable file. This function will search for tests and run them all:</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#719e07">#include</span> <span style="color:#719e07">&lt;gtest/gtest.h&gt;</span><span style="color:#719e07">
+</span><span style="color:#719e07"></span>
+<span style="color:#dc322f">int</span> <span style="color:#268bd2">main</span>(<span style="color:#dc322f">int</span> argc, <span style="color:#dc322f">char</span> <span style="color:#719e07">**</span>argv) {
+  testing<span style="color:#719e07">::</span>InitGoogleTest(<span style="color:#719e07">&amp;</span>argc, argv);
+  <span style="color:#719e07">return</span> RUN_ALL_TESTS();
+}
+</code></pre></div><p>And that is pretty much it. We do not need additional commands to compile our unit testing project. After we build the main project, the executable for the unit tests will be under the <code>bin/</code> folder. The executable is named like the main project, but it will have the <code>-ut</code> suffix.</p>
+<h2 id="a-simple-example">A simple example</h2>
+<p>To give you a small example of unit testing with Google Test, let&rsquo;s make a simple program to greet people. We want to encapsulate the person&rsquo;s data, and then pass it to our greeter.</p>
+<p>As you can imagine, we will implement classes <code>Person</code> and <code>Greeter</code>. Additionally, we will abstract <code>Person</code>'s implementation in the interface <code>IPerson</code>. With this, <code>Greeter</code> can take any <code>IPerson</code> implementation. Using interfaces to handle dependencies between classes makes our classes independent of each other. Furthermore, it makes our code more easy to maintain and test.</p>
+<p>Without more, let&rsquo;s see the code for out program:</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#719e07">#ifndef __IPERSON__H__
+</span><span style="color:#719e07">#define __IPERSON__H__
+</span><span style="color:#719e07">#include</span> <span style="color:#719e07">&lt;string&gt;</span><span style="color:#719e07">
+</span><span style="color:#719e07"></span>
+<span style="color:#719e07">class</span> <span style="color:#268bd2">IPerson</span> {
+<span style="color:#719e07">public</span><span style="color:#719e07">:</span>
+  <span style="color:#719e07">virtual</span> <span style="color:#719e07">~</span>IPerson(){};
+  <span style="color:#719e07">virtual</span> std<span style="color:#719e07">::</span>string getName() <span style="color:#719e07">const</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">0</span>;
+};
+<span style="color:#719e07">#endif </span><span style="color:#586e75">/** __IPERSON__H__ */</span><span style="color:#719e07">
+</span></code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#719e07">#ifndef __PERSON__H__
+</span><span style="color:#719e07">#define __PERSON__H__
+</span><span style="color:#719e07">#include</span> <span style="color:#719e07">&lt;IPerson.h&gt;</span><span style="color:#719e07">
+</span><span style="color:#719e07"></span>
+<span style="color:#719e07">class</span> <span style="color:#268bd2">Person</span> <span style="color:#719e07">:</span> <span style="color:#719e07">public</span> IPerson {
+<span style="color:#719e07">public</span><span style="color:#719e07">:</span>
+  Person(std<span style="color:#719e07">::</span>string name) <span style="color:#719e07">:</span> name(name){};
+  <span style="color:#719e07">~</span>Person(){};
+
+  std<span style="color:#719e07">::</span>string getName() <span style="color:#719e07">const</span> { <span style="color:#719e07">return</span> name; };
+
+<span style="color:#719e07">protected</span><span style="color:#719e07">:</span>
+  std<span style="color:#719e07">::</span>string name;
+};
+<span style="color:#719e07">#endif </span><span style="color:#586e75">/** __PERSON__H__ */</span><span style="color:#719e07">
+</span></code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#719e07">#ifndef __GREETER__
+</span><span style="color:#719e07">#define __GREETER__
+</span><span style="color:#719e07">#include</span> <span style="color:#719e07">&#34;IPerson.h&#34;</span><span style="color:#719e07">
+</span><span style="color:#719e07">#include</span> <span style="color:#719e07">&lt;string&gt;</span><span style="color:#719e07">
+</span><span style="color:#719e07"></span>
+<span style="color:#719e07">class</span> <span style="color:#268bd2">Greeter</span> {
+<span style="color:#719e07">public</span><span style="color:#719e07">:</span>
+  std<span style="color:#719e07">::</span>string greet();
+  std<span style="color:#719e07">::</span>string greetTo(IPerson <span style="color:#719e07">&amp;</span>person);
+};
+<span style="color:#719e07">#endif </span><span style="color:#586e75">/* __GREETER__ */</span><span style="color:#719e07">
+</span></code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#719e07">#include</span> <span style="color:#719e07">&#34;Greeter.h&#34;</span><span style="color:#719e07">
+</span><span style="color:#719e07"></span>
+std<span style="color:#719e07">::</span>string Greeter<span style="color:#719e07">::</span>greet() { <span style="color:#719e07">return</span> <span style="color:#2aa198">&#34;Hello world!&#34;</span>; }
+
+std<span style="color:#719e07">::</span>string Greeter<span style="color:#719e07">::</span>greetTo(IPerson <span style="color:#719e07">&amp;</span>person) {
+  <span style="color:#719e07">return</span> <span style="color:#2aa198">&#34;Hi &#34;</span> <span style="color:#719e07">+</span> person.getName() <span style="color:#719e07">+</span> <span style="color:#2aa198">&#34;!&#34;</span>;
+}
+</code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#719e07">#include</span> <span style="color:#719e07">&lt;iostream&gt;</span><span style="color:#719e07">
+</span><span style="color:#719e07">#include</span> <span style="color:#719e07">&#34;Greeter.h&#34;</span><span style="color:#719e07">
+</span><span style="color:#719e07">#include</span> <span style="color:#719e07">&#34;Person.h&#34;</span><span style="color:#719e07">
+</span><span style="color:#719e07"></span>
+<span style="color:#dc322f">int</span> <span style="color:#268bd2">main</span>(<span style="color:#dc322f">int</span> argc, <span style="color:#dc322f">char</span> <span style="color:#719e07">*</span>argv[]) {
+  Person p{<span style="color:#2aa198">&#34;Emmanuel&#34;</span>};
+  Greeter g;
+  std<span style="color:#719e07">::</span>cout <span style="color:#719e07">&lt;&lt;</span> g.greet() <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#39;\n&#39;</span>;
+  std<span style="color:#719e07">::</span>cout <span style="color:#719e07">&lt;&lt;</span> g.greetTo(p) <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#39;\n&#39;</span>;
+  <span style="color:#719e07">return</span> <span style="color:#2aa198">0</span>;
+}
+</code></pre></div><p>Let&rsquo;s compile and run both our program and our unit testing executable:</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">~/cpp-project-template $ mkdir build
+~/cpp-project-template $ <span style="color:#b58900">cd</span> build
+~/cpp-project-template/build $ cmake ..
+~/cpp-project-template/build $ make
+~/cpp-project-template/build $ ./../bin/cpp-project-template
+Hello world!
+Hi Emmanuel!
+~/cpp-project-template/build $ ./../bin/cpp-project-template-ut
+<span style="color:#719e07">[==========]</span> Running <span style="color:#2aa198">0</span> tests from <span style="color:#2aa198">0</span> <span style="color:#b58900">test</span> cases.
+<span style="color:#719e07">[==========]</span> <span style="color:#2aa198">0</span> tests from <span style="color:#2aa198">0</span> <span style="color:#b58900">test</span> cases ran. <span style="color:#719e07">(</span><span style="color:#2aa198">0</span> ms total<span style="color:#719e07">)</span>
+<span style="color:#719e07">[</span>  PASSED  <span style="color:#719e07">]</span> <span style="color:#2aa198">0</span> tests.
+</code></pre></div><p>Everything seems fine, our program is showing the correct output, and the unit testing executable ran zero tests. We will start writing the tests for the <code>Person</code> class. We only need one test for the <code>std::string getName()</code> function.</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#719e07">#include</span> <span style="color:#719e07">&#34;Person.h&#34;</span><span style="color:#719e07">
+</span><span style="color:#719e07">#include</span> <span style="color:#719e07">&lt;gtest/gtest.h&gt;</span><span style="color:#719e07">
+</span><span style="color:#719e07"></span>
+TEST(GreeterTests, PersonGetNameTest) {
+  Person p{<span style="color:#2aa198">&#34;Woz&#34;</span>};
+  ASSERT_STREQ(p.getName().c_str(), <span style="color:#2aa198">&#34;Woz&#34;</span>);
+}
+</code></pre></div><p>For the <code>Greeter</code> class, we need to deal with the <code>IPerson</code>. interface. Passing a <code>Person</code> instance might bring us problems. If <code>Person</code> has bugs, our tests will probably be affected. To isolate the testing of <code>Greeter</code> from whatever <code>IPerson</code> implementation we have, we need to implement mock objects. A mock is a simulated object that mimics the behavior of a real object.</p>
+<p>To create mocks in our unit testing project, Google Test provides the <a href="https://github.com/google/googletest/blob/master/googlemock/docs/ForDummies.md"target="_blank">Google Mock</a> library. We will define a <code>MockIPerson</code> class that will simulate the behavior for interface <code>IPerson</code>. We will make this mock behave correctly in our <code>Greeter</code> unit tests.</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#719e07">#ifndef __MOCKIPERSON__
+</span><span style="color:#719e07">#define __MOCKIPERSON__
+</span><span style="color:#719e07">#include</span> <span style="color:#719e07">&#34;IPerson.h&#34;</span><span style="color:#719e07">
+</span><span style="color:#719e07">#include</span> <span style="color:#719e07">&#34;gmock/gmock.h&#34;</span><span style="color:#719e07">
+</span><span style="color:#719e07">#include</span> <span style="color:#719e07">&lt;string&gt;</span><span style="color:#719e07">
+</span><span style="color:#719e07"></span>
+<span style="color:#719e07">class</span> <span style="color:#268bd2">MockIPerson</span> <span style="color:#719e07">:</span> <span style="color:#719e07">public</span> IPerson {
+<span style="color:#719e07">public</span><span style="color:#719e07">:</span>
+  MockIPerson(){}
+  <span style="color:#719e07">~</span>MockIPerson(){}
+  MOCK_CONST_METHOD0(getName, std<span style="color:#719e07">::</span>string());
+};
+<span style="color:#719e07">#endif </span><span style="color:#586e75">/** __MOCKIPERSON__ */</span><span style="color:#719e07">
+</span></code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#719e07">#include</span> <span style="color:#719e07">&#34;Greeter.h&#34;</span><span style="color:#719e07">
+</span><span style="color:#719e07">#include</span> <span style="color:#719e07">&#34;MockPerson.h&#34;</span><span style="color:#719e07">
+</span><span style="color:#719e07">#include</span> <span style="color:#719e07">&lt;gtest/gtest.h&gt;</span><span style="color:#719e07">
+</span><span style="color:#719e07"></span><span style="color:#719e07">using</span> <span style="color:#719e07">::</span>testing<span style="color:#719e07">::</span>Return;
+
+TEST(GreeterTests, GreetTest) {
+  Greeter g;
+  ASSERT_STREQ(g.greet().c_str(), <span style="color:#2aa198">&#34;Hello world!&#34;</span>);
+}
+ 
+TEST(GreeterTests, GreetToTest) {
+  MockPerson mockPerson;
+  EXPECT_CALL(mockPerson, getName()).WillOnce(Return(<span style="color:#2aa198">&#34;Greg&#34;</span>));
+  Greeter g;
+  ASSERT_STREQ(g.greetTo(mockPerson).c_str(), <span style="color:#2aa198">&#34;Hi Greg!&#34;</span>);
+}
+</code></pre></div><p>Notice that, in line 13, we catch the <code>getName()</code> call from our mock. <code>greetTo</code> will call this function, and the mock will return the string we provided. Finally, let&rsquo;s recompile and run our tests.</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">~/cpp-project-template/build $ cmake ..
+~/cpp-project-template/build $ make
+~/cpp-project-template/build $ ./../bin/cpp-project-template-ut
+<span style="color:#719e07">[[==========]</span> Running <span style="color:#2aa198">3</span> tests from <span style="color:#2aa198">1</span> <span style="color:#b58900">test</span> <span style="color:#719e07">case</span>.
+<span style="color:#719e07">[</span>----------<span style="color:#719e07">]</span> Global <span style="color:#b58900">test</span> environment set-up.
+<span style="color:#719e07">[</span>----------<span style="color:#719e07">]</span> <span style="color:#2aa198">3</span> tests from GreeterTests
+<span style="color:#719e07">[</span> RUN      <span style="color:#719e07">]</span> GreeterTests.GreetTest
+<span style="color:#719e07">[</span>       OK <span style="color:#719e07">]</span> GreeterTests.GreetTest <span style="color:#719e07">(</span><span style="color:#2aa198">0</span> ms<span style="color:#719e07">)</span>
+<span style="color:#719e07">[</span> RUN      <span style="color:#719e07">]</span> GreeterTests.GreetToTest
+<span style="color:#719e07">[</span>       OK <span style="color:#719e07">]</span> GreeterTests.GreetToTest <span style="color:#719e07">(</span><span style="color:#2aa198">0</span> ms<span style="color:#719e07">)</span>
+<span style="color:#719e07">[</span> RUN      <span style="color:#719e07">]</span> GreeterTests.PersonGetNameTest
+<span style="color:#719e07">[</span>       OK <span style="color:#719e07">]</span> GreeterTests.PersonGetNameTest <span style="color:#719e07">(</span><span style="color:#2aa198">0</span> ms<span style="color:#719e07">)</span>
+<span style="color:#719e07">[</span>----------<span style="color:#719e07">]</span> <span style="color:#2aa198">3</span> tests from GreeterTests <span style="color:#719e07">(</span><span style="color:#2aa198">0</span> ms total<span style="color:#719e07">)</span>
+
+<span style="color:#719e07">[</span>----------<span style="color:#719e07">]</span> Global <span style="color:#b58900">test</span> environment tear-down
+<span style="color:#719e07">[==========]</span> <span style="color:#2aa198">3</span> tests from <span style="color:#2aa198">1</span> <span style="color:#b58900">test</span> <span style="color:#719e07">case</span> ran. <span style="color:#719e07">(</span><span style="color:#2aa198">1</span> ms total<span style="color:#719e07">)</span>
+<span style="color:#719e07">[</span>  PASSED  <span style="color:#719e07">]</span> <span style="color:#2aa198">3</span> tests.
+</code></pre></div><h2 id="where-to-go-next">Where to go next</h2>
+<p>The documentation for Google Test is quite extensive. Here is a list of resources you can check to learn how to use this framework:</p>
+<ul>
+<li><a href="https://github.com/google/googletest/blob/master/googletest/docs/Documentation.md"target="_blank">Google Test documentation</a></li>
+<li><a href="https://github.com/google/googletest/tree/master/googlemock/docs"target="_blank">Google Mock documentation</a></li>
+</ul>
+<p><a class=button href="https://github.com/eariassoto/cpp-project-template/tree/template-with-ut" target="%5fblank">Get the code on GitHub</a></p></article><section class="article labels"><a class="category" href=/categories/development/>Development</a><a class="category" href=/categories/tutorials/>Tutorials</a><a class="tag" href=/tags/c&#43;&#43;/>C&#43;&#43;</a><a class="tag" href=/tags/cmake/>cmake</a><a class="tag" href=/tags/templates/>templates</a><a class="tag" href=/tags/unit-test/>unit test</a></section></div><section class="article navigation"><p><a class="link" href="/post/coverage/"><span class="li">&larr;</span>Analyze the testing coverage of your C++ code</a></p><p><a class="link" href="/post/first-steps-with-go/"><span class="li">&rarr;</span>First Steps With Go</a></p></section></div><section id="footer" class="footer"><div class="footer-wrap">
+    <p class="copyright">©2020 Emmanuel Arias.</p>
+    <p class="powerby"><span>Powered by </span><a href="https://gohugo.io" 
+        target="_blank">Hugo</a><span> and the </span><a href="https://themes.gohugo.io/hugo-notepadium/" 
+        target="_blank">Notepadium</a></p>
+</div></section></div>
+</body>
+
+</html>

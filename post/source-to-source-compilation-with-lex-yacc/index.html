@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en"><meta charset="utf-8"><meta name="generator" content="Hugo 0.69.0" /><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="supported-color-schemes" content="light dark"><title>Source-to-source compilation with Lex-Yacc&nbsp;&ndash;&nbsp;Emmanuel Arias</title><link rel="stylesheet" href="/css/core.min.b1b309139dc19672eb80b6a0dfcccc126e5f08ca3047bccb2d8e929ed6de3f2b91c5dc97e3f0e470e503f77726a1f08a.css" integrity="sha384-sbMJE53BlnLrgLag38zMEm5fCMowR7zLLY6SntbePyuRxdyX4/DkcOUD93cmofCK"><meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="Source-to-source compilation with Lex-Yacc" /><body>
+    <div class="base-body"><section id="header" class="site header">
+    <div class="header wrap"><span class="header left-side"><a class="site home" href="/"><span class="site name">Emmanuel Arias</span></a></span>
+        <span class="header right-side"><div class="nav wrap"><nav class="nav"><a class="nav item" href="/categories/">Categories</a><a class="nav item" href="/tags/">Tags</a></nav></div></span></div><div class="site slogan"><span class="title">A software developer looking for his <span style='font-family: monospace;'>$PATH</span></span></div></section><div id="content"><div class="article-container"><section class="article header">
+    <h1 class="article title">Source-to-source compilation with Lex-Yacc</h1><p class="article date">Jul 15, 2017</p></section><article class="article markdown-body"><p>In this post, I will describe a source-to-source compiler that transforms a Brainfuck program into its equivalent 64 bits assembly code. The assembly program can be built into a executable, thus allowing you to run Brainfuck programs natively.</p>
+<p>A source-to-source compiler is a compiler that takes a program written in a certain language and outputs the equivalent program in another language. This process is useful to compile a program to an intermediate language, or to provide backward compatibility for a legacy language. The Babel compiler, for instance, can parse Javascript ES6 to Javascript ES5 standard. The ES6 standard comes with a lot of improvements and new features, but it is currently not supported by most web browsers. Or maybe, you can come up with a new language and translate it to another one. Take for example this list of <a href="https://github.com/jashkenas/coffeescript/wiki/list-of-languages-that-compile-to-js"target="_blank">languages that compile to Javascript</a>.</p>
+<p><a class=button href="https://github.com/eariassoto/brasm/" target="%5fblank">Get the code on GitHub</a></p>
+<h1 id="requirements">Requirements</h1>
+<p>I used Python to develop the compiler. In order to run the compiler you need to have Python installed on your computer. Also, you need the Python Lex-Yacc (PLY) module installed in your python environment. You can download the latest PLY version (I used the 3.10 version) from the <a href="http://www.dabeaz.com/ply/"target="_blank">PLY homepage</a>. To install PLY uncompress the file you downloaded, open a terminal within the uncompressed folder and run:</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ sudo python setup.py install
+</code></pre></div><p>In case you want to compile the assembly code, you need the <a href="http://www.x86asm.us/"target="_blank">x86asm assembler</a>, and the Linux dynamic linker (ld command). I decided to go with x86asm because it supports the Intel assembly syntax which is more readable than the AT&amp;T syntax.</p>
+<h1 id="the-source-language-brainfuck">The source language: Brainfuck</h1>
+<p>Brainfuck is a  <a href="https://en.wikipedia.org/wiki/Turing_completeness"target="_blank">Turing complete</a> programming language. I chose this language as input language because it has a small set of instructions. Its only memory structure is a buffer of at least 30,000 bytes initialized to zero. In C, that buffer can be declared as <code>char buffer[30000] = {0};</code>. The only variable is a data pointer that starts at the beginning of the buffer. To continue the C analogy, the data pointer might be declared as <code>char *ptr = buffer;</code></p>
+<p>A Brainfuck program is structured as a series of instructions. The most basic instructions manipulate memory buffer using the data pointer. There are two streams of bytes for input and output. Also, there are two instructions to implement loops. Table below describes all the instructions:</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th align="center">Description</th>
+<th align="right">C equivalent</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&gt;</td>
+<td align="center">Increment data pointer</td>
+<td align="right">++ptr;</td>
+</tr>
+<tr>
+<td>&lt;</td>
+<td align="center">Decrement data pointer</td>
+<td align="right">&ndash;ptr;</td>
+</tr>
+<tr>
+<td>+</td>
+<td align="center">Increment by one byte at the data pointer</td>
+<td align="right">++*ptr;</td>
+</tr>
+<tr>
+<td>-</td>
+<td align="center">Decrement by one byte at the data pointer</td>
+<td align="right">&ndash;*ptr;</td>
+</tr>
+<tr>
+<td>.</td>
+<td align="center">Print byte at the data pointer</td>
+<td align="right">putchar(*ptr);</td>
+</tr>
+<tr>
+<td>,</td>
+<td align="center">Read char from input, store in the byte at the data pointer</td>
+<td align="right">*ptr=getchar();</td>
+</tr>
+<tr>
+<td>[</td>
+<td align="center">If the byte at the data pointer is zero, jump to matching <code>]</code></td>
+<td align="right">while (*ptr) {</td>
+</tr>
+<tr>
+<td>]</td>
+<td align="center">if the byte at the data pointer is nonzero, jump to matching <code>[</code></td>
+<td align="right">}</td>
+</tr>
+</tbody>
+</table>
+<p>Brainfuck falls into the category of <a href="https://en.wikipedia.org/wiki/Esoteric_programming_language"target="_blank">esoteric programming languages</a>. So, Brainfuck programs are really hard to understand. For example, this is an implementation of the classic &ldquo;Hello World&rdquo; program written in Brainfuck:</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-brainfuck" data-lang="brainfuck"><span style="color:#b58900">++++++++++</span><span style="color:#719e07">[</span><span style="color:#268bd2">&gt;</span><span style="color:#b58900">+++++++</span><span style="color:#268bd2">&gt;</span><span style="color:#b58900">++++++++++</span><span style="color:#268bd2">&gt;</span><span style="color:#b58900">+++</span><span style="color:#268bd2">&gt;</span><span style="color:#b58900">+</span><span style="color:#268bd2">&lt;&lt;&lt;&lt;</span><span style="color:#b58900">-</span><span style="color:#719e07">]</span><span style="color:#586e75">
+</span><span style="color:#586e75"></span><span style="color:#268bd2">&gt;</span><span style="color:#b58900">++</span><span style="color:#268bd2">.</span><span style="color:#268bd2">&gt;</span><span style="color:#b58900">+</span><span style="color:#268bd2">.</span><span style="color:#b58900">+++++++</span><span style="color:#268bd2">..</span><span style="color:#b58900">+++</span><span style="color:#268bd2">.</span><span style="color:#268bd2">&gt;</span><span style="color:#b58900">++</span><span style="color:#268bd2">.</span><span style="color:#268bd2">&lt;&lt;</span><span style="color:#b58900">+++++++++++++++</span><span style="color:#268bd2">.</span><span style="color:#268bd2">&gt;</span><span style="color:#268bd2">.</span><span style="color:#b58900">+++</span><span style="color:#268bd2">.</span><span style="color:#b58900">------</span><span style="color:#268bd2">.</span><span style="color:#b58900">--------</span><span style="color:#268bd2">.</span><span style="color:#268bd2">&gt;</span><span style="color:#b58900">+</span><span style="color:#268bd2">.</span><span style="color:#268bd2">&gt;</span><span style="color:#268bd2">.</span><span style="color:#586e75">
+</span></code></pre></div><h1 id="hello-assembly">Hello Assembly</h1>
+<p>For this post, I will assume you are familiarized with x86-64 assembly code. To compare the previous example, I wrote a Hello World in x86-64 assembly code.</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-GAS" data-lang="GAS"><span style="color:#268bd2">global</span> <span style="color:#cb4b16">_start</span>
+
+<span style="color:#268bd2">section</span> <span style="color:#cb4b16">.text</span>
+_start:
+<span style="color:#268bd2">mov</span> <span style="color:#cb4b16">rax</span>, <span style="color:#2aa198">1</span>
+<span style="color:#268bd2">mov</span> <span style="color:#cb4b16">rdi</span>, <span style="color:#2aa198">1</span>
+<span style="color:#268bd2">mov</span> <span style="color:#cb4b16">rsi</span>, <span style="color:#cb4b16">message</span>
+<span style="color:#268bd2">mov</span> <span style="color:#cb4b16">rdx</span>, <span style="color:#2aa198">13</span>
+<span style="color:#268bd2">syscall</span>
+
+<span style="color:#268bd2">mov</span> <span style="color:#cb4b16">eax</span>, <span style="color:#2aa198">60</span>
+<span style="color:#268bd2">xor</span> <span style="color:#cb4b16">rdi</span>, <span style="color:#cb4b16">rdi</span>
+<span style="color:#268bd2">syscall</span>
+
+message:
+<span style="color:#268bd2">db</span> &#34;<span style="color:#cb4b16">Hello</span>, <span style="color:#cb4b16">World</span>&#34;, <span style="color:#2aa198">10</span>
+</code></pre></div><p>The <code>global _start</code> directive defines the entry point for our program. The <code>.text</code> section contains the program instructions and all constants we defined. This program calls two special functions, called system calls. System calls are functions executed by the kernel because they required higher privileges. These functions take parameters using registers, and they are invoked using the <code>syscall</code> instruction. This “hello world” program calls the  <code>sys_write</code> system call to print the string <code>&quot;Hello World&quot;</code>, and the <code>sys_exit</code> system call to exit the program. To check all the available system calls and their parameters, <a href="http://blog.rchapman.org/posts/Linux_System_Call_Table_for_x86_64/"target="_blank">check this list</a>.</p>
+<h1 id="translating-brainfuck-instructions-set-to-x64-assembly">Translating Brainfuck instructions set to x64 assembly</h1>
+<p>The first thing I needed to define was the buffer memory and the data pointer. I declared the buffer as a 30000 bytes zero-initialized array in the <code>.bss</code> section. In this section, the program declared static variables. These variables will be allocated and initialized by the program loader. All variables in the <code>.bss</code> section are zero-initialized. For the data pointer, I will use register <code>r9</code>. When the program starts, the buffer address will be stored in this register.</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-GAS" data-lang="GAS"><span style="color:#268bd2">section</span> <span style="color:#cb4b16">.bss</span>
+buffer: <span style="color:#268bd2">resb</span> <span style="color:#2aa198">30000</span>
+
+_start:
+<span style="color:#268bd2">mov</span> <span style="color:#cb4b16">r9</span>, <span style="color:#cb4b16">buffer</span>
+</code></pre></div><p>I will break Brainfuck instructions into four subsections: pointer instructions, data instructions, input/output instructions, and the loop instruction.</p>
+<h2 id="pointer-instructions">Pointer instructions</h2>
+<p>Instructions <code>&gt;</code> and <code>&lt;</code> move the data pointer through the buffer. For this task, address in register <code>r9</code> should move eight positions (so the address moves a byte) forward or backwards.</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-GAS" data-lang="GAS"><span style="color:#586e75">; &gt; move data pointer forward
+</span><span style="color:#586e75"></span><span style="color:#268bd2">add</span> <span style="color:#cb4b16">r9</span>, <span style="color:#2aa198">8</span>
+
+<span style="color:#586e75">; &lt; move data pointer backward
+</span><span style="color:#586e75"></span><span style="color:#268bd2">sub</span> <span style="color:#cb4b16">r9</span>, <span style="color:#2aa198">8</span>
+</code></pre></div><h2 id="data-instructions">Data instructions</h2>
+<p>Here, the byte stored in the address in register <code>r9</code> is modified using a temporary register, <code>r10b</code>. Then, the result value is stored back into the same address.</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-GAS" data-lang="GAS"><span style="color:#586e75">; + add 1 to byte at data pointer
+</span><span style="color:#586e75"></span><span style="color:#268bd2">mov</span> <span style="color:#cb4b16">byte</span> <span style="color:#cb4b16">r10b</span>, [<span style="color:#cb4b16">r9</span>]
+<span style="color:#268bd2">add</span> <span style="color:#cb4b16">r10b</span>, <span style="color:#2aa198">1</span>
+<span style="color:#268bd2">mov</span> <span style="color:#cb4b16">byte</span> [<span style="color:#cb4b16">r9</span>], <span style="color:#cb4b16">r10b</span>
+
+<span style="color:#586e75">; - subtract 1 to byte at data pointer
+</span><span style="color:#586e75"></span><span style="color:#268bd2">mov</span> <span style="color:#cb4b16">byte</span> <span style="color:#cb4b16">r10b</span>, [<span style="color:#cb4b16">r9</span>]
+<span style="color:#268bd2">sub</span> <span style="color:#cb4b16">r10b</span>, <span style="color:#2aa198">1</span>
+<span style="color:#268bd2">mov</span> <span style="color:#cb4b16">byte</span> [<span style="color:#cb4b16">r9</span>], <span style="color:#cb4b16">r10b</span>
+</code></pre></div><h2 id="inputoutput-instructions">Input/Output instructions</h2>
+<p>To provide the input and output data streams, I used system calls. These are functions provided and executed by the kernel that allow a program to interact with higher level functionality. Before calling a system call the register <code>rax</code> must have the system call id number. Some system calls may take parameters from specific registers. The compiler uses the <code>sys_write</code> and <code>sys_read</code> system calls to read and write from <code>stdin</code> and <code>stdout</code> respectively.</p>
+<p>The <code>_print_byte</code> function prints an input byte on <code>stdout</code>. Input byte must be store on the register <code>rcx</code>. The function pushes the register <code>rcx</code> into the stack. Then, it prepares the registers needed by the system call <code>sys_write</code>. Register <code>rdi</code> contains the file descriptor. In this case <code>stdout</code> file descriptor is <code>1</code>. Register <code>rsi</code> has the address of the content to be written, in our case the stack address. Register <code>rdx</code> has the length of the buffer. Finally, register <code>rax</code> contains the system call id, for <code>sys_write</code> the id is <code>1</code>. Before calling <code>_print_byte</code> function, the program will store on register <code>cl</code> (lowest byte in register <code>rcx</code>) the byte at data pointer.</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-GAS" data-lang="GAS">_print_byte:
+<span style="color:#268bd2">push</span> <span style="color:#cb4b16">rcx</span> <span style="color:#586e75">; grow stack and push output byte to stack
+</span><span style="color:#586e75"></span><span style="color:#cb4b16">mov</span> <span style="color:#cb4b16">rdi</span>, <span style="color:#2aa198">1</span> <span style="color:#586e75">; file descriptor 1 is stdout
+</span><span style="color:#586e75"></span><span style="color:#cb4b16">mov</span> <span style="color:#cb4b16">rsi</span>, <span style="color:#cb4b16">rsp</span> <span style="color:#586e75">; stack address
+</span><span style="color:#586e75"></span><span style="color:#cb4b16">mov</span> <span style="color:#cb4b16">rdx</span>, <span style="color:#2aa198">1</span> <span style="color:#586e75">; number of bytes to print
+</span><span style="color:#586e75"></span><span style="color:#cb4b16">mov</span> <span style="color:#cb4b16">rax</span>, <span style="color:#2aa198">1</span> <span style="color:#586e75">; system call 1 is write
+</span><span style="color:#586e75"></span><span style="color:#cb4b16">syscall</span> <span style="color:#586e75">; call OS system call
+</span><span style="color:#586e75"></span><span style="color:#cb4b16">pop</span> <span style="color:#cb4b16">rcx</span> <span style="color:#586e75">; decrease stack
+</span><span style="color:#586e75"></span><span style="color:#cb4b16">ret</span>
+
+<span style="color:#586e75">; . call _print_byte function
+</span><span style="color:#586e75"></span><span style="color:#268bd2">mov</span> <span style="color:#cb4b16">cl</span>, [<span style="color:#cb4b16">r9</span>]
+<span style="color:#268bd2">call</span> <span style="color:#cb4b16">_print_byte</span>
+</code></pre></div><p>The <code>_read_byte</code> function is very similar to the <code>_print_byte</code> function. The only difference is that <code>sys_read</code> id number is <code>0</code>, and the file descriptor for <code>stdin</code> is also <code>0</code>. After calling <code>_read_byte</code> function, the program stores the byte returned by <code>_read_byte</code> on <code>cl</code> at data pointer.</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-GAS" data-lang="GAS">_read_byte:
+<span style="color:#268bd2">sub</span> <span style="color:#cb4b16">rsp</span>, <span style="color:#2aa198">8</span> <span style="color:#586e75">; grow stack
+</span><span style="color:#586e75"></span><span style="color:#cb4b16">mov</span> <span style="color:#cb4b16">rsi</span>, <span style="color:#cb4b16">rsp</span> <span style="color:#586e75">; stack address
+</span><span style="color:#586e75"></span><span style="color:#cb4b16">mov</span> <span style="color:#cb4b16">rdi</span>, <span style="color:#2aa198">0</span> <span style="color:#586e75">; file descriptor 0 is stdin
+</span><span style="color:#586e75"></span><span style="color:#cb4b16">mov</span> <span style="color:#cb4b16">rdx</span>, <span style="color:#2aa198">1</span> <span style="color:#586e75">; number of bytes
+</span><span style="color:#586e75"></span><span style="color:#cb4b16">mov</span> <span style="color:#cb4b16">rax</span>, <span style="color:#2aa198">0</span> <span style="color:#586e75">; syscall 0 is read
+</span><span style="color:#586e75"></span><span style="color:#cb4b16">syscall</span> <span style="color:#586e75">; call OS system call
+</span><span style="color:#586e75"></span><span style="color:#cb4b16">pop</span> <span style="color:#cb4b16">rcx</span> <span style="color:#586e75">; decrease stack and save input
+</span><span style="color:#586e75"></span><span style="color:#cb4b16">ret</span>
+
+<span style="color:#586e75">; , call _read_byte function
+</span><span style="color:#586e75"></span><span style="color:#268bd2">call</span> <span style="color:#cb4b16">_read_byte</span>
+<span style="color:#268bd2">mov</span> <span style="color:#cb4b16">byte</span> [<span style="color:#cb4b16">r9</span>], <span style="color:#cb4b16">cl</span>
+</code></pre></div><h2 id="loop-instruction">Loop instruction</h2>
+<p>The instructions <code>[</code> and <code>]</code> are the C equivalent of <code>while (*ptr) { }</code>. The assembly loop jumps into the comparison between the byte at data pointer and zero. If the value is not zero, the program jumps to the <code>_cloop</code> tag. Between the <code>_cloop</code> and <code>_loop</code> tags, the compiler will put all the parsed Brainfuck code that was originally between <code>[</code> and <code>]</code> instructions.</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-GAS" data-lang="GAS"><span style="color:#268bd2">jmp</span> <span style="color:#cb4b16">_loop0</span>
+_cloop0:
+<span style="color:#586e75">; [loop code]
+</span><span style="color:#586e75"></span>_loop0:
+<span style="color:#268bd2">mov</span> <span style="color:#cb4b16">byte</span> <span style="color:#cb4b16">cl</span>, [<span style="color:#cb4b16">r9</span>]
+<span style="color:#268bd2">cmp</span> <span style="color:#cb4b16">cl</span>, <span style="color:#2aa198">0</span>
+<span style="color:#268bd2">jne</span> <span style="color:#cb4b16">_cloop0</span>
+</code></pre></div><h1 id="building-the-compiler">Building the compiler</h1>
+<p>Compiling a program can be described, in a very basic way, as a two parts process:</p>
+<ol>
+<li>Break the input program into the language components.</li>
+<li>Build the program using the language components and the language specification.</li>
+</ol>
+<p>This is where Lex-Yacc comes to use. Lex will help us parsing the input program from a series of characters to strings with certain meaning, called tokens. This process is known as lexical analysis. Yacc will generate a parser from a grammar. The parser will take the tokens and try to find a valid match for the grammar. In this process, the grammar rules will trigger actions that will create the output code.</p>
+<h2 id="lexical-analysis">Lexical analysis</h2>
+<p>Here, I will go into details about what the PLY Lex implementation needs to build a lexical analyzer. First thing, Lex requires a list of token names. I defined one token for each Brainfuck instruction.</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">tokens <span style="color:#719e07">=</span> (
+    <span style="color:#2aa198">&#39;INCR_PTR&#39;</span>, <span style="color:#2aa198">&#39;DECR_PTR&#39;</span>, <span style="color:#2aa198">&#39;INCR_VAL&#39;</span>, <span style="color:#2aa198">&#39;DECR_VAL&#39;</span>, <span style="color:#2aa198">&#39;WRITE&#39;</span>, <span style="color:#2aa198">&#39;READ&#39;</span>, <span style="color:#2aa198">&#39;LB&#39;</span>, <span style="color:#2aa198">&#39;RB&#39;</span>
+)
+</code></pre></div><p>Each token needs a rule to match the input with the token. Rules are defined as functions named as the token with the prefix <code>t_</code>. Some rules are simple, and can be defined as regular expressions. I defined simple regular expressions for each Brainfuck instruction.</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#586e75"># Simple Tokens</span>
+t_INCR_PTR <span style="color:#719e07">=</span> <span style="color:#2aa198">r</span><span style="color:#2aa198">&#39;\&gt;&#39;</span>
+t_DECR_PTR <span style="color:#719e07">=</span> <span style="color:#2aa198">r</span><span style="color:#2aa198">&#39;\&lt;&#39;</span>
+t_INCR_VAL <span style="color:#719e07">=</span> <span style="color:#2aa198">r</span><span style="color:#2aa198">&#39;\+&#39;</span>
+t_DECR_VAL <span style="color:#719e07">=</span> <span style="color:#2aa198">r</span><span style="color:#2aa198">&#39;\-&#39;</span>
+t_WRITE <span style="color:#719e07">=</span> <span style="color:#2aa198">r</span><span style="color:#2aa198">&#39;\.&#39;</span>
+t_READ <span style="color:#719e07">=</span> <span style="color:#2aa198">r</span><span style="color:#2aa198">&#39;\,&#39;</span>
+t_LB <span style="color:#719e07">=</span> <span style="color:#2aa198">r</span><span style="color:#2aa198">&#39;\[&#39;</span>
+t_RB <span style="color:#719e07">=</span> <span style="color:#2aa198">r</span><span style="color:#2aa198">&#39;\]&#39;</span>
+
+t_ignore <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34; </span><span style="color:#cb4b16">\t</span><span style="color:#2aa198">&#34;</span> <span style="color:#586e75"># Ignored characters</span>
+</code></pre></div><p>Some rules need to perform an action for every token they find. For example, I will set a rule to count the number of lines in order to indicate the line number in a compilation error. Also, I will treat any other characters the input program might have as comments.</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#719e07">def</span> <span style="color:#268bd2">t_newline</span>(t):
+    <span style="color:#2aa198">r</span><span style="color:#2aa198">&#39;\n+&#39;</span>
+    t<span style="color:#719e07">.</span>lexer<span style="color:#719e07">.</span>lineno <span style="color:#719e07">+=</span> t<span style="color:#719e07">.</span>value<span style="color:#719e07">.</span>count(<span style="color:#2aa198">&#34;</span><span style="color:#cb4b16">\n</span><span style="color:#2aa198">&#34;</span>)
+
+<span style="color:#719e07">def</span> <span style="color:#268bd2">t_error</span>(t):
+    <span style="color:#2aa198">&#34;&#34;&#34; Ignore all other characters &#34;&#34;&#34;</span>
+    t<span style="color:#719e07">.</span>lexer<span style="color:#719e07">.</span>skip(<span style="color:#2aa198">1</span>)
+
+</code></pre></div><p>With these, we can tell Lex to build the lexical analyzer.</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#586e75"># Build the lexer</span>
+<span style="color:#719e07">import</span> ply.lex <span style="color:#719e07">as</span> lex
+lex<span style="color:#719e07">.</span>lex()
+</code></pre></div><h2 id="parsing-the-tokens">Parsing the tokens</h2>
+<p>Yacc will generate our parser based on a <a href="https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form"target="_blank">Backus–Naur form (BNF) grammar</a>. The grammar I used is simple because Brainfuck programs are just a sequence of valid instructions. I defined two types of instructions: simple instructions (<code>&gt; &lt; + - . ,</code>) and loops (<code>[ ]</code>). Loops are treated as a different type of instructions because Brainfuck allows nested loops. The entire grammar is specified below.</p>
+<pre><code>program : instruction
+
+instruction : simpleInstruction
+| loopInstruction
+| simpleInstruction instruction
+| loopInstruction instruction
+
+loopInstruction : LB instruction RB
+
+simpleInstruction : INCR_PTR
+| DECR_PTR
+| INCR_VAL
+| DECR_VAL
+| WRITE
+| READ
+</code></pre><p>Grammar rules are defined in Yacc as functions. These functions need the prefix <code>p_</code> and take one parameter named <code>p</code>. <code>p</code> is an array containing the values of each grammar symbol in the corresponding rule. The rule is written in a triple quote comment after the function definition. The function body will be the actions that the rule will perform if it founds a match. Rules that are reduced should save in <code>p[0]</code> the final result.</p>
+<p>The first rule defined will be the starting point for the parse. These is the starting rule for my compiler:</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#719e07">def</span> <span style="color:#268bd2">p_program</span>(p):
+    <span style="color:#2aa198">&#39;&#39;&#39; program : instructions &#39;&#39;&#39;</span>
+    <span style="color:#719e07">global</span> global_success
+    compile_program(p[<span style="color:#2aa198">1</span>])
+    global_success <span style="color:#719e07">=</span> <span style="color:#268bd2">True</span>
+</code></pre></div><p>This rule will translate all the Brainfuck instructions into their assembly equivalents. The <code>compile_program</code> function will replace Brainfuck operations into assembly instructions and save the result on a file. The next rules reduce all the instructions into the final <code>instructions</code> symbol.</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#719e07">def</span> <span style="color:#268bd2">p_instructions_expansion</span>(p):
+    <span style="color:#2aa198">&#39;&#39;&#39; instructions : simpleInstruction instructions
+</span><span style="color:#2aa198">    | loop_instruction instructions
+</span><span style="color:#2aa198">    &#39;&#39;&#39;</span>
+    p[<span style="color:#2aa198">0</span>] <span style="color:#719e07">=</span> p[<span style="color:#2aa198">1</span>] <span style="color:#719e07">+</span> p[<span style="color:#2aa198">2</span>]
+
+<span style="color:#719e07">def</span> <span style="color:#268bd2">p_instructions</span>(p):
+    <span style="color:#2aa198">&#39;&#39;&#39; instructions : simpleInstruction
+</span><span style="color:#2aa198">    | loop_instruction
+</span><span style="color:#2aa198">    &#39;&#39;&#39;</span>
+    p[<span style="color:#2aa198">0</span>] <span style="color:#719e07">=</span> p[<span style="color:#2aa198">1</span>]
+</code></pre></div><p>The rules to match the instructions will reduce the instruction within a wrapper structure. The wrapper will store the instruction type and the instruction (or instructions in case it is a loop).</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#719e07">def</span> <span style="color:#268bd2">make_instruction_action</span>(<span style="color:#b58900">type</span>, payload):
+    <span style="color:#2aa198">&#34;&#34;&#34; Wraps the instruction content into a struct &#34;&#34;&#34;</span>
+    obj <span style="color:#719e07">=</span> {}
+    obj[INSTR_OBJ_PROP_TYPE] <span style="color:#719e07">=</span> <span style="color:#b58900">type</span>
+    obj[INSTR_OBJ_PROP_PAYLOAD] <span style="color:#719e07">=</span> payload
+    <span style="color:#719e07">return</span> obj
+
+<span style="color:#719e07">def</span> <span style="color:#268bd2">p_loop_instruction</span>(p):
+    <span style="color:#2aa198">&#34;&#34;&#34; loop_instruction : LB instructions RB
+</span><span style="color:#2aa198">    &#34;&#34;&#34;</span>
+    action <span style="color:#719e07">=</span> make_instruction_action(<span style="color:#2aa198">&#39;loop&#39;</span>, p[<span style="color:#2aa198">2</span>])
+    p[<span style="color:#2aa198">0</span>] <span style="color:#719e07">=</span> [action]
+
+
+<span style="color:#719e07">def</span> <span style="color:#268bd2">p_simple_instruction</span>(p):
+    <span style="color:#2aa198">&#34;&#34;&#34;simpleInstruction : INCR_PTR
+</span><span style="color:#2aa198">    | DECR_PTR
+</span><span style="color:#2aa198">    | INCR_VAL
+</span><span style="color:#2aa198">    | DECR_VAL
+</span><span style="color:#2aa198">    | WRITE
+</span><span style="color:#2aa198">    | READ
+</span><span style="color:#2aa198">    &#34;&#34;&#34;</span>
+    action <span style="color:#719e07">=</span> make_instruction_action(<span style="color:#2aa198">&#39;op&#39;</span>, p[<span style="color:#2aa198">1</span>])
+    p[<span style="color:#2aa198">0</span>] <span style="color:#719e07">=</span> [action]
+</code></pre></div><p>I also defined a rule in case the parser encounters a error in the input program.</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#719e07">def</span> <span style="color:#268bd2">p_error</span>(p):
+    <span style="color:#719e07">if</span> p:
+        <span style="color:#719e07">print</span>(<span style="color:#2aa198">&#34;Syntax error at &#39;</span><span style="color:#2aa198">%s</span><span style="color:#2aa198">&#39;&#34;</span> <span style="color:#719e07">%</span> p<span style="color:#719e07">.</span>value)
+    <span style="color:#719e07">else</span>:
+        <span style="color:#719e07">print</span>(<span style="color:#2aa198">&#34;Error, input program empty.&#34;</span>)
+</code></pre></div><p>Finally, I just need to build the parser and give the compiler a starting point.</p>
+<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#719e07">import</span> ply.yacc <span style="color:#719e07">as</span> yacc
+yacc<span style="color:#719e07">.</span>yacc()
+</code></pre></div><div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#719e07">def</span> <span style="color:#268bd2">main</span>():
+    <span style="color:#719e07">global</span> global_compiled_filename
+    parser <span style="color:#719e07">=</span> argparse<span style="color:#719e07">.</span>ArgumentParser()
+    parser<span style="color:#719e07">.</span>add_argument(<span style="color:#2aa198">&#34;file&#34;</span>, help<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;Brainfuck input file to be parsed&#34;</span>)
+    parser<span style="color:#719e07">.</span>add_argument(<span style="color:#2aa198">&#34;-o&#34;</span>, help<span style="color:#719e07">=</span><span style="color:#2aa198">&#34;file name for the output assembly code&#34;</span>)
+    args <span style="color:#719e07">=</span> parser<span style="color:#719e07">.</span>parse_args()
+    <span style="color:#719e07">if</span> args<span style="color:#719e07">.</span>o:
+        global_compiled_filename <span style="color:#719e07">=</span> args<span style="color:#719e07">.</span>o
+    <span style="color:#719e07">try</span>:
+        f <span style="color:#719e07">=</span> <span style="color:#b58900">open</span>(args<span style="color:#719e07">.</span>file, <span style="color:#2aa198">&#39;r&#39;</span>)
+        program_str <span style="color:#719e07">=</span> f<span style="color:#719e07">.</span>read()
+        f<span style="color:#719e07">.</span>close()
+        result <span style="color:#719e07">=</span> yacc<span style="color:#719e07">.</span>parse(program_str)
+
+    <span style="color:#719e07">if</span>(global_success):
+        <span style="color:#719e07">print</span>(<span style="color:#2aa198">&#34;Program compiled. To build the executable run:\</span>
+        \n\tx86asm <span style="color:#719e07">-</span>f elf64 {<span style="color:#2aa198">0</span>}<span style="color:#719e07">.</span>asm <span style="color:#719e07">&amp;&amp;</span> ld {<span style="color:#2aa198">0</span>}<span style="color:#719e07">.</span>o <span style="color:#719e07">-</span>o {<span style="color:#2aa198">0</span>}<span style="color:#2aa198">&#34;.format(global_compiled_filename))</span>
+    <span style="color:#719e07">except</span> <span style="color:#cb4b16">IOError</span>:
+        sys<span style="color:#719e07">.</span>exit(<span style="color:#2aa198">&#39;Error, input file not found!&#39;</span>)
+</code></pre></div><h1 id="improvement-proposals">Improvement proposals</h1>
+<ul>
+<li>Optimize the compiler. Group pointer and data instructions to no repeat a lot of assembly code.</li>
+<li>Support reading/writing files. Perhaps the memory buffer can be loaded from/saved into a file.</li>
+<li>Extend Brainfuck specification to support variables and string constants.</li>
+</ul>
+<h2 id="bigger-challenge">Bigger challenge</h2>
+<ul>
+<li>Create a compiler to translate a subset of the C language to Brainfuck. Then, use this compiler to translate the Brainfuck code into assembly.</li>
+</ul>
+<p><a class=button href="https://github.com/eariassoto/brasm/" target="_blank">Get the code on GitHub</a></p></article><section class="article labels"><a class="category" href=/categories/development/>Development</a><a class="category" href=/categories/projects/>Projects</a><a class="tag" href=/tags/python/>Python</a><a class="tag" href=/tags/lex/yacc/>Lex/Yacc</a><a class="tag" href=/tags/compilers/>Compilers</a></section></div><section class="article navigation"><p><a class="link" href="/post/first-steps-with-go/"><span class="li">&larr;</span>First Steps With Go</a></p><p><a class="link" href="/post/building-a-basic-c-slash-c-plus-plus-project-template/"><span class="li">&rarr;</span>Building a basic C/C++ project template</a></p></section></div><section id="footer" class="footer"><div class="footer-wrap">
+    <p class="copyright">©2020 Emmanuel Arias.</p>
+    <p class="powerby"><span>Powered by </span><a href="https://gohugo.io" 
+        target="_blank">Hugo</a><span> and the </span><a href="https://themes.gohugo.io/hugo-notepadium/" 
+        target="_blank">Notepadium</a></p>
+</div></section></div>
+</body>
+
+</html>

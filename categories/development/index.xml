@@ -1,73 +1,75 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Development on Emmanuel Arias</title>
-    <link>https://eariassoto.github.io/categories/development/</link>
+    <link>/categories/development/</link>
     <description>Recent content in Development on Emmanuel Arias</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
+    <language>en</language>
+    <copyright>©2020 Emmanuel Arias.</copyright>
     <lastBuildDate>Wed, 28 Feb 2018 21:05:41 -0600</lastBuildDate>
     
-	<atom:link href="https://eariassoto.github.io/categories/development/index.xml" rel="self" type="application/rss+xml" />
+        <atom:link href="/categories/development/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Make your pointers smart - C&#43;&#43; good practices</title>
-      <link>https://eariassoto.github.io/2018/02/make-your-pointers-smart---c---good-practices/</link>
+      <link>/post/smart-pointers-cpp-good-practices/</link>
       <pubDate>Wed, 28 Feb 2018 21:05:41 -0600</pubDate>
       
-      <guid>https://eariassoto.github.io/2018/02/make-your-pointers-smart---c---good-practices/</guid>
+      <guid>/post/smart-pointers-cpp-good-practices/</guid>
       <description>Ever since the C++ language was first standardized, new and delete were defined as the methods to create/delete objects dynamically. The new operator allocates a memory block to construct an object and then calls the proper class&amp;rsquo; constructor to initialize it. If successful, this operator will return a pointer to the location of the memory block. Otherwise, it will return nullptr or it will throw an exception. The delete operator executes the inverse operation, it deallocates object&amp;rsquo;s memory block.</description>
+      
     </item>
     
     <item>
       <title>Analyze the testing coverage of your C&#43;&#43; code</title>
-      <link>https://eariassoto.github.io/2017/11/analyze-the-testing-coverage-of-your-c---code/</link>
+      <link>/post/coverage/</link>
       <pubDate>Sat, 18 Nov 2017 15:57:42 +0000</pubDate>
       
-      <guid>https://eariassoto.github.io/2017/11/analyze-the-testing-coverage-of-your-c---code/</guid>
-      <description>&lt;p&gt;Writing unit tests is a great way to ensure that your code is behaving correctly. But how can you tell how much of your code are you testing? The GCC compiler provides tools to analyze the testing coverage of your project. In this post, I will show you how to integrate these tools in a CMake project.
-&lt;/p&gt;</description>
+      <guid>/post/coverage/</guid>
+      <description>&lt;p&gt;Writing unit tests is a great way to ensure that your code is behaving correctly. But how can you tell how much of your code are you testing? The GCC compiler provides tools to analyze the testing coverage of your project. In this post, I will show you how to integrate these tools in a CMake project.&lt;/p&gt;</description>
+      
     </item>
     
     <item>
       <title>Test your C&#43;&#43; code with the Google Test framework</title>
-      <link>https://eariassoto.github.io/2017/10/test-your-c---code-with-the-google-test-framework/</link>
+      <link>/post/unit-tests/</link>
       <pubDate>Tue, 31 Oct 2017 01:53:18 +0000</pubDate>
       
-      <guid>https://eariassoto.github.io/2017/10/test-your-c---code-with-the-google-test-framework/</guid>
-      <description>&lt;p&gt;&lt;a href=&#34;https://eariassoto.github.io/2017/04/building-a-basic-c/c---project-template/&#34;&gt;In a previous post&lt;/a&gt;, I showed you a C/C++ template that you can use for a project. I felt that it needed a basic testing framework. Therefore, we are going to learn how to install and use the Google Test framework to write tests. When we have finished this tutorial, we will have an executable that will run tests for our code.
-&lt;/p&gt;</description>
+      <guid>/post/unit-tests/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;https://eariassoto.github.io/2017/04/building-a-basic-c/c---project-template/&#34;target=&#34;_blank&#34;&gt;In a previous post&lt;/a&gt;, I showed you a C/C++ template that you can use for a project. I felt that it needed a basic testing framework. Therefore, we are going to learn how to install and use the Google Test framework to write tests. When we have finished this tutorial, we will have an executable that will run tests for our code.&lt;/p&gt;</description>
+      
     </item>
     
     <item>
       <title>First Steps With Go</title>
-      <link>https://eariassoto.github.io/2017/09/first-steps-with-go/</link>
+      <link>/post/first-steps-with-go/</link>
       <pubDate>Sun, 10 Sep 2017 18:03:18 -0600</pubDate>
       
-      <guid>https://eariassoto.github.io/2017/09/first-steps-with-go/</guid>
-      <description>&lt;p&gt;Go is a simple and powerful programming language. Its syntax is familiar to C/C++ but it definately has improvements in comparison. It has a bunch of great features such as static types, memory safety, garbage collection, and it is targeted to concurrent programming. I discovered it very recently, so I want to start simple and learn the basics of this language. In this post, we will write our first Go program and library. Also, we will learn how to unit tests our Go programs.
-&lt;/p&gt;</description>
+      <guid>/post/first-steps-with-go/</guid>
+      <description>&lt;p&gt;Go is a simple and powerful programming language. Its syntax is familiar to C/C++ but it definately has improvements in comparison. It has a bunch of great features such as static types, memory safety, garbage collection, and it is targeted to concurrent programming. I discovered it very recently, so I want to start simple and learn the basics of this language. In this post, we will write our first Go program and library. Also, we will learn how to unit tests our Go programs.&lt;/p&gt;</description>
+      
     </item>
     
     <item>
       <title>Source-to-source compilation with Lex-Yacc</title>
-      <link>https://eariassoto.github.io/2017/07/source-to-source-compilation-with-lex-yacc/</link>
+      <link>/post/source-to-source-compilation-with-lex-yacc/</link>
       <pubDate>Sat, 15 Jul 2017 10:43:23 -0600</pubDate>
       
-      <guid>https://eariassoto.github.io/2017/07/source-to-source-compilation-with-lex-yacc/</guid>
-      <description>&lt;p&gt;In this post, I will describe a source-to-source compiler that transforms a Brainfuck program into its equivalent 64 bits assembly code. The assembly program can be built into a executable, thus allowing you to run Brainfuck programs natively.
-&lt;/p&gt;</description>
+      <guid>/post/source-to-source-compilation-with-lex-yacc/</guid>
+      <description>&lt;p&gt;In this post, I will describe a source-to-source compiler that transforms a Brainfuck program into its equivalent 64 bits assembly code. The assembly program can be built into a executable, thus allowing you to run Brainfuck programs natively.&lt;/p&gt;</description>
+      
     </item>
     
     <item>
       <title>Building a basic C/C&#43;&#43; project template</title>
-      <link>https://eariassoto.github.io/2017/04/building-a-basic-c/c---project-template/</link>
+      <link>/post/building-a-basic-c-slash-c-plus-plus-project-template/</link>
       <pubDate>Mon, 17 Apr 2017 10:41:16 -0600</pubDate>
       
-      <guid>https://eariassoto.github.io/2017/04/building-a-basic-c/c---project-template/</guid>
-      <description>&lt;p&gt;Starting a C/C++ project can be as easy or as difficult as you want. Personally, I don&amp;rsquo;t like to fire up an IDE just for a small program. So, I end up using a text editor and compiling by terminal. However, the compilation process can get tedious. In this post, we will build a simple project template for a C/C++ program. This project will use the CMake tool to handle all the compilation process.
-&lt;/p&gt;</description>
+      <guid>/post/building-a-basic-c-slash-c-plus-plus-project-template/</guid>
+      <description>&lt;p&gt;Starting a C/C++ project can be as easy or as difficult as you want. Personally, I don&amp;rsquo;t like to fire up an IDE just for a small program. So, I end up using a text editor and compiling by terminal. However, the compilation process can get tedious. In this post, we will build a simple project template for a C/C++ program. This project will use the CMake tool to handle all the compilation process.&lt;/p&gt;</description>
+      
     </item>
     
   </channel>
