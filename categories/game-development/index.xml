@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Game development on Emmanuel Arias</title>
+    <link>/categories/game-development/</link>
+    <description>Recent content in Game development on Emmanuel Arias</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <copyright>©2020 Emmanuel Arias.</copyright>
+    <lastBuildDate>Wed, 09 Sep 2020 23:28:52 +0200</lastBuildDate>
+    
+        <atom:link href="/categories/game-development/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Memory allocatos in C&#43;&#43; - Part 1</title>
+      <link>/post/memory-allocators-part-1/</link>
+      <pubDate>Wed, 09 Sep 2020 23:28:52 +0200</pubDate>
+      
+      <guid>/post/memory-allocators-part-1/</guid>
+      <description>When you want to instantiate a class or a struct in the dynamic memory space, we normally use the new and delete operators.
+class Point {float m_X;float m_Y;float m_Z;public:Point(float, float, float);};Point* my_point = new Point(0.f, 12.5f, -0.5f);// use point//delete my_point;So what happens under the hood for these operators? The new operator asks the operative system for a block of memory of size sizeof(Point).</description>
+      
+    </item>
+    
+  </channel>
+</rss>

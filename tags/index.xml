@@ -7,7 +7,7 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
     <copyright>©2020 Emmanuel Arias.</copyright>
-    <lastBuildDate>Mon, 20 Apr 2020 14:51:44 +0200</lastBuildDate>
+    <lastBuildDate>Wed, 09 Sep 2020 23:28:52 +0200</lastBuildDate>
     
         <atom:link href="/tags/index.xml" rel="self" type="application/rss+xml" />
     
@@ -15,19 +15,9 @@
     <item>
       <title>C&#43;&#43;</title>
       <link>/tags/c&#43;&#43;/</link>
-      <pubDate>Mon, 20 Apr 2020 14:51:44 +0200</pubDate>
+      <pubDate>Wed, 09 Sep 2020 23:28:52 +0200</pubDate>
       
       <guid>/tags/c&#43;&#43;/</guid>
-      <description></description>
-      
-    </item>
-    
-    <item>
-      <title>Multithreading</title>
-      <link>/tags/multithreading/</link>
-      <pubDate>Mon, 20 Apr 2020 14:51:44 +0200</pubDate>
-      
-      <guid>/tags/multithreading/</guid>
       <description></description>
       
     </item>

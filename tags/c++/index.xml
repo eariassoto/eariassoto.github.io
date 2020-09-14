@@ -7,18 +7,19 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
     <copyright>©2020 Emmanuel Arias.</copyright>
-    <lastBuildDate>Mon, 20 Apr 2020 14:51:44 +0200</lastBuildDate>
+    <lastBuildDate>Wed, 09 Sep 2020 23:28:52 +0200</lastBuildDate>
     
         <atom:link href="/tags/c++/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>Minimal implementations in Modern C&#43;&#43;: Producer-Consumer problem</title>
-      <link>/post/producer-consumer/</link>
-      <pubDate>Mon, 20 Apr 2020 14:51:44 +0200</pubDate>
+      <title>Memory allocatos in C&#43;&#43; - Part 1</title>
+      <link>/post/memory-allocators-part-1/</link>
+      <pubDate>Wed, 09 Sep 2020 23:28:52 +0200</pubDate>
       
-      <guid>/post/producer-consumer/</guid>
-      <description>&lt;p&gt;This implementation was inspired by Stackoverflow user  &lt;a href=&#34;https://stackoverflow.com/users/1774667/yakk-adam-nevraumont&#34;target=&#34;_blank&#34;&gt;Yakk - Adam Nevraumont&lt;/a&gt;&amp;lsquo;s answer for a &lt;a href=&#34;https://stackoverflow.com/questions/57219650/stdcondition-variablenotify-all-only-wakes-up-one-thread-in-my-threadpool&#34;target=&#34;_blank&#34;&gt;question about &lt;code&gt;std::condition_variable&lt;/code&gt;&lt;/a&gt;. I extended it to make it a working example, and I plan to use it as a base for a new project I have in mind.&lt;/p&gt;</description>
+      <guid>/post/memory-allocators-part-1/</guid>
+      <description>When you want to instantiate a class or a struct in the dynamic memory space, we normally use the new and delete operators.
+class Point {float m_X;float m_Y;float m_Z;public:Point(float, float, float);};Point* my_point = new Point(0.f, 12.5f, -0.5f);// use point//delete my_point;So what happens under the hood for these operators? The new operator asks the operative system for a block of memory of size sizeof(Point).</description>
       
     </item>
     
