@@ -23,6 +23,26 @@
     </item>
     
     <item>
+      <title>tag1</title>
+      <link>/tags/tag1/</link>
+      <pubDate>Mon, 20 Apr 2020 14:51:44 +0200</pubDate>
+      
+      <guid>/tags/tag1/</guid>
+      <description></description>
+      
+    </item>
+    
+    <item>
+      <title>tag2</title>
+      <link>/tags/tag2/</link>
+      <pubDate>Mon, 20 Apr 2020 14:51:44 +0200</pubDate>
+      
+      <guid>/tags/tag2/</guid>
+      <description></description>
+      
+    </item>
+    
+    <item>
       <title>pointers</title>
       <link>/tags/pointers/</link>
       <pubDate>Wed, 28 Feb 2018 21:05:41 -0600</pubDate>

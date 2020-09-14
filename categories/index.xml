@@ -33,6 +33,26 @@
     </item>
     
     <item>
+      <title>category</title>
+      <link>/categories/category/</link>
+      <pubDate>Mon, 20 Apr 2020 14:51:44 +0200</pubDate>
+      
+      <guid>/categories/category/</guid>
+      <description></description>
+      
+    </item>
+    
+    <item>
+      <title>subcategory</title>
+      <link>/categories/subcategory/</link>
+      <pubDate>Mon, 20 Apr 2020 14:51:44 +0200</pubDate>
+      
+      <guid>/categories/subcategory/</guid>
+      <description></description>
+      
+    </item>
+    
+    <item>
       <title>Tutorials</title>
       <link>/categories/tutorials/</link>
       <pubDate>Wed, 28 Feb 2018 21:05:41 -0600</pubDate>
