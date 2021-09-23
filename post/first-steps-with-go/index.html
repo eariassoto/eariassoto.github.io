@@ -1,42 +1,43 @@
 <!DOCTYPE html>
-<html lang="en"><meta charset="utf-8"><meta name="generator" content="Hugo 0.69.0" /><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<html lang="en"><meta charset="utf-8"><meta name="generator" content="Hugo 0.89.0-DEV" /><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
-<meta name="supported-color-schemes" content="light dark"><title>First Steps With Go&nbsp;&ndash;&nbsp;Emmanuel Arias</title><link rel="stylesheet" href="/css/core.min.b1b309139dc19672eb80b6a0dfcccc126e5f08ca3047bccb2d8e929ed6de3f2b91c5dc97e3f0e470e503f77726a1f08a.css" integrity="sha384-sbMJE53BlnLrgLag38zMEm5fCMowR7zLLY6SntbePyuRxdyX4/DkcOUD93cmofCK"><meta name="twitter:card" content="summary" />
-<meta name="twitter:title" content="First Steps With Go" /><body>
-    <div class="base-body"><section id="header" class="site header">
+<meta name="supported-color-schemes" content="light dark"><title>First Steps With Go&nbsp;&ndash;&nbsp;Emmanuel Arias</title><link rel="stylesheet" href="/css/core.min.9e958365cf0319ede466a402e1369f31dc1f205c868aa836fe25581725c829d3f3545d9f142cccafe35363950a63e2a6.css" integrity="sha384-npWDZc8DGe3kZqQC4TafMdwfIFyGiqg2/iVYFyXIKdPzVF2fFCzMr&#43;NTY5UKY&#43;Km"><meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="First Steps With Go" /><body><section id="header">
     <div class="header wrap"><span class="header left-side"><a class="site home" href="/"><span class="site name">Emmanuel Arias</span></a></span>
-        <span class="header right-side"><div class="nav wrap"><nav class="nav"><a class="nav item" href="/categories/">Categories</a><a class="nav item" href="/tags/">Tags</a></nav></div></span></div><div class="site slogan"><span class="title">A software developer looking for his <span style='font-family: monospace;'>$PATH</span></span></div></section><div id="content"><div class="article-container"><section class="article header">
+        <span class="header right-side"><div class="nav wrap"><nav class="nav"><a class="nav item" href="/categories/">Categories</a><a class="nav item" href="/tags/">Tags</a></nav></div></span></div><div class="site slogan"><span class="title">A software developer looking for his <span style='font-family: monospace;'>$PATH</span></span></div></section><section id="content"><div class="article-container"><section class="article header">
     <h1 class="article title">First Steps With Go</h1><p class="article date">Sep 10, 2017</p></section><article class="article markdown-body"><p>Go is a simple and powerful programming language. Its syntax is familiar to C/C++ but it definately has improvements in comparison. It has a bunch of great features such as static types, memory safety, garbage collection, and it is targeted to concurrent programming. I discovered it very recently, so I want to start simple and learn the basics of this language. In this post, we will write our first Go program and library. Also, we will learn how to unit tests our Go programs.</p>
 <h1 id="installing-go">Installing Go</h1>
-<p>I will show you how to install Go in Linux. For Windows and Mac, the process should be very similar. First, you need to visit <a href="https://golang.org/dl/"target="_blank">this page</a> and copy the link for the Linux version. In my case, I need the <code>go1.9.linux-amd64</code> version. We need to extract the file somewhere in our computer.</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b58900">cd</span> /opt
+<p>I will show you how to install Go in Linux. For Windows and Mac, the process should be very similar. First, you need to visit <a href="https://golang.org/dl/"target="_blank" rel="noopener noreferrer">this page</a>
+ and copy the link for the Linux version. In my case, I need the <code>go1.9.linux-amd64</code> version. We need to extract the file somewhere in our computer.</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b58900">cd</span> /opt
 curl https://storage.googleapis.com/golang/go1.9.linux-amd64.tar.gz | tar zxf -
 </code></pre></div><p>Now, we need to create our Go home directory. In that folder, we will keep our source files, third-party libraries, and install the executables for our programs. Go ahead and create this folder in your home directory:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">go/
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">go/
 ├── bin
 └── src
 </code></pre></div><p>Finally, we need to set two environment variables: <code>GOROOT</code> and <code>GOPATH</code>. Go binaries will assume they have been installed in <code>/usr/local/go</code> (or <code>c:\Go</code> in Windows). In case you installed them somewhere else, set <code>GOROOT</code> to your Go binaries folder.</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Point to the local installation of golang.</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Point to the local installation of golang.</span>
 <span style="color:#b58900">export</span> <span style="color:#268bd2">GOROOT</span><span style="color:#719e07">=</span>/opt/go
-</code></pre></div><p>The <code>GOPATH</code> variable, as discussed <a href="https://golang.org/cmd/go/#hdr-GOPATH_environment_variable"target="_blank">here</a>:</p>
+</code></pre></div><p>The <code>GOPATH</code> variable, as discussed <a href="https://golang.org/cmd/go/#hdr-GOPATH_environment_variable"target="_blank" rel="noopener noreferrer">here</a>
+:</p>
 <blockquote>
 <p>[&hellip;] lists places to look for Go code. On Unix, the value is a colon-separated string. On Windows, the value is a semicolon-separated string.</p>
 </blockquote>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Point to the location beneath which source and binaries are installed.</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Point to the location beneath which source and binaries are installed.</span>
 <span style="color:#b58900">export</span> <span style="color:#268bd2">GOPATH</span><span style="color:#719e07">=</span><span style="color:#268bd2">$HOME</span>/go
 </code></pre></div><p>Finally, let&rsquo;s add Go binaries and our /bin folders to the $PATH variable. This way, we can use the Go tools and our programs from the console.</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Ensure that the binary-release is on your PATH.</span>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Ensure that the binary-release is on your PATH.</span>
 <span style="color:#b58900">export</span> <span style="color:#268bd2">PATH</span><span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">PATH</span><span style="color:#2aa198">}</span>:<span style="color:#2aa198">${</span><span style="color:#268bd2">GOROOT</span><span style="color:#2aa198">}</span>/bin
 
 <span style="color:#586e75"># Ensure that compiled binaries are also on your PATH.</span>
 <span style="color:#b58900">export</span> <span style="color:#268bd2">PATH</span><span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">PATH</span><span style="color:#2aa198">}</span>:<span style="color:#268bd2">$HOME</span>/go/bin
 </code></pre></div><p>Save the <code>~/.bashrc</code> file, and check that Go is correctly installed:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#b58900">source</span> .bashrc
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#b58900">source</span> .bashrc
 $ go version
 go version go1.9 linux/amd64
 </code></pre></div><h1 id="writing-our-first-hello-world-program">Writing our first &ldquo;Hello World!&rdquo; program</h1>
 <p>Let&rsquo;s create our first Go program. For this, we need to create a <code>hello_world</code> folder inside <code>$HOME/go/src</code>. Go files end with the <code>.go</code> extension. Let&rsquo;s add a <code>main.go</code> file with this code:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> (
     <span style="color:#2aa198">&#34;fmt&#34;</span>
@@ -50,21 +51,21 @@ go version go1.9 linux/amd64
 <p>Finally, we need to define the <code>main</code> function. This will be the starting point of our program and it is always required in executable projects.</p>
 <h1 id="building-and-installing-our-program">Building and installing our program</h1>
 <p>To simple compile and run our program, we can use the <code>run</code> command.</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#b58900">cd</span> <span style="color:#268bd2">$HOME</span>/go/src/hello_world
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#b58900">cd</span> <span style="color:#268bd2">$HOME</span>/go/src/hello_world
 $ go run main.go
 Hello world!
 </code></pre></div><p>This will not create an executable file. However, the <code>build</code> command will do it:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#b58900">cd</span> <span style="color:#268bd2">$HOME</span>/go/src/hello_world
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#b58900">cd</span> <span style="color:#268bd2">$HOME</span>/go/src/hello_world
 $ go build .
 $ ./hello_world
 Hello world!
 </code></pre></div><p>Additionally, the <code>install</code> command will build and copy the executable in the <code>go/bin</code> folder. We added this folder to our <code>$PATH</code>, so the executable will get installed in our computer.</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#b58900">cd</span> <span style="color:#268bd2">$HOME</span>/go/src/hello_world
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#b58900">cd</span> <span style="color:#268bd2">$HOME</span>/go/src/hello_world
 $ go install .
 $ ./hello_world
 Hello world!
 </code></pre></div><p>So far, this is how your Go home folder should look like:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">go
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">go
 ├── bin
 │   └── hello_world
 └── src
@@ -73,7 +74,7 @@ Hello world!
         └── main.go
 </code></pre></div><h1 id="writing-our-own-library">Writing our own library</h1>
 <p>A library in Go is a project that does not define a <code>main</code> package and will not bild an executable file. For our first library, let&rsquo;s create a <code>strcaseconv</code> folder in <code>$HOME/go/src</code>. We will use this library in our <code>hello_world</code> folder. Inside <code>strcaseconv</code>, we will add a <code>strcase.go</code> file with this code:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> strcaseconv
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> strcaseconv
 
 <span style="color:#268bd2">func</span> <span style="color:#268bd2">ToMixCase</span>(s <span style="color:#dc322f">string</span>) <span style="color:#dc322f">string</span> {
         b <span style="color:#719e07">:=</span> []<span style="color:#b58900">byte</span>(s)
@@ -87,10 +88,10 @@ Hello world!
         <span style="color:#719e07">return</span> <span style="color:#b58900">string</span>(b)
 }
 </code></pre></div><p>Compile the library to check for any errors:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#b58900">cd</span> <span style="color:#268bd2">$HOME</span>/go/src/strcaseconv
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#b58900">cd</span> <span style="color:#268bd2">$HOME</span>/go/src/strcaseconv
 $ go build .
 </code></pre></div><p>Now, go back to your <code>hello_world</code> projectd and modify <code>main.go</code> to use our new library:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
 
 <span style="color:#719e07">import</span> (
     <span style="color:#2aa198">&#34;fmt&#34;</span>
@@ -102,9 +103,9 @@ $ go build .
     fmt.<span style="color:#268bd2">Println</span>(strcaseconv.<span style="color:#268bd2">ToMixCase</span>(<span style="color:#2aa198">&#34;hello world!&#34;</span>))
 }
 </code></pre></div><h1 id="unit-testing-our-projects">Unit testing our projects</h1>
-<p>In Go, the unit test framework comes for free. This framework consists in the <code>test</code> command and the <code>testing</code> package. All test should be written in files ending with <code>_test.go</code>. The unit test functions should be named following the <code>TestXXX</code> convention. The functions&rsquo; signature ought to be <code>func (t *testing.T)</code>.</p>
+<p>In Go, the unit test framework comes for free. This framework consists in the <code>test</code> command and the <code>testing</code> package. All test should be written in files ending with <code>_test.go</code>. The unit test functions should be named following the <code>TestXXX</code> convention. The functions' signature ought to be <code>func (t *testing.T)</code>.</p>
 <p>The <code>test</code> command will run all unit test functions. Those function who calls <code>t.Error</code> or <code>t.Fail</code> are considered as failed tests. Let&rsquo;s unit test our <code>strcaseconv</code> library in <code>strcase_test.go</code>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> strcaseconv
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> strcaseconv
 
 <span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;testing&#34;</span>
 
@@ -159,34 +160,41 @@ $ go build .
     }
 }
 </code></pre></div><p>To run them, use the <code>test</code> command:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#b58900">cd</span> go/src/strcaseconv
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#b58900">cd</span> go/src/strcaseconv
 $ go <span style="color:#b58900">test</span>
 PASS
 ok      strcaseconv    0.001s
-</code></pre></div><p>You can find more information about the <code>testing</code> package <a href="https://godoc.org/testing"target="_blank">here</a></p>
+</code></pre></div><p>You can find more information about the <code>testing</code> package <a href="https://godoc.org/testing"target="_blank" rel="noopener noreferrer">here</a>
+</p>
 <h1 id="more-useful-commands">More useful commands</h1>
 <p>To install someone else&rsquo;s library or program, Go offers the <code>get</code> command. To try it, let&rsquo;s download this hello world program I made a little while ago:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go get github.com/eariassoto/hello_go
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go get github.com/eariassoto/hello_go
 $ <span style="color:#b58900">cd</span> go/src/github.com/eariassoto/hello_go/
 $ go run main.go 
 What is your name?: Emmanuel
 Hello Emmanuel!
 </code></pre></div><p>Go will install new libraries in the first folder pointed by <code>GOPATH</code>. In our setup, it will be in the <code>$HOME/go/src</code> folder.</p>
 <p>Another useful feature is the <code>fmt</code> command. This command will take as parameters Go source files and it will format them using Go conventions.</p>
-<p>If you are a Vim user, there is a nice <a href="https://github.com/fatih/vim-go"target="_blank">plugin</a> for Go development.</p>
+<p>If you are a Vim user, there is a nice <a href="https://github.com/fatih/vim-go"target="_blank" rel="noopener noreferrer">plugin</a>
+ for Go development.</p>
 <h1 id="where-to-go-next">Where to go next?</h1>
 <p>There are a lot of resources and documentation about Go. If you want to learn more about Go visit these websites:</p>
 <ul>
-<li><a href="https://play.golang.org/"target="_blank">Go Playground</a> Online Go editor and compiler</li>
-<li><a href="https://tour.golang.org/welcome/1"target="_blank">A Tour of Go</a> Official Go tutorial</li>
-<li><a href="https://gobyexample.com/"target="_blank">Go by Example</a> Excellent hand-on introduction on Go</li>
-<li><a href="https://golang.org/doc/"target="_blank">Go Documentation</a> Official Go documentation</li>
-</ul></article><section class="article labels"><a class="category" href=/categories/tutorials/>Tutorials</a><a class="category" href=/categories/development/>Development</a><a class="tag" href=/tags/go/>go</a></section></div><section class="article navigation"><p><a class="link" href="/post/unit-tests/"><span class="li">&larr;</span>Test your C++ code with the Google Test framework</a></p><p><a class="link" href="/post/source-to-source-compilation-with-lex-yacc/"><span class="li">&rarr;</span>Source-to-source compilation with Lex-Yacc</a></p></section></div><section id="footer" class="footer"><div class="footer-wrap">
-    <p class="copyright">©2020 Emmanuel Arias.</p>
-    <p class="powerby"><span>Powered by </span><a href="https://gohugo.io" 
-        target="_blank">Hugo</a><span> and the </span><a href="https://themes.gohugo.io/hugo-notepadium/" 
-        target="_blank">Notepadium</a></p>
-</div></section></div>
-</body>
+<li><a href="https://play.golang.org/"target="_blank" rel="noopener noreferrer">Go Playground</a>
+ Online Go editor and compiler</li>
+<li><a href="https://tour.golang.org/welcome/1"target="_blank" rel="noopener noreferrer">A Tour of Go</a>
+ Official Go tutorial</li>
+<li><a href="https://gobyexample.com/"target="_blank" rel="noopener noreferrer">Go by Example</a>
+ Excellent hand-on introduction on Go</li>
+<li><a href="https://golang.org/doc/"target="_blank" rel="noopener noreferrer">Go Documentation</a>
+ Official Go documentation</li>
+</ul></article><section class="article labels"><a class="category" href=/categories/tutorials/>Tutorials</a><a class="category" href=/categories/development/>Development</a><a class="tag" href=/tags/go/>go</a></section>
+</div>
+<div class="article bottom"><section class="article navigation"><p><a class="link" href="/post/unit-tests/"><span class="iconfont icon-article"></span>Test your C++ code with the Google Test framework</a></p><p><a class="link" href="/post/source-to-source-compilation-with-lex-yacc/"><span class="iconfont icon-article"></span>Source-to-source compilation with Lex-Yacc</a></p></section></div></section><section id="footer"><div class="footer-wrap">
+    <p class="copyright">©2017-2021 Emmanuel Arias.</p>
+    <p class="powerby"><span>Powered&nbsp;by&nbsp;</span><a href="https://gohugo.io" 
+        target="_blank" rel="noopener noreferrer">Hugo</a><span>&nbsp;&amp;&nbsp;</span><a href="https://themes.gohugo.io/hugo-notepadium/" 
+        target="_blank" rel="noopener noreferrer">Notepadium</a></p></div>
+</section></body>
 
 </html>

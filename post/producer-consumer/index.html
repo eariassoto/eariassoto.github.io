@@ -1,25 +1,26 @@
 <!DOCTYPE html>
-<html lang="en"><meta charset="utf-8"><meta name="generator" content="Hugo 0.69.0" /><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<html lang="en"><meta charset="utf-8"><meta name="generator" content="Hugo 0.89.0-DEV" /><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
-<meta name="supported-color-schemes" content="light dark"><title>Minimal implementations in Modern C&#43;&#43;: Producer-Consumer problem&nbsp;&ndash;&nbsp;Emmanuel Arias</title><link rel="stylesheet" href="/css/core.min.b1b309139dc19672eb80b6a0dfcccc126e5f08ca3047bccb2d8e929ed6de3f2b91c5dc97e3f0e470e503f77726a1f08a.css" integrity="sha384-sbMJE53BlnLrgLag38zMEm5fCMowR7zLLY6SntbePyuRxdyX4/DkcOUD93cmofCK"><meta name="twitter:card" content="summary" />
-<meta name="twitter:title" content="Minimal implementations in Modern C&#43;&#43;: Producer-Consumer problem" /><body>
-    <div class="base-body"><section id="header" class="site header">
+<meta name="supported-color-schemes" content="light dark"><title>Minimal implementations in Modern C&#43;&#43;: Producer-Consumer problem&nbsp;&ndash;&nbsp;Emmanuel Arias</title><link rel="stylesheet" href="/css/core.min.9e958365cf0319ede466a402e1369f31dc1f205c868aa836fe25581725c829d3f3545d9f142cccafe35363950a63e2a6.css" integrity="sha384-npWDZc8DGe3kZqQC4TafMdwfIFyGiqg2/iVYFyXIKdPzVF2fFCzMr&#43;NTY5UKY&#43;Km"><meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="Minimal implementations in Modern C&#43;&#43;: Producer-Consumer problem" /><body><section id="header">
     <div class="header wrap"><span class="header left-side"><a class="site home" href="/"><span class="site name">Emmanuel Arias</span></a></span>
-        <span class="header right-side"><div class="nav wrap"><nav class="nav"><a class="nav item" href="/categories/">Categories</a><a class="nav item" href="/tags/">Tags</a></nav></div></span></div><div class="site slogan"><span class="title">A software developer looking for his <span style='font-family: monospace;'>$PATH</span></span></div></section><div id="content"><div class="article-container"><section class="article header">
-    <h1 class="article title">Minimal implementations in Modern C++: Producer-Consumer problem</h1><p class="article date">Apr 20, 2020</p></section><article class="article markdown-body"><p>This implementation was inspired by Stackoverflow user  <a href="https://stackoverflow.com/users/1774667/yakk-adam-nevraumont"target="_blank">Yakk - Adam Nevraumont</a>&lsquo;s answer for a <a href="https://stackoverflow.com/questions/57219650/stdcondition-variablenotify-all-only-wakes-up-one-thread-in-my-threadpool"target="_blank">question about <code>std::condition_variable</code></a>. I extended it to make it a working example, and I plan to use it as a base for a new project I have in mind.</p>
+        <span class="header right-side"><div class="nav wrap"><nav class="nav"><a class="nav item" href="/categories/">Categories</a><a class="nav item" href="/tags/">Tags</a></nav></div></span></div><div class="site slogan"><span class="title">A software developer looking for his <span style='font-family: monospace;'>$PATH</span></span></div></section><section id="content"><div class="article-container"><section class="article header">
+    <h1 class="article title">Minimal implementations in Modern C++: Producer-Consumer problem</h1><p class="article date">Apr 20, 2020</p></section><article class="article markdown-body"><p>This implementation was inspired by Stackoverflow user  <a href="https://stackoverflow.com/users/1774667/yakk-adam-nevraumont"target="_blank" rel="noopener noreferrer">Yakk - Adam Nevraumont</a>
+&rsquo;s answer for a <a href="https://stackoverflow.com/questions/57219650/stdcondition-variablenotify-all-only-wakes-up-one-thread-in-my-threadpool"target="_blank" rel="noopener noreferrer">question about <code>std::condition_variable</code></a>
+. I extended it to make it a working example, and I plan to use it as a base for a new project I have in mind.</p>
 <h2 id="what-is-the-producer-consumer-problem">What is the Producer-Consumer problem?</h2>
 <p>This problem is a classic example of synchronization and parallel computing. Suppose you have available multiple execution threads. In addition to that, you also have tasks that can be executed at the same time, independent from each other. The problem now is how we distribute the tasks between those threads.</p>
-<p><a target="_blank" rel="noopener noreferrer" 
-  href="/static/img/prodcons.png"><img  src="/static/img/prodcons.png"
-        alt="Producer - Consumer problem"/></a></p>
+<p><img  src="/static/img/prodcons.png"
+        alt="Producer - Consumer problem"/></p>
 <p>In a simple producer-consumer problem, the producer will create tasks and push them to a queue. The queue thread will handle the synchronization. The consumer threads will wake up only when they have to execute a task. When the consumer thread finishes a task, it sleeps until the queue thread sends a new signal.</p>
 <h2 id="to-the-implementation">To the implementation</h2>
-<p>In C++11 a new synchronization primitive was introduced: <a href="https://en.cppreference.com/w/cpp/thread/condition_variable"target="_blank"><code>std::condition_variable</code></a>. This primitive allows us to block one or more threads until a shared state is modified and the thread, or threads, has been modified. This primitive needs a <code>std::mutex</code> for the blocker thread to modify the stated state, and for the blocked threads to wait on the condition variable.</p>
+<p>In C++11 a new synchronization primitive was introduced: <a href="https://en.cppreference.com/w/cpp/thread/condition_variable"target="_blank" rel="noopener noreferrer"><code>std::condition_variable</code></a>
+. This primitive allows us to block one or more threads until a shared state is modified and the thread, or threads, has been modified. This primitive needs a <code>std::mutex</code> for the blocker thread to modify the stated state, and for the blocked threads to wait on the condition variable.</p>
 <p>As an overview, our producer and queue will be on the same thread. Our consumers will run on separate threads and will get the <code>std::condition_variable</code> and <code>std::mutex</code> from the queue. They will start a loop in which they will wait on the condition variable and check if there is a new task, or if the queue has stopped pushing new tasks. Our sample program will send 10 tasks, wait for an amount of time, and stop the queue.</p>
 <p>The task we are going to push into the queue is going to be very simple. It will require an Id number, a duration in milliseconds, and a mutex.</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 1</span><span style="color:#719e07">#pragma once
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 2</span><span style="color:#719e07">#include</span> <span style="color:#719e07">&lt;chrono&gt;</span><span style="color:#719e07">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 3</span><span style="color:#719e07">#include</span> <span style="color:#719e07">&lt;mutex&gt;</span><span style="color:#719e07">
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 1</span><span style="color:#719e07">#pragma once
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 2</span><span style="color:#719e07">#include</span> <span style="color:#719e07">&lt;chrono&gt;</span><span style="color:#719e07">
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 3</span><span style="color:#719e07">#include</span> <span style="color:#719e07">&lt;mutex&gt;</span><span style="color:#719e07">
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 4</span><span style="color:#719e07"></span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 5</span><span style="color:#719e07">class</span> <span style="color:#268bd2">Task</span> {
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 6</span>   <span style="color:#719e07">public</span><span style="color:#719e07">:</span>
@@ -37,7 +38,7 @@
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">18</span>};
 </code></pre></div><p>We are going to use this mutex to have exclusive use in the <code>std::cout</code> buffer. Otherwise, our messages are going to be all mixed out in the standard output.</p>
 <p>The <code>Execute</code> method will also be very simple: it will sleep the thread for the <code>m_Duration</code> milliseconds, and print out this duration before exiting.</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">1</span><span style="color:#dc322f">void</span> Task<span style="color:#719e07">::</span>Execute() {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">1</span><span style="color:#dc322f">void</span> Task<span style="color:#719e07">::</span>Execute() {
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">2</span>    std<span style="color:#719e07">::</span>this_thread<span style="color:#719e07">::</span>sleep_for(m_Duration);
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">3</span>    {
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">4</span>        std<span style="color:#719e07">::</span>scoped_lock<span style="color:#719e07">&lt;</span>std<span style="color:#719e07">::</span>mutex<span style="color:#719e07">&gt;</span> guard(m_CoutMutex);
@@ -46,12 +47,13 @@
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">7</span>    }
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">8</span>}
 </code></pre></div><p>The <code>std::scoped_lock</code> was introduced in C++17 and it works similarly as <code>std::lock_guard</code>. One difference is that <code>std::scoped_lock</code> allows us to try to acquire more than one <code>std::mutex</code>, preventing possible deadlocks.</p>
-<p>It is very important to surround the critical section in brackets. That will make the lock to release the <code>std::mutex</code> as soon as it is no longer needed. Remember that <code>std::scoped_lock</code> behaves according to the <a href="https://en.cppreference.com/w/cpp/language/raii"target="_blank">RAII principle</a>.</p>
+<p>It is very important to surround the critical section in brackets. That will make the lock to release the <code>std::mutex</code> as soon as it is no longer needed. Remember that <code>std::scoped_lock</code> behaves according to the <a href="https://en.cppreference.com/w/cpp/language/raii"target="_blank" rel="noopener noreferrer">RAII principle</a>
+.</p>
 <p>We are going to implement a <code>TaskQueue</code> class to wrap our <code>std::queue</code> and our synchronization mechanism.</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 1</span><span style="color:#719e07">#pragma once
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 2</span><span style="color:#719e07">#include</span> <span style="color:#719e07">&lt;mutex&gt;</span><span style="color:#719e07">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 3</span><span style="color:#719e07">#include</span> <span style="color:#719e07">&lt;queue&gt;</span><span style="color:#719e07">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 4</span><span style="color:#719e07">#include</span> <span style="color:#719e07">&lt;tuple&gt;</span><span style="color:#719e07">
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 1</span><span style="color:#719e07">#pragma once
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 2</span><span style="color:#719e07">#include</span> <span style="color:#719e07">&lt;mutex&gt;</span><span style="color:#719e07">
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 3</span><span style="color:#719e07">#include</span> <span style="color:#719e07">&lt;queue&gt;</span><span style="color:#719e07">
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 4</span><span style="color:#719e07">#include</span> <span style="color:#719e07">&lt;tuple&gt;</span><span style="color:#719e07">
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 5</span><span style="color:#719e07"></span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 6</span><span style="color:#719e07">class</span> <span style="color:#268bd2">Task</span>;
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 7</span>
@@ -81,7 +83,7 @@
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">31</span>};
 </code></pre></div><p>Producers will interact with this queue by pushing <code>Task</code> instances. In our case, we will handle the object destruction in the queue, but it can be improved with smart pointers. <code>StopQueue</code> will allow the producer to stop the queue and send a signal to the consumers that the queue is no longer pushing new tasks.</p>
 <p>Consumers will get access to the <code>std::mutex</code>, and <code>std::condition_variable</code> to wait for new tasks. The <code>PushTask</code> and <code>PushTasks</code> functions will acquire the mutex to exclusively add new tasks. After that, the lock is no longer needed to wake up the waiting threads.</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 1</span><span style="color:#dc322f">void</span> TaskQueue<span style="color:#719e07">::</span>PushTask(Task<span style="color:#719e07">*</span> t) {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 1</span><span style="color:#dc322f">void</span> TaskQueue<span style="color:#719e07">::</span>PushTask(Task<span style="color:#719e07">*</span> t) {
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 2</span>    {
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 3</span>        std<span style="color:#719e07">::</span>scoped_lock l{m_Mutex};
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 4</span>        m_Queue.push(t);
@@ -100,12 +102,13 @@
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">17</span>}
 </code></pre></div><p>When the consumers awake, they will use the non-thread safe functions to verify if they need to either: consume a new task, or finish execution because the queue will no longer send new tasks.</p>
 <p>For the consumer thread, I will break the method for a more detailed look:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">1</span><span style="color:#dc322f">void</span> <span style="color:#268bd2">WorkerThread</span>(<span style="color:#719e07">const</span> <span style="color:#dc322f">int</span> workerId, TaskQueue<span style="color:#719e07">&amp;</span> taskQueue,
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">1</span><span style="color:#dc322f">void</span> <span style="color:#268bd2">WorkerThread</span>(<span style="color:#719e07">const</span> <span style="color:#dc322f">int</span> workerId, TaskQueue<span style="color:#719e07">&amp;</span> taskQueue,
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">2</span>                  std<span style="color:#719e07">::</span>mutex<span style="color:#719e07">&amp;</span> coutMutex) {
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">3</span>    <span style="color:#719e07">auto</span><span style="color:#719e07">&amp;</span> [m, cv] <span style="color:#719e07">=</span> taskQueue.Subscribe();
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">4</span>    
-</code></pre></div><p>This declaration is a new feature introduced in C++17 called <a href="https://en.cppreference.com/w/cpp/language/structured_binding"target="_blank">Structured binding declaration</a>. It makes the declaration more readable, and it is the same as declaring and assigning to a <code>std::tuple</code>. Now that we have the synchronization mechanism, we can go into our main loop:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 5</span>    <span style="color:#719e07">while</span> (<span style="color:#b58900">true</span>) {
+</code></pre></div><p>This declaration is a new feature introduced in C++17 called <a href="https://en.cppreference.com/w/cpp/language/structured_binding"target="_blank" rel="noopener noreferrer">Structured binding declaration</a>
+. It makes the declaration more readable, and it is the same as declaring and assigning to a <code>std::tuple</code>. Now that we have the synchronization mechanism, we can go into our main loop:</p>
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 5</span>    <span style="color:#719e07">while</span> (<span style="color:#b58900">true</span>) {
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 6</span>        <span style="color:#719e07">auto</span> data <span style="color:#719e07">=</span> [<span style="color:#719e07">&amp;</span>]() <span style="color:#719e07">-&gt;</span> std<span style="color:#719e07">::</span>optional<span style="color:#719e07">&lt;</span>Task<span style="color:#719e07">*&gt;</span> {
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 7</span>            std<span style="color:#719e07">::</span>unique_lock l{m};
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 8</span>            cv.wait(l, [<span style="color:#719e07">&amp;</span>] {
@@ -120,7 +123,7 @@
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">17</span>            }
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">18</span>        }();
 </code></pre></div><p>We will try to get out Task using C++17&rsquo;s <code>std::optional</code>. This container allows us to create an instance that may not have a value after initialization. The worker thread will wait for it to be woken up inside of the <code>std::optional</code> constructor. If the task queue has a pending task, we will get it and return it as the value inside the <code>std::optional</code>.</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">17</span>        <span style="color:#719e07">if</span> (<span style="color:#719e07">!</span>data) {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">17</span>        <span style="color:#719e07">if</span> (<span style="color:#719e07">!</span>data) {
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">18</span>            <span style="color:#719e07">break</span>;
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">19</span>        }
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">20</span>
@@ -138,7 +141,7 @@
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">32</span>}
 </code></pre></div><p>If the <code>std::optional</code> returns without a value, the thread ends execution. Otherwise we print a debug message and execute the task.</p>
 <p>Let&rsquo;s put it all together in our main function:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 1</span><span style="color:#dc322f">int</span> <span style="color:#268bd2">main</span>(<span style="color:#dc322f">int</span> argc, <span style="color:#dc322f">char</span><span style="color:#719e07">*</span> argv[]) {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 1</span><span style="color:#dc322f">int</span> <span style="color:#268bd2">main</span>(<span style="color:#dc322f">int</span> argc, <span style="color:#dc322f">char</span><span style="color:#719e07">*</span> argv[]) {
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 2</span>    <span style="color:#719e07">const</span> <span style="color:#dc322f">unsigned</span> <span style="color:#dc322f">int</span> thread_pool_size <span style="color:#719e07">=</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 3</span>        std<span style="color:#719e07">::</span><span style="color:#268bd2">thread</span><span style="color:#719e07">::</span>hardware_concurrency() <span style="color:#719e07">-</span> <span style="color:#2aa198">1</span>;
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 4</span>    assert(thread_pool_size <span style="color:#719e07">&gt;</span> <span style="color:#2aa198">0</span>);
@@ -153,7 +156,7 @@
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">13</span>                                     std<span style="color:#719e07">::</span>ref(coutMutex));
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">14</span>    }
 </code></pre></div><p>Here we create an array of worker threads. At this point they will start execution and immediately sleep until we push new tasks.</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">15</span>    std<span style="color:#719e07">::</span>random_device rd;
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">15</span>    std<span style="color:#719e07">::</span>random_device rd;
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">16</span>    std<span style="color:#719e07">::</span>mt19937 gen(rd());
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">17</span>    std<span style="color:#719e07">::</span>uniform_int_distribution<span style="color:#719e07">&lt;&gt;</span> taskDuration(<span style="color:#2aa198">0</span>, <span style="color:#2aa198">1000</span>);
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">18</span>
@@ -172,7 +175,7 @@
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">31</span>    }
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">32</span>    taskQueue.PushTasks(taskBatch);
 </code></pre></div><p>Usually, the producer thread is also a loop that creates tasks until the program finishes. For our example, we will create only 10 tasks with random durations. The duration is a random value from 0 to 1000 milliseconds.</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">33</span>    std<span style="color:#719e07">::</span>this_thread<span style="color:#719e07">::</span>sleep_for(std<span style="color:#719e07">::</span>chrono<span style="color:#719e07">::</span>seconds(<span style="color:#2aa198">10</span>));
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">33</span>    std<span style="color:#719e07">::</span>this_thread<span style="color:#719e07">::</span>sleep_for(std<span style="color:#719e07">::</span>chrono<span style="color:#719e07">::</span>seconds(<span style="color:#2aa198">10</span>));
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">34</span>    taskQueue.StopQueue();
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">35</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">36</span>    <span style="color:#719e07">for</span> (size_t i <span style="color:#719e07">=</span> <span style="color:#2aa198">0</span>; i <span style="color:#719e07">&lt;</span> thread_pool_size; <span style="color:#719e07">++</span>i) {
@@ -182,7 +185,7 @@
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">40</span>}
 </code></pre></div><p>To make the end of our program simple, we will sleep the producer thread for 10 seconds to hopefully process all tasks, and stop the queue. In the last statement, we wait for all consumers to finish, and we exit the program.</p>
 <p>An example output of this program may be:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">Worker <span style="color:#719e07">{</span>0<span style="color:#719e07">}</span> is executing task <span style="color:#719e07">{</span>0<span style="color:#719e07">}</span>.
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">Worker <span style="color:#719e07">{</span>0<span style="color:#719e07">}</span> is executing task <span style="color:#719e07">{</span>0<span style="color:#719e07">}</span>.
 Worker <span style="color:#719e07">{</span>1<span style="color:#719e07">}</span> is executing task <span style="color:#719e07">{</span>1<span style="color:#719e07">}</span>.
 Worker <span style="color:#719e07">{</span>2<span style="color:#719e07">}</span> is executing task <span style="color:#719e07">{</span>2<span style="color:#719e07">}</span>.
 Worker <span style="color:#719e07">{</span>3<span style="color:#719e07">}</span> is executing task <span style="color:#719e07">{</span>3<span style="color:#719e07">}</span>.
@@ -202,12 +205,13 @@ Task <span style="color:#719e07">{</span>0<span style="color:#719e07">}</span> f
 Task <span style="color:#719e07">{</span>7<span style="color:#719e07">}</span> finished in 337ms.
 Task <span style="color:#719e07">{</span>8<span style="color:#719e07">}</span> finished in 527ms.
 Task <span style="color:#719e07">{</span>9<span style="color:#719e07">}</span> finished in 861ms.
-</code></pre></div></article><section class="article labels"><a class="category" href=/categories/category/>category</a><a class="category" href=/categories/subcategory/>subcategory</a><a class="tag" href=/tags/tag1/>tag1</a><a class="tag" href=/tags/tag2/>tag2</a></section></div><section class="article navigation"><p><a class="link" href="/post/memory-allocators-part-1/"><span class="li">&larr;</span>Memory allocatos in C++ - Part 1</a></p><p><a class="link" href="/post/smart-pointers-cpp-good-practices/"><span class="li">&rarr;</span>Make your pointers smart - C++ good practices</a></p></section></div><section id="footer" class="footer"><div class="footer-wrap">
-    <p class="copyright">©2020 Emmanuel Arias.</p>
-    <p class="powerby"><span>Powered by </span><a href="https://gohugo.io" 
-        target="_blank">Hugo</a><span> and the </span><a href="https://themes.gohugo.io/hugo-notepadium/" 
-        target="_blank">Notepadium</a></p>
-</div></section></div>
-</body>
+</code></pre></div></article><section class="article labels"><a class="category" href=/categories/category/>category</a><a class="category" href=/categories/subcategory/>subcategory</a><a class="tag" href=/tags/tag1/>tag1</a><a class="tag" href=/tags/tag2/>tag2</a></section>
+</div>
+<div class="article bottom"><section class="article navigation"><p><a class="link" href="/post/memory-allocators-part-1/"><span class="iconfont icon-article"></span>Memory allocators in C++ - Part 1</a></p><p><a class="link" href="/post/smart-pointers-cpp-good-practices/"><span class="iconfont icon-article"></span>Make your pointers smart - C++ good practices</a></p></section></div></section><section id="footer"><div class="footer-wrap">
+    <p class="copyright">©2017-2021 Emmanuel Arias.</p>
+    <p class="powerby"><span>Powered&nbsp;by&nbsp;</span><a href="https://gohugo.io" 
+        target="_blank" rel="noopener noreferrer">Hugo</a><span>&nbsp;&amp;&nbsp;</span><a href="https://themes.gohugo.io/hugo-notepadium/" 
+        target="_blank" rel="noopener noreferrer">Notepadium</a></p></div>
+</section></body>
 
 </html>

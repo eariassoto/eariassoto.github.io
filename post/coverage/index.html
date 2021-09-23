@@ -1,67 +1,67 @@
 <!DOCTYPE html>
-<html lang="en"><meta charset="utf-8"><meta name="generator" content="Hugo 0.69.0" /><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<html lang="en"><meta charset="utf-8"><meta name="generator" content="Hugo 0.89.0-DEV" /><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
-<meta name="supported-color-schemes" content="light dark"><title>Analyze the testing coverage of your C&#43;&#43; code&nbsp;&ndash;&nbsp;Emmanuel Arias</title><link rel="stylesheet" href="/css/core.min.b1b309139dc19672eb80b6a0dfcccc126e5f08ca3047bccb2d8e929ed6de3f2b91c5dc97e3f0e470e503f77726a1f08a.css" integrity="sha384-sbMJE53BlnLrgLag38zMEm5fCMowR7zLLY6SntbePyuRxdyX4/DkcOUD93cmofCK"><meta name="twitter:card" content="summary" />
-<meta name="twitter:title" content="Analyze the testing coverage of your C&#43;&#43; code" /><body>
-    <div class="base-body"><section id="header" class="site header">
+<meta name="supported-color-schemes" content="light dark"><title>Analyze the testing coverage of your C&#43;&#43; code&nbsp;&ndash;&nbsp;Emmanuel Arias</title><link rel="stylesheet" href="/css/core.min.9e958365cf0319ede466a402e1369f31dc1f205c868aa836fe25581725c829d3f3545d9f142cccafe35363950a63e2a6.css" integrity="sha384-npWDZc8DGe3kZqQC4TafMdwfIFyGiqg2/iVYFyXIKdPzVF2fFCzMr&#43;NTY5UKY&#43;Km"><meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="Analyze the testing coverage of your C&#43;&#43; code" /><body><section id="header">
     <div class="header wrap"><span class="header left-side"><a class="site home" href="/"><span class="site name">Emmanuel Arias</span></a></span>
-        <span class="header right-side"><div class="nav wrap"><nav class="nav"><a class="nav item" href="/categories/">Categories</a><a class="nav item" href="/tags/">Tags</a></nav></div></span></div><div class="site slogan"><span class="title">A software developer looking for his <span style='font-family: monospace;'>$PATH</span></span></div></section><div id="content"><div class="article-container"><section class="article header">
+        <span class="header right-side"><div class="nav wrap"><nav class="nav"><a class="nav item" href="/categories/">Categories</a><a class="nav item" href="/tags/">Tags</a></nav></div></span></div><div class="site slogan"><span class="title">A software developer looking for his <span style='font-family: monospace;'>$PATH</span></span></div></section><section id="content"><div class="article-container"><section class="article header">
     <h1 class="article title">Analyze the testing coverage of your C++ code</h1><p class="article date">Nov 18, 2017</p></section><article class="article markdown-body"><p>Writing unit tests is a great way to ensure that your code is behaving correctly. But how can you tell how much of your code are you testing? The GCC compiler provides tools to analyze the testing coverage of your project. In this post, I will show you how to integrate these tools in a CMake project.</p>
 <p><a class=button href="https://github.com/eariassoto/cpp-project-template" target="%5fblank">Get the code on GitHub</a></p>
 <p>GCC provides a testing coverage tool called <code>gcov</code>. It creates log files that register how many times a code line has been executed. Using <code>gcov</code> out of the box is as easy as compiling your code with some special flags:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">gcc -Wall -fprofile-arcs -ftest-coverage -O0 main.c
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">gcc -Wall -fprofile-arcs -ftest-coverage -O0 main.c
 </code></pre></div><p>Then, you run all the tests for that code, and call <code>gcov</code>. This is an example output:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ gcov main.c 
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ gcov main.c 
  88.89% of <span style="color:#2aa198">9</span> <span style="color:#b58900">source</span> lines executed in file main.c
 Creating main.c.gcov
-</code></pre></div><p>The generated <code>.gcov</code> files are copies of our source files, but with counters for every line that was executed. Though these <code>.gcov</code> files give you the information you need, it would be great if we could generate more detailed reports. We can actually do this using <code>lcov</code>, a tool that creates HTML reports based on <code>gcov</code>'s output.</p>
+</code></pre></div><p>The generated <code>.gcov</code> files are copies of our source files, but with counters for every line that was executed. Though these <code>.gcov</code> files give you the information you need, it would be great if we could generate more detailed reports. We can actually do this using <code>lcov</code>, a tool that creates HTML reports based on <code>gcov</code>&rsquo;s output.</p>
 <h2 id="requirements">Requirements</h2>
-<p>To install the coverage tools, you ought to have <code>GCC</code>, <code>CMake</code>, and <code>lcov</code> installed. To get my CMake template project, go over to <a href="https://eariassoto.github.io/2017/10/test-your-c---code-with-the-google-test-framework/"target="_blank">my previous post</a>, and follow the steps. The template already has a sample program with unit tests. However, you can follow this post, and install the coverage tools in your own CMake project.</p>
+<p>To install the coverage tools, you ought to have <code>GCC</code>, <code>CMake</code>, and <code>lcov</code> installed. To get my CMake template project, go over to <a href="https://eariassoto.github.io/2017/10/test-your-c---code-with-the-google-test-framework/"target="_blank" rel="noopener noreferrer">my previous post</a>
+, and follow the steps. The template already has a sample program with unit tests. However, you can follow this post, and install the coverage tools in your own CMake project.</p>
 <h2 id="getting-the-test-coverage-module">Getting the test coverage module</h2>
-<p>Configuring <code>gcov</code> and <code>lcov</code> for CMake can be quite complicated. To make things easier, we will download a CMake module from <a href="https://github.com/bilke/cmake-modules/blob/master/CodeCoverage.cmake"target="_blank">this repo</a>. Let&rsquo;s create a folder called <code>CMakeModules</code> in our project, and save the module file there.</p>
+<p>Configuring <code>gcov</code> and <code>lcov</code> for CMake can be quite complicated. To make things easier, we will download a CMake module from <a href="https://github.com/bilke/cmake-modules/blob/master/CodeCoverage.cmake"target="_blank" rel="noopener noreferrer">this repo</a>
+. Let&rsquo;s create a folder called <code>CMakeModules</code> in our project, and save the module file there.</p>
 <h2 id="setting-out-our-cmake">Setting out our CMake</h2>
 <p>First, we need to declare the name of our testing executable in <code>CMakeLists.txt</code>. This is the executable that our coverage tool will run for the testing coverage analysis.</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cmake" data-lang="cmake"><span style="color:#b58900">set</span> (<span style="color:#2aa198">PROJECT_TEST_NAME</span> <span style="color:#719e07">${</span><span style="color:#268bd2">PROJECT_NAME</span><span style="color:#719e07">}</span><span style="color:#2aa198">-ut</span>)
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cmake" data-lang="cmake"><span style="color:#b58900">set</span> (<span style="color:#2aa198">PROJECT_TEST_NAME</span> <span style="color:#719e07">${</span><span style="color:#268bd2">PROJECT_NAME</span><span style="color:#719e07">}</span><span style="color:#2aa198">-ut</span>)
 </code></pre></div><p>Next, we need to set our CMake module folder to <code>CMakeModules</code>:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cmake" data-lang="cmake"><span style="color:#586e75"># Folder where the Coverage module is
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cmake" data-lang="cmake"><span style="color:#586e75"># Folder where the Coverage module is
 </span><span style="color:#586e75"></span><span style="color:#b58900">set</span>(<span style="color:#2aa198">CMAKE_MODULE_PATH</span> <span style="color:#719e07">${</span><span style="color:#268bd2">PROJECT_SOURCE_DIR</span><span style="color:#719e07">}</span><span style="color:#2aa198">/CMakeModules</span>)
 </code></pre></div><p>Finally, we need to configure the coverage target:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cmake" data-lang="cmake"><span style="color:#586e75"># Code coverage
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cmake" data-lang="cmake"><span style="color:#586e75"># Code coverage
 </span><span style="color:#586e75"></span><span style="color:#b58900">if</span> (<span style="color:#2aa198">CMAKE_BUILD_TYPE</span> <span style="color:#2aa198">STREQUAL</span> <span style="color:#2aa198">&#34;Coverage&#34;</span>)
-    <span style="color:#b58900">set_target_properties</span>(<span style="color:#719e07">${</span><span style="color:#268bd2">PROJECT_NAME</span><span style="color:#719e07">}</span><span style="color:#2aa198"></span>
-        <span style="color:#2aa198">PROPERTIES</span>
-        <span style="color:#2aa198">COMPILE_FLAGS</span> <span style="color:#2aa198">&#34;-O0 -fprofile-arcs -ftest-coverage&#34;</span><span style="color:#2aa198"></span>
+    <span style="color:#b58900">set_target_properties</span>(<span style="color:#719e07">${</span><span style="color:#268bd2">PROJECT_NAME</span><span style="color:#719e07">}</span>
+        <span style="color:#2aa198">PROPERTIES</span>
+        <span style="color:#2aa198">COMPILE_FLAGS</span> <span style="color:#2aa198">&#34;-O0 -fprofile-arcs -ftest-coverage&#34;</span>
     )
     <span style="color:#b58900">include</span>(<span style="color:#2aa198">CodeCoverage</span>)
-    <span style="color:#b58900">set</span>(<span style="color:#2aa198">COVERAGE_EXCLUDES</span>
-        <span style="color:#2aa198">&#39;/usr/*&#39;</span>
-		<span style="color:#2aa198">&#39;</span><span style="color:#719e07">${</span><span style="color:#268bd2">PROJECT_SOURCE_DIR</span><span style="color:#719e07">}</span><span style="color:#2aa198">/tests/*&#39;</span>
-		<span style="color:#2aa198">&#39;</span><span style="color:#719e07">${</span><span style="color:#268bd2">CMAKE_BINARY_DIR</span><span style="color:#719e07">}</span><span style="color:#2aa198">/googletest-src/googletest/include/gtest/*&#39;</span>
-		<span style="color:#2aa198">&#39;</span><span style="color:#719e07">${</span><span style="color:#268bd2">CMAKE_BINARY_DIR</span><span style="color:#719e07">}</span><span style="color:#2aa198">/googletest-src/googletest/src/*&#39;</span>
-		<span style="color:#2aa198">&#39;</span><span style="color:#719e07">${</span><span style="color:#268bd2">CMAKE_BINARY_DIR</span><span style="color:#719e07">}</span><span style="color:#2aa198">/googletest-src/googlemock/include/gmock/*&#39;</span>
-        <span style="color:#2aa198">&#39;</span><span style="color:#719e07">${</span><span style="color:#268bd2">CMAKE_BINARY_DIR</span><span style="color:#719e07">}</span><span style="color:#2aa198">/googletest-src/googlemock/src/*&#39;</span>
+    <span style="color:#b58900">set</span>(<span style="color:#2aa198">COVERAGE_EXCLUDES</span>
+        <span style="color:#2aa198">&#39;/usr/*&#39;</span>
+		<span style="color:#2aa198">&#39;</span><span style="color:#719e07">${</span><span style="color:#268bd2">PROJECT_SOURCE_DIR</span><span style="color:#719e07">}</span><span style="color:#2aa198">/tests/*&#39;</span>
+		<span style="color:#2aa198">&#39;</span><span style="color:#719e07">${</span><span style="color:#268bd2">CMAKE_BINARY_DIR</span><span style="color:#719e07">}</span><span style="color:#2aa198">/googletest-src/googletest/include/gtest/*&#39;</span>
+		<span style="color:#2aa198">&#39;</span><span style="color:#719e07">${</span><span style="color:#268bd2">CMAKE_BINARY_DIR</span><span style="color:#719e07">}</span><span style="color:#2aa198">/googletest-src/googletest/src/*&#39;</span>
+		<span style="color:#2aa198">&#39;</span><span style="color:#719e07">${</span><span style="color:#268bd2">CMAKE_BINARY_DIR</span><span style="color:#719e07">}</span><span style="color:#2aa198">/googletest-src/googlemock/include/gmock/*&#39;</span>
+        <span style="color:#2aa198">&#39;</span><span style="color:#719e07">${</span><span style="color:#268bd2">CMAKE_BINARY_DIR</span><span style="color:#719e07">}</span><span style="color:#2aa198">/googletest-src/googlemock/src/*&#39;</span>
     )
-    <span style="color:#b58900">SETUP_TARGET_FOR_COVERAGE</span>(<span style="color:#2aa198"></span>
-	<span style="color:#2aa198">NAME</span> <span style="color:#2aa198">coverage</span>
-	<span style="color:#2aa198">EXECUTABLE</span> <span style="color:#719e07">${</span><span style="color:#268bd2">PROJECT_TEST_NAME</span><span style="color:#719e07">}</span><span style="color:#2aa198"></span>
-	<span style="color:#2aa198">DEPENDENCIES</span> <span style="color:#719e07">${</span><span style="color:#268bd2">PROJECT_NAME</span><span style="color:#719e07">}</span><span style="color:#2aa198"></span>
+    <span style="color:#b58900">SETUP_TARGET_FOR_COVERAGE</span>(
+	<span style="color:#2aa198">NAME</span> <span style="color:#2aa198">coverage</span>
+	<span style="color:#2aa198">EXECUTABLE</span> <span style="color:#719e07">${</span><span style="color:#268bd2">PROJECT_TEST_NAME</span><span style="color:#719e07">}</span>
+	<span style="color:#2aa198">DEPENDENCIES</span> <span style="color:#719e07">${</span><span style="color:#268bd2">PROJECT_NAME</span><span style="color:#719e07">}</span>
     )
 <span style="color:#b58900">endif</span>() <span style="color:#586e75">#CMAKE_BUILD_TYPE STREQUAL &#34;Coverage&#34;
 </span></code></pre></div><p>First thing we need to do here is add the compiler flags to enable <code>gcov</code>. We also need to add the flag to disable optimizations. The <code>include</code> command will add the CMake module we downloaded to our project. Then, we need to declare all the folders we want to exclude from the analysis. Finally, the <code>SETUP_TARGET_FOR_COVERAGE</code> command makes all the magic happen. We will have a <code>coverage</code> target that will run the executable we declared, and create the coverage report in our <code>build</code> folder.</p>
 <h2 id="running-the-test-coverage-analysis">Running the test coverage analysis</h2>
 <p>To run the analysis, we need to build the project using the <code>Coverage</code> build type:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">mkdir build
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">mkdir build
 <span style="color:#b58900">cd</span> build
 cmake -DCMAKE_BUILD_TYPE<span style="color:#719e07">=</span>Coverage ..
 make
 make coverage
 </code></pre></div><p>If these commands executed succesfully, open <code>build/coverage/index.html</code> file in a web browser. It will look like this:</p>
-<p><a target="_blank" rel="noopener noreferrer" 
-  href="/static/img/lcov1.PNG"><img  src="/static/img/lcov1.PNG"
-        alt="Initial analysis"/></a></p>
+<p><img  src="/static/img/lcov1.PNG"
+        alt="Initial analysis"/></p>
 <p>Now you have all your coverage information in one report! You can navigate through your code and check which parts need testing. Let&rsquo;s modify our sample program a little bit, and add some validations to our <code>Person</code> constructor. We will change it to throw an exception if the name comes empty:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#719e07">#include</span> <span style="color:#719e07">&lt;stdexcept&gt;</span><span style="color:#719e07">
-</span><span style="color:#719e07">#include</span> <span style="color:#719e07">&#34;Person.h&#34;</span><span style="color:#719e07">
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#719e07">#include</span> <span style="color:#719e07">&lt;stdexcept&gt;</span><span style="color:#719e07">
+</span><span style="color:#719e07">#include</span> <span style="color:#719e07">&#34;Person.h&#34;</span><span style="color:#719e07">
 </span><span style="color:#719e07"></span>
 Person<span style="color:#719e07">::</span>Person(std<span style="color:#719e07">::</span>string name) {
 	<span style="color:#719e07">if</span>(name.empty()){
@@ -70,11 +70,10 @@ Person<span style="color:#719e07">::</span>Person(std<span style="color:#719e07"
 	<span style="color:#719e07">this</span><span style="color:#719e07">-&gt;</span>name <span style="color:#719e07">=</span> name;
 };
 </code></pre></div><p>Let&rsquo;s run the analysis again with <code>make coverage</code>:</p>
-<p><a target="_blank" rel="noopener noreferrer" 
-  href="/static/img/lcov2.PNG"><img  src="/static/img/lcov2.PNG"
-        alt="Initial analysis"/></a></p>
+<p><img  src="/static/img/lcov2.PNG"
+        alt="Initial analysis"/></p>
 <p>We can see that line 6 is not being executed by any unit test. Let&rsquo;s add two unit test to be sure we are covering both branches of the constructor:</p>
-<div class="highlight"><pre style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++">TEST(GreeterTests, PersonValidCtorTest) {
+<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++">TEST(GreeterTests, PersonValidCtorTest) {
 	ASSERT_NO_THROW({
 		Person p{<span style="color:#2aa198">&#34;Alexa&#34;</span>};
 	});
@@ -86,21 +85,25 @@ TEST(GreeterTests, PersonInvalidCtorTest) {
 	}, std<span style="color:#719e07">::</span>invalid_argument);
 }
 </code></pre></div><p>A final run of the analysis will tell us that our code is 100% covered again:</p>
-<p><a target="_blank" rel="noopener noreferrer" 
-  href="/static/img/lcov3.PNG"><img  src="/static/img/lcov3.PNG"
-        alt="Initial analysis"/></a></p>
-<p>That&rsquo;s pretty much it, now you have a tool to measure the coverage of your tests. You can use this coverage tool to analyze the coverage of other tests, such as component and feature tests. Further, you can integrate this analysis in CI services, like <a href="https://travis-ci.org/"target="_blank">Travis CI</a> and <a href="https://jenkins.io/index.html"target="_blank">Jenkins</a>.</p>
+<p><img  src="/static/img/lcov3.PNG"
+        alt="Initial analysis"/></p>
+<p>That&rsquo;s pretty much it, now you have a tool to measure the coverage of your tests. You can use this coverage tool to analyze the coverage of other tests, such as component and feature tests. Further, you can integrate this analysis in CI services, like <a href="https://travis-ci.org/"target="_blank" rel="noopener noreferrer">Travis CI</a>
+ and <a href="https://jenkins.io/index.html"target="_blank" rel="noopener noreferrer">Jenkins</a>
+.</p>
 <h2 id="useful-links">Useful links</h2>
 <ul>
-<li><a href="https://gcc.gnu.org/onlinedocs/gcc-5.3.0/gcc/Gcov.html"target="_blank">gcov reference page</a></li>
-<li><a href="http://ltp.sourceforge.net/coverage/lcov.php"target="_blank">lcov official website</a></li>
+<li><a href="https://gcc.gnu.org/onlinedocs/gcc-5.3.0/gcc/Gcov.html"target="_blank" rel="noopener noreferrer">gcov reference page</a>
+</li>
+<li><a href="http://ltp.sourceforge.net/coverage/lcov.php"target="_blank" rel="noopener noreferrer">lcov official website</a>
+</li>
 </ul>
-<p><a class=button href="https://github.com/eariassoto/cpp-project-template" target="%5fblank">Get the code on GitHub</a></p></article><section class="article labels"><a class="category" href=/categories/development/>Development</a><a class="category" href=/categories/tutorials/>Tutorials</a><a class="tag" href=/tags/c&#43;&#43;/>C&#43;&#43;</a><a class="tag" href=/tags/cmake/>cmake</a><a class="tag" href=/tags/templates/>templates</a><a class="tag" href=/tags/coverage/>coverage</a></section></div><section class="article navigation"><p><a class="link" href="/post/smart-pointers-cpp-good-practices/"><span class="li">&larr;</span>Make your pointers smart - C++ good practices</a></p><p><a class="link" href="/post/unit-tests/"><span class="li">&rarr;</span>Test your C++ code with the Google Test framework</a></p></section></div><section id="footer" class="footer"><div class="footer-wrap">
-    <p class="copyright">©2020 Emmanuel Arias.</p>
-    <p class="powerby"><span>Powered by </span><a href="https://gohugo.io" 
-        target="_blank">Hugo</a><span> and the </span><a href="https://themes.gohugo.io/hugo-notepadium/" 
-        target="_blank">Notepadium</a></p>
-</div></section></div>
-</body>
+<p><a class=button href="https://github.com/eariassoto/cpp-project-template" target="%5fblank">Get the code on GitHub</a></p></article><section class="article labels"><a class="category" href=/categories/development/>Development</a><a class="category" href=/categories/tutorials/>Tutorials</a><a class="tag" href=/tags/c&#43;&#43;/>C&#43;&#43;</a><a class="tag" href=/tags/cmake/>cmake</a><a class="tag" href=/tags/templates/>templates</a><a class="tag" href=/tags/coverage/>coverage</a></section>
+</div>
+<div class="article bottom"><section class="article navigation"><p><a class="link" href="/post/smart-pointers-cpp-good-practices/"><span class="iconfont icon-article"></span>Make your pointers smart - C++ good practices</a></p><p><a class="link" href="/post/unit-tests/"><span class="iconfont icon-article"></span>Test your C++ code with the Google Test framework</a></p></section></div></section><section id="footer"><div class="footer-wrap">
+    <p class="copyright">©2017-2021 Emmanuel Arias.</p>
+    <p class="powerby"><span>Powered&nbsp;by&nbsp;</span><a href="https://gohugo.io" 
+        target="_blank" rel="noopener noreferrer">Hugo</a><span>&nbsp;&amp;&nbsp;</span><a href="https://themes.gohugo.io/hugo-notepadium/" 
+        target="_blank" rel="noopener noreferrer">Notepadium</a></p></div>
+</section></body>
 
 </html>
