@@ -4,7 +4,7 @@
 <meta name="supported-color-schemes" content="light dark"><title>Memory allocators in C&#43;&#43; - Part 1&nbsp;&ndash;&nbsp;Emmanuel Arias</title><link rel="stylesheet" href="/css/core.min.9e958365cf0319ede466a402e1369f31dc1f205c868aa836fe25581725c829d3f3545d9f142cccafe35363950a63e2a6.css" integrity="sha384-npWDZc8DGe3kZqQC4TafMdwfIFyGiqg2/iVYFyXIKdPzVF2fFCzMr&#43;NTY5UKY&#43;Km"><meta name="twitter:card" content="summary" />
 <meta name="twitter:title" content="Memory allocators in C&#43;&#43; - Part 1" /><body><section id="header">
     <div class="header wrap"><span class="header left-side"><a class="site home" href="/"><span class="site name">Emmanuel Arias</span></a></span>
-        <span class="header right-side"><div class="nav wrap"><nav class="nav"><a class="nav item" href="/categories/">Categories</a><a class="nav item" href="/tags/">Tags</a></nav></div></span></div><div class="site slogan"><span class="title">A software developer looking for his <span style='font-family: monospace;'>$PATH</span></span></div></section><section id="content"><div class="article-container"><section class="article header">
+        <span class="header right-side"><div class="nav wrap"><nav class="nav"><a class="nav item" href="/categories/">Categories</a></nav></div></span></div><div class="site slogan"><span class="title">A software developer looking for his <span style='font-family: monospace;'>$PATH</span></span></div></section><section id="content"><div class="article-container"><section class="article header">
     <h1 class="article title">Memory allocators in C++ - Part 1</h1><p class="article date">Sep 09, 2020</p></section><article class="article markdown-body"><p>When you want to instantiate a class or a struct in the dynamic memory space, we normally use the <code>new</code> and <code>delete</code> operators.</p>
 <div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#719e07">class</span> <span style="color:#268bd2">Point</span> {
 	<span style="color:#dc322f">float</span> m_X;
@@ -148,10 +148,9 @@ Lowest address           Lower Marker              Upper Marker   Highest addres
     }
 }
 </code></pre></div><p>That should cover the overall implementation of this simple memory allocator. You can find the full source code in <a href="https://github.com/eariassoto/custom-allocators-cpp"target="_blank" rel="noopener noreferrer">this repository</a>
-. For the next article, we will go into the details of pool allocators.</p>
-</article><section class="article labels"><a class="category" href=/categories/development/>Development</a><a class="category" href=/categories/game-development/>Game development</a><a class="tag" href=/tags/c&#43;&#43;/>C&#43;&#43;</a></section>
+. For the next article, we will go into the details of pool allocators.</p></article><section class="article labels"><a class="category" href=/categories/development/>Development</a><a class="category" href=/categories/game-development/>Game development</a><a class="tag" href=/tags/c&#43;&#43;/>C&#43;&#43;</a></section>
 </div>
-<div class="article bottom"><section class="article navigation"><p><a class="link" href="/post/producer-consumer/"><span class="iconfont icon-article"></span>Minimal implementations in Modern C++: Producer-Consumer problem</a></p></section></div></section><section id="footer"><div class="footer-wrap">
+<div class="article bottom"><section class="article navigation"><p><a class="link" href="/post/making-games-with-skia/"><span class="iconfont icon-article"></span>Making games with Google Chrome's rendering engine</a></p><p><a class="link" href="/post/producer-consumer/"><span class="iconfont icon-article"></span>Minimal implementations in Modern C++: Producer-Consumer problem</a></p></section></div></section><section id="footer"><div class="footer-wrap">
     <p class="copyright">©2017-2021 Emmanuel Arias.</p>
     <p class="powerby"><span>Powered&nbsp;by&nbsp;</span><a href="https://gohugo.io" 
         target="_blank" rel="noopener noreferrer">Hugo</a><span>&nbsp;&amp;&nbsp;</span><a href="https://themes.gohugo.io/hugo-notepadium/" 
