@@ -1,14 +1,14 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Python on Emmanuel Arias</title>
-    <link>https://eariassoto.github.io/tags/python/</link>
-    <description>Recent content in Python on Emmanuel Arias</description>
+    <title>Game Engine on Emmanuel Arias</title>
+    <link>https://eariassoto.github.io/categories/game-engine/</link>
+    <description>Recent content in Game Engine on Emmanuel Arias</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
     <copyright>©2017-2021 Emmanuel Arias.</copyright>
-    <lastBuildDate>Sat, 15 Jul 2017 10:43:23 -0600</lastBuildDate>
+    <lastBuildDate>Thu, 02 Dec 2021 01:25:52 +0100</lastBuildDate>
     
-        <atom:link href="https://eariassoto.github.io/tags/python/index.xml" rel="self" type="application/rss+xml" />
+        <atom:link href="https://eariassoto.github.io/categories/game-engine/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>

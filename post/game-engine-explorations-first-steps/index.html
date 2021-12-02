@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en"><meta charset="utf-8"><meta name="generator" content="Hugo 0.89.4" /><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="supported-color-schemes" content="light dark"><title>Game Engine Explorations: First steps&nbsp;&ndash;&nbsp;Emmanuel Arias</title><link rel="stylesheet" href="/css/core.min.9e958365cf0319ede466a402e1369f31dc1f205c868aa836fe25581725c829d3f3545d9f142cccafe35363950a63e2a6.css" integrity="sha384-npWDZc8DGe3kZqQC4TafMdwfIFyGiqg2/iVYFyXIKdPzVF2fFCzMr&#43;NTY5UKY&#43;Km"><meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="Game Engine Explorations: First steps" /><body><section id="header">
+    <div class="header wrap"><span class="header left-side"><a class="site home" href="/"><span class="site name">Emmanuel Arias</span></a></span>
+        <span class="header right-side"><div class="nav wrap"><nav class="nav"><a class="nav item" href="/categories/">Categories</a></nav></div></span></div><div class="site slogan"><span class="title">A software developer looking for his <span style='font-family: monospace;'>$PATH</span></span></div></section><section id="content"><div class="article-container"><section class="article header">
+    <h1 class="article title">Game Engine Explorations: First steps</h1><p class="article date">Dec 02, 2021</p></section><article class="article markdown-body"><p>This post is the first one of a series of posts where I will document my learnings on Game Engine development.</p>
+<p>From all the roles within sofware engineering, I am most attracted to Software Architecture. To prepare myself for this path, I like to study software systems, understand how they work and implement my own version. I find satisfaction in designing the small pieces, testing them and putting them all together. It is a long process that requires patience and dedication, but hey, here goes my attempt at creating my own engine.</p>
+<p>Game engines fall under this category of complex software systems. They help developers create videogames faster by putting the heaviest workload off their shoulders.</p>
+<p>These engines come in all sizes. Commercial engines such as Unity, Godot or Unreal Engine are developed by hundreds of people and they offer the users rich UX interfaces. Videogames companies develop their own large scale in-house engines for their own games.</p>
+<p>Given that I will take on this project by myself, I will not attempt to implement a commercial engine, nor a large scale engine. My first goal will be to create a simple 3D rendering engine, choose a particular game genre (FPS, RTS, platformer, for example), to finally create a game with the engine.</p>
+<h2 id="setting-initial-goals">Setting initial goals</h2>
+<p>As I mentioned before, I will start designing enough engine code so that I can render a 3D mesh with textures and some basic camera and lighting. For better performance and portability, I will be using C++ as main programming language. I will try to target Windows and Linux as platforms.</p>
+<p>The next diagram shows a rough design of the project:</p>
+<pre tabindex="0"><code>  +--------------+
+  |   external   |
+  | dependencies |
+  +-------+------+
+          |
++---------v--------+    +---------------------+   +------------+
+|    Engine Code   +----&gt;      Game Code      |   |    Game    |
+| (static library) |    |(application project)+---&gt;(executable)|
++------------------+    +----------^----------+   +------------+
+                                   |
+                           +-------+------+
+                           |   external   |
+                           | dependencies |
+                           +--------------+
+  +------------------+
+  |    Asset files   |      +--------------+     +-------------+
+  |(meshes, textures,|      | Data parsing |     |  Game Data  |
+  | shaders, sounds) +------&gt;   scripts    +-----&gt;(binary file)|
+  +------------------+      +--------------+     +-------------+
+
+</code></pre><p>The engine code compiles to a static library that the different application projects can share. The reason of using a static library is performance. It is normal to have a single videogame running in a machine so we would gain little to nothing from having the code in a dynamic library. Moreover, calls to functions inside a dynamic linked library are more expensive.</p>
+<p>The game logic is the pieces of code that relate to the game itself. This code will compile as an executable that links to the engine code library. As a first approach, this application will be in charge of registering the assets and rendering meshes. In the future, I expect to have a scene manager and a resources manager to deal with assets in a better way.</p>
+<p>In the previous diagram I added the game data as a binary file. This will be part of the second iteration of the project. Once I have a proper resources manager, I will be able to add additional code to load assets from an optimized file with my own specifications. As a starting point, loading individual files is okay.</p>
+<h2 id="finding-resources">Finding resources</h2>
+<p>This is a list of books and resources I am using to start the project:</p>
+<ul>
+<li><strong>Game Engine Architecture - Jason Gregory</strong>: This one is my main guide. I have read first parts so far but I have enough learnings to go and jump to practice. This book covers the topics at a broader scale. The next books I selected will go deeper into a specific topic.</li>
+<li><strong>3D Math Primer for Graphics and Game Development - Fletcher Dunn</strong>: I got this one to refresh my math skills for 3D rendering.</li>
+<li><strong>Introduction to 3D Game Programming with DirectX 11 - Frank Luna</strong>: I am new to graphics programming so I will use DirectX11 as one of the APIs to start this engine. This API is still used, and it is easier to grasp for a rookie programmer than DirectX12 and Vulkan.</li>
+<li><strong><a href="https://learnopengl.com/"target="_blank" rel="noopener noreferrer">learnopengl.com</a>
+</strong>: The other graphical I will use API for the engine is OpenGL. This API abstracts configuration details, but modern version provide more control to the programmer. It will also be useful to provide support to GNU/Linux platforms.</li>
+<li><strong><a href="https://www.youtube.com/channel/UCQ-W1KE9EYfdxhL6S4twUNw"target="_blank" rel="noopener noreferrer">The Cherno - Youtube channel</a>
+</strong>: This channel has an awesome series on game engine development. The first videos on their series have helped me greatly to jumpstart my project.</li>
+</ul>
+<h2 id="so-what-is-left">So what is left?</h2>
+<p>Now comes the fun part, code! In the next post, I will be setting up the build system and the project configuration. I promise to end up with a classic Hello World! :)</p></article><section class="article labels"><a class="category" href=/categories/game-engine/>Game Engine</a><a class="category" href=/categories/game-development/>Game development</a><a class="tag" href=/tags/c&#43;&#43;/>C&#43;&#43;</a></section>
+</div>
+<div class="article bottom"><section class="article navigation"><p><a class="link" href="/post/memory-allocators-part-1/"><span class="iconfont icon-article"></span>Memory allocators in C++ - Part 1</a></p></section></div></section><section id="footer"><div class="footer-wrap">
+    <p class="copyright">©2017-2021 Emmanuel Arias.</p>
+    <p class="powerby"><span>Powered&nbsp;by&nbsp;</span><a href="https://gohugo.io" 
+        target="_blank" rel="noopener noreferrer">Hugo</a><span>&nbsp;&amp;&nbsp;</span><a href="https://themes.gohugo.io/hugo-notepadium/" 
+        target="_blank" rel="noopener noreferrer">Notepadium</a></p></div>
+</section></body>
+
+</html>
