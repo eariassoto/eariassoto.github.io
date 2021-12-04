@@ -18,7 +18,6 @@
       
       <guid>https://eariassoto.github.io/post/game-engine-explorations-hello-world/</guid>
       <description>&lt;p&gt;My previous post was an introduction to my first explotations in game engine development. In this post, I am laying down the foundation of the project. I will be using a tool that automatically creates Visual Studio solutions and Makefiles.&lt;/p&gt;
-&lt;!-- more --&gt;
 &lt;p&gt;This first iteration consists of an executable program that calls a function from a static library. This is how the folder structure looks like without any configuration files:&lt;/p&gt;
 &lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;└───sources
     ├───engine_lib
@@ -182,8 +181,7 @@ PointerAlignment: Left
         alt=&#34;Base project structure&#34;/&gt;&lt;/p&gt;
 &lt;p&gt;I can run the executable from Visual Studio, or I can go and execute it in the &lt;code&gt;target&lt;/code&gt; folder. You can find this code in the project&amp;rsquo;s &lt;a href=&#34;https://github.com/eariassoto/tamarindo_engine/tree/a4ca92dbdb4bca9a467d26275929db3588e9f1e1&#34;target=&#34;_blank&#34; rel=&#34;noopener noreferrer&#34;&gt;Github repo&lt;/a&gt;
 .&lt;/p&gt;
-&lt;p&gt;That is all for now :). In the next post, I will lay down the basic class hierarchy and main function for the engine.&lt;/p&gt;
-</description>
+&lt;p&gt;That is all for now :). In the next post, I will lay down the basic class hierarchy and main function for the engine.&lt;/p&gt;</description>
     </item>
     
     <item>
