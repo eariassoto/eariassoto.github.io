@@ -232,7 +232,8 @@ PointerAlignment: Left
 &lt;/strong&gt;: This channel has an awesome series on game engine development. The first videos on their series have helped me greatly to jumpstart my project.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2 id=&#34;so-what-is-left&#34;&gt;So what is left?&lt;/h2&gt;
-&lt;p&gt;Now comes the fun part, code! In the next post, I will be setting up the build system and the project configuration. I promise to end up with a classic Hello World! :)&lt;/p&gt;</description>
+&lt;p&gt;Now comes the fun part, code! In the &lt;a href=&#34;https://eariassoto.github.io/post/game-engine-explorations-hello-world/&#34;target=&#34;_blank&#34; rel=&#34;noopener noreferrer&#34;&gt;next post&lt;/a&gt;
+, I will be setting up the build system and the project configuration. I promise to end up with a classic Hello World! :)&lt;/p&gt;</description>
     </item>
     
     <item>
