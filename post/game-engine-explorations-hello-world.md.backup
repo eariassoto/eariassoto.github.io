@@ -1,0 +1,46 @@
+---
+title: "Game Engine Explorations: Hello World"
+date: 2021-12-03T03:41:43+01:00
+draft: true
+---
+
+My previous post was an introduction to my first explotations in game engine development. In this post, I am laying down the foundation of the project. I will be using a tool that automatically creates Visual Studio solutions and Makefiles.
+
+<!-- more -->
+
+This first iteration consists of an executable program that calls a function from a static library. This is how the folder structure looks like without any configuration files:
+
+```
+└───sources
+    ├───engine_lib
+    │   │
+    │   └───engine_lib
+    │           hello.cpp
+    │           hello.h
+    │
+    └───game_app
+            main.cpp
+```
+
+I am nesting the static library source file´s so that we can have:
+
+```C++
+#include "engine_lib/hello.h"
+```
+
+I also added a `.clang-format` file in the `sources` foldder with some personal preferences:
+
+```
+---
+BasedOnStyle: Google
+IndentWidth: 4
+BreakBeforeBraces: Linux
+SortIncludes: false
+PointerAlignment: Left
+```
+
+Visual Studio will recognize the format file and apply it to source files in this project. I can also use it to configure it source files formatting in editors like Vim.
+
+## Choosing the build configurator tool
+
+I used to go with CMake to setup my C++ projects, but I found two alternatives that I better target large projects. At my current job at Ubisoft, we use a tool called Sharpmake. It takes a C# program as input that defines your solutions and projects. Sharpmake support multiple platforms, for our interests, it can generate Visual Studio solutions and Makefiles. This tool has an [open source version](https://github.com/ubisoft/Sharpmake) available to use. A similar and more popular tool is [Premake](https://premake.github.io/). Premake comes as a lightweight executable that reads Lua files that can generate VS solutions and Makefiles as well. I have decided to use Premake for this project.
