@@ -6,10 +6,216 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
     <copyright>©2017-2021 Emmanuel Arias.</copyright>
-    <lastBuildDate>Thu, 02 Dec 2021 01:25:52 +0100</lastBuildDate>
+    <lastBuildDate>Thu, 23 Dec 2021 17:04:02 +0100</lastBuildDate>
     
         <atom:link href="https://eariassoto.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Game Engine Explorations: Name, Base Design and Logging</title>
+      <link>https://eariassoto.github.io/post/game-engine-explorations-basic-design/</link>
+      <pubDate>Thu, 23 Dec 2021 17:04:02 +0100</pubDate>
+      
+      <guid>https://eariassoto.github.io/post/game-engine-explorations-basic-design/</guid>
+      <description>&lt;p&gt;In this post, I will not get to the point where I can show a graphical window. Before jumping to the graphical world, I will write about the basic design for the engine. This will only cover the entry point and the base Application class. Additionally, I will give an example of a component by implementing a logging service.&lt;/p&gt;
+&lt;h2 id=&#34;choosing-a-name-for-the-engine&#34;&gt;Choosing a name for the engine&lt;/h2&gt;
+&lt;p&gt;I decided to call this engine &lt;code&gt;tamarindo&lt;/code&gt;, after &lt;a href=&#34;https://en.wikipedia.org/wiki/Tamarind&#34;target=&#34;_blank&#34; rel=&#34;noopener noreferrer&#34;&gt;the fruit&lt;/a&gt;
+ and &lt;a href=&#34;https://en.wikipedia.org/wiki/Tamarindo,_Costa_Rica&#34;target=&#34;_blank&#34; rel=&#34;noopener noreferrer&#34;&gt;a beach&lt;/a&gt;
+ in my home country. I will use that name for the &lt;code&gt;engine&lt;/code&gt;&amp;rsquo;s namespace. For macros, I will use the &lt;code&gt;TM_&lt;/code&gt; prefix.&lt;/p&gt;
+&lt;h2 id=&#34;on-to-the-basic-design&#34;&gt;On to the basic design&lt;/h2&gt;
+&lt;p&gt;The project creates a solution with two projects: a static library and an executable. I will refer to these projects as the &lt;code&gt;engine&lt;/code&gt; layer and the &lt;code&gt;application&lt;/code&gt; layer. The engine layer has all the generic and required core to create a graphical application. The application layer has the specific code for the application. It extends over the engine layer to describe an application. This diagram explains it better:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;                +------------+
+                |Application |      +-----------+
+                |(base class)|      |entry point|
+                +-----^------+      +-----^-----+
+                      |                   |
+engine_lib.lib        |                   |         Engine Layer
+----------------------+-------------------+---------------------------
+game_app.exe          |                   |         Application Layer
+                      |                   |
+              +-------+-------+    +------+------+
+              |GameApplication+----+main function|
+              |(game logic)   |    +-------------+
+              +---------------+
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The engine layer is independent and can be reused in other application projects. This modular design eases development, iterations and testing.&lt;/p&gt;
+&lt;p&gt;As the diagram showed, the &lt;code&gt;main&lt;/code&gt; function yields the execution to the engine layer entry point:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;// game_app/main.cpp
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;2&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;&amp;#34;engine_lib/core/entry_point.h&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;3&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;4&lt;/span&gt;&lt;span style=&#34;color:#dc322f&#34;&gt;int&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;main&lt;/span&gt;(&lt;span style=&#34;color:#dc322f&#34;&gt;int&lt;/span&gt; argc, &lt;span style=&#34;color:#dc322f&#34;&gt;char&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;*&lt;/span&gt; argv[])
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;5&lt;/span&gt;{
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;6&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;return&lt;/span&gt; tamarindo&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;main(argc, argv);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;7&lt;/span&gt;}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The &lt;code&gt;tamarindo::main&lt;/code&gt; function is responsible of creating, initializing and starting the application:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 1&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;// engine_lib/core/entry_point.h
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 2&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;namespace&lt;/span&gt; tamarindo
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 3&lt;/span&gt;{
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 4&lt;/span&gt;&lt;span style=&#34;color:#dc322f&#34;&gt;int&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;main&lt;/span&gt;(&lt;span style=&#34;color:#dc322f&#34;&gt;int&lt;/span&gt; argc, &lt;span style=&#34;color:#dc322f&#34;&gt;char&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;*&lt;/span&gt; argv[])
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 5&lt;/span&gt;{
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 6&lt;/span&gt;    std&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;unique_ptr&lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&lt;/span&gt;tamarindo&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;Application&lt;span style=&#34;color:#719e07&#34;&gt;&amp;gt;&lt;/span&gt; app &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; CreateApplication();
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 7&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 8&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;if&lt;/span&gt; (&lt;span style=&#34;color:#719e07&#34;&gt;!&lt;/span&gt;app&lt;span style=&#34;color:#719e07&#34;&gt;-&amp;gt;&lt;/span&gt;initialize()) {
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 9&lt;/span&gt;        std&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;cerr &lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;Could not initialize application&lt;/span&gt;&lt;span style=&#34;color:#cb4b16&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;&lt;/span&gt;;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;10&lt;/span&gt;        &lt;span style=&#34;color:#719e07&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;1&lt;/span&gt;;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;11&lt;/span&gt;    }
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;12&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;13&lt;/span&gt;    std&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;cerr &lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;Starting application...&lt;/span&gt;&lt;span style=&#34;color:#cb4b16&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;&lt;/span&gt;;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;14&lt;/span&gt;    app&lt;span style=&#34;color:#719e07&#34;&gt;-&amp;gt;&lt;/span&gt;run();
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;15&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;16&lt;/span&gt;    app&lt;span style=&#34;color:#719e07&#34;&gt;-&amp;gt;&lt;/span&gt;terminate();
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;17&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;18&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;0&lt;/span&gt;;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;19&lt;/span&gt;}
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;20&lt;/span&gt;}  &lt;span style=&#34;color:#586e75&#34;&gt;// namespace tamarindo
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The &lt;code&gt;run&lt;/code&gt; routine will take control of the execution and start the application&amp;rsquo;s main loop. This may change in the future if I ever get to have multithreaded services.&lt;/p&gt;
+&lt;p&gt;The &lt;code&gt;Application&lt;/code&gt; class is in control of the graphical application. The application layer must create a derived class and override the abstract functions. The &lt;code&gt;Application&lt;/code&gt; class call these functions to execute the logic code. In this first iteration, the class looks like this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 1&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;// engine_lib/core/application.h
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 2&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;namespace&lt;/span&gt; tamarindo
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 3&lt;/span&gt;{
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 4&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;Application&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 5&lt;/span&gt;{
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 6&lt;/span&gt;   &lt;span style=&#34;color:#719e07&#34;&gt;public&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;:&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 7&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;virtual&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;~&lt;/span&gt;Application() &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;default&lt;/span&gt;;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 8&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 9&lt;/span&gt;    &lt;span style=&#34;color:#dc322f&#34;&gt;bool&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;initialize&lt;/span&gt;();
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;10&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;11&lt;/span&gt;    &lt;span style=&#34;color:#dc322f&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;run&lt;/span&gt;();
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;12&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;13&lt;/span&gt;    &lt;span style=&#34;color:#dc322f&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;terminate&lt;/span&gt;();
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;14&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;15&lt;/span&gt;   &lt;span style=&#34;color:#719e07&#34;&gt;private&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;:&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;16&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;virtual&lt;/span&gt; &lt;span style=&#34;color:#dc322f&#34;&gt;bool&lt;/span&gt; doInitialize() &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;0&lt;/span&gt;;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;17&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;virtual&lt;/span&gt; &lt;span style=&#34;color:#dc322f&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;doTerminate&lt;/span&gt;() &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;0&lt;/span&gt;;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;18&lt;/span&gt;};
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;19&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;20&lt;/span&gt;}  &lt;span style=&#34;color:#586e75&#34;&gt;// namespace tamarindo
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;This class shows some patterns that I will use in this project. The base class implements the public API functions. These functions call the private virtual functions. The application layer is only required to implement them. These functions follow the naming convention  &lt;code&gt;do&lt;/code&gt; + &lt;code&gt;base class function name&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Another pattern that shows up here is the &lt;code&gt;initialize/terminate&lt;/code&gt; functions. It is quite common in C++ to rely on the RAII principle to design classes. But, I want to be explicit with resources initialization and termination. This pattern will also be present in the design of internal components.&lt;/p&gt;
+&lt;p&gt;Finally, the application layer is also required to implement this function:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#586e75&#34;&gt;// engine_lib/core/application.h
+&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;extern&lt;/span&gt; std&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;unique_ptr&lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&lt;/span&gt;tamarindo&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;Application&lt;span style=&#34;color:#719e07&#34;&gt;&amp;gt;&lt;/span&gt; CreateApplication();&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;As shown above, the entry point will use this function to create an instance of the application.&lt;/p&gt;
+&lt;h2 id=&#34;the-first-component-logging&#34;&gt;The first component: logging&lt;/h2&gt;
+&lt;p&gt;Using &lt;code&gt;&amp;lt;iostream&amp;gt;&lt;/code&gt; from the beginning is quick and easy but can become a headache to replace later on. That is why I will implement a logging service that I can change, iterate and improve.&lt;/p&gt;
+&lt;p&gt;For this service, I will use the &lt;a href=&#34;https://github.com/gabime/spdlog&#34;target=&#34;_blank&#34; rel=&#34;noopener noreferrer&#34;&gt;&lt;code&gt;spdlog&lt;/code&gt;&lt;/a&gt;
+ library. This library is fast, it uses the &lt;code&gt;fmt&lt;/code&gt; library, and it can be customized to output logs to files or console.&lt;/p&gt;
+&lt;p&gt;The first step is to clone the repository as a submodule. I will do it in the &lt;code&gt;sources/engine_lib/external&lt;/code&gt; folder. This library can be used as a header-only library, or it can be compiled as a static library. For now, I will use it as header-only, so there is no need to create a premake file for it. To manage include folder paths, I will create the &lt;code&gt;premake/dependencies.lua&lt;/code&gt; file. This file will declare a global hash map with paths relative to the root folder:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-lua&#34; data-lang=&#34;lua&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;-- premake/dependencies.lua&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;2&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;-- Copyright (c) 2021 Emmanuel Arias&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;3&lt;/span&gt;IncludeDir &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; {}
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;4&lt;/span&gt;IncludeDir[&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;spdlog&amp;#34;&lt;/span&gt;] &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;sources/engine_lib/external/spdlog/include&amp;#34;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Then I can include this file in the main &lt;code&gt;premake5.lua&lt;/code&gt; file to make it available to all premake files:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-lua&#34; data-lang=&#34;lua&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;-- premake/premake5.lua&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;2&lt;/span&gt;include &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;dependencies.lua&amp;#34;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;And finally register the folder in the projects&#39; premake files:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-lua&#34; data-lang=&#34;lua&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;-- sources/engine_lib/premake5.lua&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;2&lt;/span&gt;   includedirs {
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;3&lt;/span&gt;      (ROOT &lt;span style=&#34;color:#719e07&#34;&gt;..&lt;/span&gt; PROJECT_ROOT &lt;span style=&#34;color:#719e07&#34;&gt;..&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;engine_lib&amp;#34;&lt;/span&gt;),
+&lt;span style=&#34;display:block;width:100%;background-color:#19404a&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;4&lt;/span&gt;      (ROOT &lt;span style=&#34;color:#719e07&#34;&gt;..&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;%{IncludeDir.spdlog}&amp;#34;&lt;/span&gt;)
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;5&lt;/span&gt;   }&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;As I mentioned before, the &lt;code&gt;Logger&lt;/code&gt; class is the first of the &lt;code&gt;Application&lt;/code&gt; components. Here is the first definition of it:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 1&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;// logging/logger.h
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 2&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;namespace&lt;/span&gt; tamarindo
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 3&lt;/span&gt;{
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 4&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;Logger&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 5&lt;/span&gt;{
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 6&lt;/span&gt;   &lt;span style=&#34;color:#719e07&#34;&gt;public&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;:&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 7&lt;/span&gt;    &lt;span style=&#34;color:#dc322f&#34;&gt;void&lt;/span&gt; initialize();
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 8&lt;/span&gt;    &lt;span style=&#34;color:#dc322f&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;terminate&lt;/span&gt;();
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 9&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;10&lt;/span&gt;    &lt;span style=&#34;color:#586e75&#34;&gt;// ...
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;11&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;12&lt;/span&gt;    &lt;span style=&#34;color:#586e75&#34;&gt;// There will be only one logger instantiated
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;13&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;static&lt;/span&gt; Logger&lt;span style=&#34;color:#719e07&#34;&gt;*&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;getLogger&lt;/span&gt;();
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;14&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;15&lt;/span&gt;   &lt;span style=&#34;color:#719e07&#34;&gt;private&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;:&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;16&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#dc322f&#34;&gt;void&lt;/span&gt; provideInstance(Logger&lt;span style=&#34;color:#719e07&#34;&gt;*&lt;/span&gt; instance);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;17&lt;/span&gt;};
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;18&lt;/span&gt;}  &lt;span style=&#34;color:#586e75&#34;&gt;// namespace tamarindo
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Here is another pattern that needs some explanation. More often than not, global resources are not recommended to use. But, some APIs are designed to be unique and accessed by many components. One example of these APIs is the logging service. Passing a pointer around for logging does not sound like a good decision. Here I am borrowing from a chapter in Robert Nystrom&amp;rsquo;s &amp;ldquo;Game Programming Patterns&amp;rdquo; book. You can read it online &lt;a href=&#34;https://gameprogrammingpatterns.com/service-locator.html&#34;target=&#34;_blank&#34; rel=&#34;noopener noreferrer&#34;&gt;here&lt;/a&gt;
+.&lt;/p&gt;
+&lt;p&gt;I defined the &lt;code&gt;s_LoggerInstance&lt;/code&gt; pointer in an anonymous namespace in &lt;code&gt;logger.cpp&lt;/code&gt;. This will give the variable internal linkage, i.e. it will only be accessible by the translation unit. For more information, refer to &lt;a href=&#34;https://docs.microsoft.com/en-us/cpp/cpp/namespaces-cpp?view=msvc-170#anonymous-or-unnamed-namespaces&#34;target=&#34;_blank&#34; rel=&#34;noopener noreferrer&#34;&gt;this link&lt;/a&gt;
+. The logging service instance will be accessible by a public getter in the Logger class.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 1&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;// logging/logger.cpp
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 2&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 3&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;display:block;width:100%;background-color:#19404a&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 4&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;namespace&lt;/span&gt;
+&lt;/span&gt;&lt;span style=&#34;display:block;width:100%;background-color:#19404a&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 5&lt;/span&gt;{
+&lt;/span&gt;&lt;span style=&#34;display:block;width:100%;background-color:#19404a&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 6&lt;/span&gt;tamarindo&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;Logger&lt;span style=&#34;color:#719e07&#34;&gt;*&lt;/span&gt; s_LoggerInstance &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;nullptr&lt;/span&gt;;
+&lt;/span&gt;&lt;span style=&#34;display:block;width:100%;background-color:#19404a&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 7&lt;/span&gt;}
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 8&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 9&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;namespace&lt;/span&gt; tamarindo
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;10&lt;/span&gt;{
+&lt;span style=&#34;display:block;width:100%;background-color:#19404a&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;11&lt;/span&gt;&lt;span style=&#34;color:#dc322f&#34;&gt;void&lt;/span&gt; Logger&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;initialize() { provideInstance(&lt;span style=&#34;color:#719e07&#34;&gt;this&lt;/span&gt;); }
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;12&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;13&lt;/span&gt;Logger&lt;span style=&#34;color:#719e07&#34;&gt;*&lt;/span&gt; Logger&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;getLogger()
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;14&lt;/span&gt;{
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;15&lt;/span&gt;    &lt;span style=&#34;color:#586e75&#34;&gt;// TODO: check if null
+&lt;/span&gt;&lt;span style=&#34;display:block;width:100%;background-color:#19404a&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;16&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;return&lt;/span&gt; s_LoggerInstance;
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;17&lt;/span&gt;}
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;18&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;19&lt;/span&gt;&lt;span style=&#34;color:#dc322f&#34;&gt;void&lt;/span&gt; Logger&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;provideInstance(Logger&lt;span style=&#34;color:#719e07&#34;&gt;*&lt;/span&gt; instance)
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;20&lt;/span&gt;{
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;21&lt;/span&gt;    &lt;span style=&#34;color:#586e75&#34;&gt;// TODO: check if exists
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;22&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;if&lt;/span&gt; (s_LoggerInstance &lt;span style=&#34;color:#719e07&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;nullptr&lt;/span&gt;) {
+&lt;span style=&#34;display:block;width:100%;background-color:#19404a&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;23&lt;/span&gt;        s_LoggerInstance &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; instance;
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;24&lt;/span&gt;    }
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;25&lt;/span&gt;}
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;26&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;27&lt;/span&gt;}  &lt;span style=&#34;color:#586e75&#34;&gt;// namespace tamarindo
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;For now &lt;code&gt;spdlog&lt;/code&gt; initialization is quite simple. I will output to the console with some simple formatting:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 1&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;// logging/logger.cpp
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 2&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#dc322f&#34;&gt;void&lt;/span&gt; Logger&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;initialize()
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 3&lt;/span&gt;{
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 4&lt;/span&gt;    spdlog&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;set_pattern(&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;[%T] %^[%l]%$ %n: %v&amp;#34;&lt;/span&gt;);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 5&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 6&lt;/span&gt;    m_SpdLogger &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; spdlog&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;stdout_color_mt(&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;TM_CORE&amp;#34;&lt;/span&gt;);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 7&lt;/span&gt;    m_SpdLogger&lt;span style=&#34;color:#719e07&#34;&gt;-&amp;gt;&lt;/span&gt;set_level(spdlog&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;level&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;trace);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 8&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 9&lt;/span&gt;    provideInstance(&lt;span style=&#34;color:#719e07&#34;&gt;this&lt;/span&gt;);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;10&lt;/span&gt;}
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;11&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;12&lt;/span&gt;&lt;span style=&#34;color:#dc322f&#34;&gt;void&lt;/span&gt; Logger&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;terminate() { m_SpdLogger.reset(); }&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The logging API functions are defined in the header, because they rely on templates:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;// logging/logger.h
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;2&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;template&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;typename&lt;/span&gt;... Args&lt;span style=&#34;color:#719e07&#34;&gt;&amp;gt;&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;3&lt;/span&gt;&lt;span style=&#34;color:#dc322f&#34;&gt;void&lt;/span&gt; trace(fmt&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;format_string&lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&lt;/span&gt;Args...&lt;span style=&#34;color:#719e07&#34;&gt;&amp;gt;&lt;/span&gt; fmt, Args &lt;span style=&#34;color:#719e07&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt;...args)
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;4&lt;/span&gt;{
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;5&lt;/span&gt;    m_SpdLogger&lt;span style=&#34;color:#719e07&#34;&gt;-&amp;gt;&lt;/span&gt;trace(fmt, std&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;forward&lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&lt;/span&gt;Args&lt;span style=&#34;color:#719e07&#34;&gt;&amp;gt;&lt;/span&gt;(args)...);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;6&lt;/span&gt;}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;and to make things easier, I defined macros:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;// logging/logger.h
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;2&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;#define TM_LOG_TRACE(...) ::tamarindo::Logger::getLogger()-&amp;gt;trace(__VA_ARGS__)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The API offer the logging levels &lt;code&gt;trace&lt;/code&gt;, &lt;code&gt;info&lt;/code&gt;, &lt;code&gt;debug&lt;/code&gt;, &lt;code&gt;warn&lt;/code&gt; and &lt;code&gt;error&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;To test things, I added some logs to the &lt;code&gt;intialize&lt;/code&gt; and &lt;code&gt;terminate&lt;/code&gt; functions:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 1&lt;/span&gt;&lt;span style=&#34;color:#dc322f&#34;&gt;bool&lt;/span&gt; Application&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;initialize()
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 2&lt;/span&gt;{
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 3&lt;/span&gt;    &lt;span style=&#34;color:#586e75&#34;&gt;// Initialize internal modules here
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 4&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;    m_Logger.initialize();
+&lt;span style=&#34;display:block;width:100%;background-color:#19404a&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 5&lt;/span&gt;    TM_LOG_DEBUG(&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;Initializing application&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 6&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 7&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;doInitialize&lt;/span&gt;();
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 8&lt;/span&gt;}
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 9&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;10&lt;/span&gt;&lt;span style=&#34;color:#dc322f&#34;&gt;void&lt;/span&gt; Application&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;run() { TM_LOG_DEBUG(&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;Running application&amp;#34;&lt;/span&gt;); }
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;11&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;12&lt;/span&gt;&lt;span style=&#34;color:#dc322f&#34;&gt;void&lt;/span&gt; Application&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;terminate()
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;13&lt;/span&gt;{
+&lt;span style=&#34;display:block;width:100%;background-color:#19404a&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;14&lt;/span&gt;    TM_LOG_DEBUG(&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;Terminating application&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;15&lt;/span&gt;    doTerminate();
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;16&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;17&lt;/span&gt;    &lt;span style=&#34;color:#586e75&#34;&gt;// Terminate internal modules here
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;18&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;    m_Logger.terminate();
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;19&lt;/span&gt;}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Executing the current application will give as output:&lt;/p&gt;
+&lt;p&gt;&lt;img  src=&#34;https://eariassoto.github.io/static/img/engine_explorations/basic_design_1.png&#34;
+        alt=&#34;Base project structure&#34;/&gt;&lt;/p&gt;
+&lt;p&gt;No graphics so far, but I promise it will come out soon. In the next post, I will introduce &lt;code&gt;GLFW&lt;/code&gt; and have the first window application running.&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>Game Engine Explorations: Hello World</title>
@@ -1586,179 +1792,6 @@ yacc&lt;span style=&#34;color:#719e07&#34;&gt;.&lt;/span&gt;yacc()
 &lt;li&gt;Create a compiler to translate a subset of the C language to Brainfuck. Then, use this compiler to translate the Brainfuck code into assembly.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;&lt;a class=button href=&#34;https://github.com/eariassoto/brasm/&#34; target=&#34;_blank&#34;&gt;Get the code on GitHub&lt;/a&gt;&lt;/p&gt;</description>
-    </item>
-    
-    <item>
-      <title>Building a basic C/C&#43;&#43; project template</title>
-      <link>https://eariassoto.github.io/post/building-a-basic-c-slash-c-plus-plus-project-template/</link>
-      <pubDate>Mon, 17 Apr 2017 10:41:16 -0600</pubDate>
-      
-      <guid>https://eariassoto.github.io/post/building-a-basic-c-slash-c-plus-plus-project-template/</guid>
-      <description>&lt;p&gt;Starting a C/C++ project can be as easy or as difficult as you want. Personally, I don&amp;rsquo;t like to fire up an IDE just for a small program. So, I end up using a text editor and compiling by terminal. However, the compilation process can get tedious. In this post, we will build a simple project template for a C/C++ program. This project will use the CMake tool to handle all the compilation process.&lt;/p&gt;
-&lt;p&gt;&lt;a class=button href=&#34;https://github.com/eariassoto/cpp-project-template/tree/basic-template&#34; target=&#34;%5fblank&#34;&gt;Get the code on GitHub&lt;/a&gt;&lt;/p&gt;
-&lt;h1 id=&#34;requirements&#34;&gt;Requirements&lt;/h1&gt;
-&lt;h2 id=&#34;cc-code-compiler&#34;&gt;C/C++ Code Compiler&lt;/h2&gt;
-&lt;p&gt;The first thing we need is a C/C++ compiler. Most Linux distribution will have &lt;a href=&#34;https://gcc.gnu.org/&#34;target=&#34;_blank&#34; rel=&#34;noopener noreferrer&#34;&gt;GCC&lt;/a&gt;
- installed by default. To check if you have GCC install run:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ gcc --version
-gcc &lt;span style=&#34;color:#719e07&#34;&gt;(&lt;/span&gt;Ubuntu 6.3.0-12ubuntu2&lt;span style=&#34;color:#719e07&#34;&gt;)&lt;/span&gt; 6.3.0 &lt;span style=&#34;color:#2aa198&#34;&gt;20170406&lt;/span&gt;
-Copyright &lt;span style=&#34;color:#719e07&#34;&gt;(&lt;/span&gt;C&lt;span style=&#34;color:#719e07&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;2016&lt;/span&gt; Free Software Foundation, Inc.
-This is free software; see the &lt;span style=&#34;color:#b58900&#34;&gt;source&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;for&lt;/span&gt; copying conditions. There is NO
-warranty; not even &lt;span style=&#34;color:#719e07&#34;&gt;for&lt;/span&gt; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;If you don&amp;rsquo;t get a similar message you need to install GCC. For Debian based distributions (Ubuntu, Linux Mint) you can install the &lt;strong&gt;build-essential&lt;/strong&gt; package:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ sudo apt-get update
-$ sudo apt-get install build-essential
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;build-essential&lt;/strong&gt; package includes GCC and other required packages. In case you are using Windows, you can install &lt;a href=&#34;http://www.mingw.org/&#34;target=&#34;_blank&#34; rel=&#34;noopener noreferrer&#34;&gt;MinGW&lt;/a&gt;
- to install and setup GCC.&lt;/p&gt;
-&lt;h2 id=&#34;cmake&#34;&gt;CMake&lt;/h2&gt;
-&lt;p&gt;CMake is an open-source cross-platform project that provides a set of tools to build, test and install software. It uses configuration files to control the configuration process. The installation process should be easy, and for Debian bases distributions, you just need to run the command:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ sudo apt-get install cmake
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;For other Linux distributions or other OS check out &lt;a href=&#34;https://cmake.org/&#34;target=&#34;_blank&#34; rel=&#34;noopener noreferrer&#34;&gt;CMake official page&lt;/a&gt;
-.&lt;/p&gt;
-&lt;h1 id=&#34;project-structure&#34;&gt;Project structure&lt;/h1&gt;
-&lt;p&gt;This is how our project folder will look:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;cpp-project-template/
-├── CMakeLists.txt
-├── include
-├── src
-│   └── main.cpp
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;code&gt;CMakeLists.txt&lt;/code&gt; is the configuration file for CMake. We will put our header files on &lt;code&gt;/include&lt;/code&gt; and our source files on &lt;code&gt;/src&lt;/code&gt;.&lt;/p&gt;
-&lt;h1 id=&#34;cmake-configuration-file&#34;&gt;CMake configuration file&lt;/h1&gt;
-&lt;p&gt;Let&amp;rsquo;s see the first configuration file in more details:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cmake&#34; data-lang=&#34;cmake&#34;&gt;&lt;span style=&#34;color:#b58900&#34;&gt;cmake_minimum_required&lt;/span&gt; (&lt;span style=&#34;color:#2aa198&#34;&gt;VERSION&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;2.8&lt;/span&gt;)
-
-&lt;span style=&#34;color:#b58900&#34;&gt;set&lt;/span&gt; (&lt;span style=&#34;color:#2aa198&#34;&gt;PROY&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;cpp-project-template&lt;/span&gt;)
-&lt;span style=&#34;color:#b58900&#34;&gt;project&lt;/span&gt; (&lt;span style=&#34;color:#719e07&#34;&gt;${&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;PROY&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;}&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;C&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;CXX&lt;/span&gt;)
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;First, we need to set the minimum CMake version, in our case version 2.8. Then, we need to define a name for our project. Change the project name for one of your preference, the executable will be name after this.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cmake&#34; data-lang=&#34;cmake&#34;&gt;&lt;span style=&#34;color:#586e75&#34;&gt;# Source files folder
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#b58900&#34;&gt;set&lt;/span&gt; (&lt;span style=&#34;color:#2aa198&#34;&gt;SRC_DIR&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;src&lt;/span&gt;)
-
-&lt;span style=&#34;color:#586e75&#34;&gt;# Header files folder
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#b58900&#34;&gt;set&lt;/span&gt; (&lt;span style=&#34;color:#2aa198&#34;&gt;INCL_DIR&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;include&lt;/span&gt;)
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Here we set the folders that contain our code. If you are going to create additional folders, make sure to create proper variables for those folders too. We will need these variables to include our files.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cmake&#34; data-lang=&#34;cmake&#34;&gt;&lt;span style=&#34;color:#586e75&#34;&gt;# Compilation flags
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#b58900&#34;&gt;set&lt;/span&gt;(&lt;span style=&#34;color:#2aa198&#34;&gt;CMAKE_CXX_FLAGS&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Werror&amp;#34;&lt;/span&gt;)
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;We can set our compilation flags in the &lt;code&gt;CMAKE_CXX_FLAGS&lt;/code&gt; variable. For our project we will be using C++11 version. The &lt;code&gt;-Wall&lt;/code&gt; flag enables all warning, and the &lt;code&gt;-Werror&lt;/code&gt; flag treat warnings as errors.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cmake&#34; data-lang=&#34;cmake&#34;&gt;&lt;span style=&#34;color:#b58900&#34;&gt;include_directories&lt;/span&gt; (&lt;span style=&#34;color:#719e07&#34;&gt;${&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;PROJECT_SOURCE_DIR&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;/&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;${&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;INCL_DIR&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;}&lt;/span&gt;)
-
-&lt;span style=&#34;color:#586e75&#34;&gt;# Important: Include all source files on this list
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#b58900&#34;&gt;set&lt;/span&gt; (&lt;span style=&#34;color:#2aa198&#34;&gt;SOURCE&lt;/span&gt;
-&lt;span style=&#34;color:#719e07&#34;&gt;${&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;SRC_DIR&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;/main.cpp&lt;/span&gt;
-)
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;code&gt;include_directories&lt;/code&gt; command will include our headers to the build. Also, we need to fill in &lt;code&gt;SOURCE&lt;/code&gt; variable with all of our source files. Otherwise, CMake will not compile our source files.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cmake&#34; data-lang=&#34;cmake&#34;&gt;&lt;span style=&#34;color:#b58900&#34;&gt;set&lt;/span&gt;(&lt;span style=&#34;color:#2aa198&#34;&gt;CMAKE_RUNTIME_OUTPUT_DIRECTORY&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;${PROJECT_SOURCE_DIR}/bin&amp;#34;&lt;/span&gt;)
-
-&lt;span style=&#34;color:#b58900&#34;&gt;add_executable&lt;/span&gt; (&lt;span style=&#34;color:#719e07&#34;&gt;${&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;PROY&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;}&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;${&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;SOURCE&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;}&lt;/span&gt;)
-
-&lt;span style=&#34;color:#586e75&#34;&gt;# Unit tests
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#b58900&#34;&gt;add_subdirectory&lt;/span&gt;(&lt;span style=&#34;color:#2aa198&#34;&gt;tests&lt;/span&gt;)
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;code&gt;CMAKE_RUNTIME_OUTPUT_DIRECTORY&lt;/code&gt; specifies where CMake will save our output files. In our case, executables will be on &lt;code&gt;/bin&lt;/code&gt; folder. Finally, the &lt;code&gt;add_executable&lt;/code&gt; command will create a executable file with our source files.&lt;/p&gt;
-&lt;h1 id=&#34;using-the-template&#34;&gt;Using the template&lt;/h1&gt;
-&lt;p&gt;Let&amp;rsquo;s define a &lt;code&gt;Vector&lt;/code&gt; class. For simplicity, we are going to represent 2D vectors. Also, our class will implement some basic operations between vectors.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span style=&#34;color:#719e07&#34;&gt;#ifndef __VECTOR_H__
-&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;#define __VECTOR_H__
-&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;&lt;/span&gt;
-&lt;span style=&#34;color:#586e75&#34;&gt;// System includes
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;
-&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;&lt;/span&gt;
-&lt;span style=&#34;color:#719e07&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;Vector&lt;/span&gt; {
-&lt;span style=&#34;color:#719e07&#34;&gt;public&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;:&lt;/span&gt;
-  Vector(&lt;span style=&#34;color:#dc322f&#34;&gt;double&lt;/span&gt; a1, &lt;span style=&#34;color:#dc322f&#34;&gt;double&lt;/span&gt; a2) &lt;span style=&#34;color:#719e07&#34;&gt;:&lt;/span&gt; a1(a1), a2(a2){};
-
-  Vector &lt;span style=&#34;color:#268bd2&#34;&gt;sum&lt;/span&gt;(&lt;span style=&#34;color:#719e07&#34;&gt;const&lt;/span&gt; Vector &lt;span style=&#34;color:#719e07&#34;&gt;&amp;amp;&lt;/span&gt;vec);
-  Vector &lt;span style=&#34;color:#268bd2&#34;&gt;substract&lt;/span&gt;(&lt;span style=&#34;color:#719e07&#34;&gt;const&lt;/span&gt; Vector &lt;span style=&#34;color:#719e07&#34;&gt;&amp;amp;&lt;/span&gt;vec);
-  Vector &lt;span style=&#34;color:#268bd2&#34;&gt;scale&lt;/span&gt;(&lt;span style=&#34;color:#719e07&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#dc322f&#34;&gt;double&lt;/span&gt; k);
-  &lt;span style=&#34;color:#dc322f&#34;&gt;double&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;dot&lt;/span&gt;(&lt;span style=&#34;color:#719e07&#34;&gt;const&lt;/span&gt; Vector &lt;span style=&#34;color:#719e07&#34;&gt;&amp;amp;&lt;/span&gt;vec);
-
-  &lt;span style=&#34;color:#268bd2&#34;&gt;inline&lt;/span&gt; &lt;span style=&#34;color:#dc322f&#34;&gt;int&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;getA1&lt;/span&gt;() &lt;span style=&#34;color:#719e07&#34;&gt;const&lt;/span&gt; { &lt;span style=&#34;color:#719e07&#34;&gt;return&lt;/span&gt; a1; };
-
-  &lt;span style=&#34;color:#268bd2&#34;&gt;inline&lt;/span&gt; &lt;span style=&#34;color:#dc322f&#34;&gt;int&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;getA2&lt;/span&gt;() &lt;span style=&#34;color:#719e07&#34;&gt;const&lt;/span&gt; { &lt;span style=&#34;color:#719e07&#34;&gt;return&lt;/span&gt; a2; };
-
-  &lt;span style=&#34;color:#719e07&#34;&gt;friend&lt;/span&gt; std&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;ostream &lt;span style=&#34;color:#719e07&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;operator&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt;(std&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;ostream &lt;span style=&#34;color:#719e07&#34;&gt;&amp;amp;&lt;/span&gt;os, &lt;span style=&#34;color:#719e07&#34;&gt;const&lt;/span&gt; Vector &lt;span style=&#34;color:#719e07&#34;&gt;&amp;amp;&lt;/span&gt;vec) {
-    os &lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#39;(&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; vec.a1 &lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;, &amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; vec.a2 &lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#39;)&amp;#39;&lt;/span&gt;;
-    &lt;span style=&#34;color:#719e07&#34;&gt;return&lt;/span&gt; os;
-  }
-
-&lt;span style=&#34;color:#719e07&#34;&gt;private&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;:&lt;/span&gt;
-  &lt;span style=&#34;color:#dc322f&#34;&gt;double&lt;/span&gt; a1;
-  &lt;span style=&#34;color:#dc322f&#34;&gt;double&lt;/span&gt; a2;
-};
-
-&lt;span style=&#34;color:#719e07&#34;&gt;#endif &lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;/* __VECTOR_H__ */&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span style=&#34;color:#719e07&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;&amp;#34;Vector.h&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;
-&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;&lt;/span&gt;
-Vector Vector&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;sum(&lt;span style=&#34;color:#719e07&#34;&gt;const&lt;/span&gt; Vector &lt;span style=&#34;color:#719e07&#34;&gt;&amp;amp;&lt;/span&gt;vec) {
-  &lt;span style=&#34;color:#719e07&#34;&gt;return&lt;/span&gt; Vector{a1 &lt;span style=&#34;color:#719e07&#34;&gt;+&lt;/span&gt; vec.getA1(), a2 &lt;span style=&#34;color:#719e07&#34;&gt;+&lt;/span&gt; vec.getA2()};
-}
-
-Vector Vector&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;substract(&lt;span style=&#34;color:#719e07&#34;&gt;const&lt;/span&gt; Vector &lt;span style=&#34;color:#719e07&#34;&gt;&amp;amp;&lt;/span&gt;vec) {
-  &lt;span style=&#34;color:#719e07&#34;&gt;return&lt;/span&gt; Vector{a1 &lt;span style=&#34;color:#719e07&#34;&gt;-&lt;/span&gt; vec.getA1(), a2 &lt;span style=&#34;color:#719e07&#34;&gt;-&lt;/span&gt; vec.getA2()};
-}
-Vector Vector&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;scale(&lt;span style=&#34;color:#719e07&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#dc322f&#34;&gt;double&lt;/span&gt; k) { &lt;span style=&#34;color:#719e07&#34;&gt;return&lt;/span&gt; Vector{k &lt;span style=&#34;color:#719e07&#34;&gt;*&lt;/span&gt; a1, k &lt;span style=&#34;color:#719e07&#34;&gt;*&lt;/span&gt; a2}; }
-&lt;span style=&#34;color:#dc322f&#34;&gt;double&lt;/span&gt; Vector&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;dot(&lt;span style=&#34;color:#719e07&#34;&gt;const&lt;/span&gt; Vector &lt;span style=&#34;color:#719e07&#34;&gt;&amp;amp;&lt;/span&gt;vec) {
-  &lt;span style=&#34;color:#719e07&#34;&gt;return&lt;/span&gt; a1 &lt;span style=&#34;color:#719e07&#34;&gt;*&lt;/span&gt; vec.getA1() &lt;span style=&#34;color:#719e07&#34;&gt;+&lt;/span&gt; a2 &lt;span style=&#34;color:#719e07&#34;&gt;*&lt;/span&gt; vec.getA2();
-}
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Let&amp;rsquo;s create a couple of vectors and output the results on our main function:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-C++&#34; data-lang=&#34;C++&#34;&gt;&lt;span style=&#34;color:#586e75&#34;&gt;// System includes
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;
-&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;&lt;/span&gt;
-&lt;span style=&#34;color:#586e75&#34;&gt;// Program includes
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;&amp;#34;Vector.h&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;
-&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;&lt;/span&gt;
-&lt;span style=&#34;color:#dc322f&#34;&gt;int&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;main&lt;/span&gt;(&lt;span style=&#34;color:#dc322f&#34;&gt;int&lt;/span&gt; argc, &lt;span style=&#34;color:#dc322f&#34;&gt;char&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;*&lt;/span&gt;argv[]) {
-  Vector vector1(&lt;span style=&#34;color:#2aa198&#34;&gt;3&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;2&lt;/span&gt;);
-  Vector vector2(&lt;span style=&#34;color:#2aa198&#34;&gt;10&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;5&lt;/span&gt;);
-  &lt;span style=&#34;color:#dc322f&#34;&gt;double&lt;/span&gt; k &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; (&lt;span style=&#34;color:#dc322f&#34;&gt;double&lt;/span&gt;)&lt;span style=&#34;color:#2aa198&#34;&gt;3&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;/&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;10&lt;/span&gt;;
-  std&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;Vector 1: &amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; vector1 &lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#39;\n&amp;#39;&lt;/span&gt;;
-  std&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;Vector 2: &amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; vector2 &lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#39;\n&amp;#39;&lt;/span&gt;;
-  std&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;Vector 1 + Vector 2: &amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; vector1.sum(vector2) &lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#39;\n&amp;#39;&lt;/span&gt;;
-  std&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;Vector 1 - Vector 2: &amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; vector1.substract(vector2) &lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#39;\n&amp;#39;&lt;/span&gt;;
-  std&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; k &lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34; * Vector 2: &amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; vector1.scale(k) &lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#39;\n&amp;#39;&lt;/span&gt;;
-  std&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;Vector 1 dot product Vector 2: &amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; vector1.dot(vector2)
-            &lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#39;\n&amp;#39;&lt;/span&gt;;
-  &lt;span style=&#34;color:#719e07&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;0&lt;/span&gt;;
-}
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Finally, we have to change the project name and include our new source files. Here are the &lt;code&gt;CMakeLists.txt&lt;/code&gt; file with the necessary changes:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cmake&#34; data-lang=&#34;cmake&#34;&gt;&lt;span style=&#34;color:#b58900&#34;&gt;cmake_minimum_required&lt;/span&gt; (&lt;span style=&#34;color:#2aa198&#34;&gt;VERSION&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;2.8&lt;/span&gt;)
-
-&lt;span style=&#34;color:#b58900&#34;&gt;set&lt;/span&gt; (&lt;span style=&#34;color:#2aa198&#34;&gt;PROY&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;math-vector-example&lt;/span&gt;)
-&lt;span style=&#34;color:#b58900&#34;&gt;project&lt;/span&gt; (&lt;span style=&#34;color:#719e07&#34;&gt;${&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;PROY&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;}&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;C&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;CXX&lt;/span&gt;)
-
-&lt;span style=&#34;color:#586e75&#34;&gt;# Source files folder
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#b58900&#34;&gt;set&lt;/span&gt; (&lt;span style=&#34;color:#2aa198&#34;&gt;SRC_DIR&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;src&lt;/span&gt;)
-
-&lt;span style=&#34;color:#586e75&#34;&gt;# Header files folder
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#b58900&#34;&gt;set&lt;/span&gt; (&lt;span style=&#34;color:#2aa198&#34;&gt;INCL_DIR&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;include&lt;/span&gt;)
-
-&lt;span style=&#34;color:#586e75&#34;&gt;# Compiler flags
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#b58900&#34;&gt;set&lt;/span&gt;(&lt;span style=&#34;color:#2aa198&#34;&gt;CMAKE_CXX_FLAGS&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Werror&amp;#34;&lt;/span&gt;)
-
-&lt;span style=&#34;color:#b58900&#34;&gt;include_directories&lt;/span&gt; (&lt;span style=&#34;color:#719e07&#34;&gt;${&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;PROJECT_SOURCE_DIR&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;/&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;${&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;INCL_DIR&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;}&lt;/span&gt;)
-
-&lt;span style=&#34;color:#b58900&#34;&gt;set&lt;/span&gt; (&lt;span style=&#34;color:#2aa198&#34;&gt;SOURCE&lt;/span&gt;
-&lt;span style=&#34;color:#719e07&#34;&gt;${&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;SRC_DIR&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;/main.cpp&lt;/span&gt;
-&lt;span style=&#34;color:#719e07&#34;&gt;${&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;SRC_DIR&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;/Vector.cpp&lt;/span&gt;
-)
-
-&lt;span style=&#34;color:#586e75&#34;&gt;# Output folder
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#b58900&#34;&gt;set&lt;/span&gt;(&lt;span style=&#34;color:#2aa198&#34;&gt;CMAKE_RUNTIME_OUTPUT_DIRECTORY&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;${PROJECT_SOURCE_DIR}/bin&amp;#34;&lt;/span&gt;)
-
-&lt;span style=&#34;color:#b58900&#34;&gt;add_executable&lt;/span&gt; (&lt;span style=&#34;color:#719e07&#34;&gt;${&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;PROY&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;}&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;${&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;SOURCE&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;}&lt;/span&gt;)
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;To compile our program, we will need to run these commands:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ mkdir build
-$ &lt;span style=&#34;color:#b58900&#34;&gt;cd&lt;/span&gt; build
-$ cmake ..
-$ make
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;You only need to create the &lt;code&gt;build/&lt;/code&gt; folder once. The &lt;code&gt;cmake ..&lt;/code&gt; command will generate the makefiles and &lt;code&gt;make&lt;/code&gt; will build the program. If everything went all right, the executable will be saved in the &lt;code&gt;bin/&lt;/code&gt; folder. Let&amp;rsquo;s run our example:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ ./../bin/math-vector-example
-Vector 1: &lt;span style=&#34;color:#719e07&#34;&gt;(&lt;/span&gt;3, 2&lt;span style=&#34;color:#719e07&#34;&gt;)&lt;/span&gt;
-Vector 2: &lt;span style=&#34;color:#719e07&#34;&gt;(&lt;/span&gt;10, 5&lt;span style=&#34;color:#719e07&#34;&gt;)&lt;/span&gt;
-Vector &lt;span style=&#34;color:#2aa198&#34;&gt;1&lt;/span&gt; + Vector 2: &lt;span style=&#34;color:#719e07&#34;&gt;(&lt;/span&gt;13, 7&lt;span style=&#34;color:#719e07&#34;&gt;)&lt;/span&gt;
-Vector &lt;span style=&#34;color:#2aa198&#34;&gt;1&lt;/span&gt; - Vector 2: &lt;span style=&#34;color:#719e07&#34;&gt;(&lt;/span&gt;-7, -3&lt;span style=&#34;color:#719e07&#34;&gt;)&lt;/span&gt;
-0.3 * Vector 2: &lt;span style=&#34;color:#719e07&#34;&gt;(&lt;/span&gt;0.9, 0.6&lt;span style=&#34;color:#719e07&#34;&gt;)&lt;/span&gt;
-Vector &lt;span style=&#34;color:#2aa198&#34;&gt;1&lt;/span&gt; dot product Vector 2: &lt;span style=&#34;color:#2aa198&#34;&gt;40&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;That&amp;rsquo;s pretty much it. Now go and write your own programs without much hassle.&lt;/p&gt;
-&lt;p&gt;&lt;a class=button href=&#34;https://github.com/eariassoto/cpp-project-template/tree/basic-template&#34; target=&#34;%5fblank&#34;&gt;Get the code on GitHub&lt;/a&gt;&lt;/p&gt;</description>
     </item>
     
   </channel>
