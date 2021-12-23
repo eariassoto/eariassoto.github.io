@@ -214,7 +214,10 @@ game_app.exe          |                   |         Application Layer
 &lt;p&gt;Executing the current application will give as output:&lt;/p&gt;
 &lt;p&gt;&lt;img  src=&#34;https://eariassoto.github.io/static/img/engine_explorations/basic_design_1.png&#34;
         alt=&#34;Base project structure&#34;/&gt;&lt;/p&gt;
-&lt;p&gt;No graphics so far, but I promise it will come out soon. In the next post, I will introduce &lt;code&gt;GLFW&lt;/code&gt; and have the first window application running.&lt;/p&gt;</description>
+&lt;p&gt;No graphics so far, but I promise it will come out soon. You can find this project on my &lt;a href=&#34;https://github.com/eariassoto/tamarindo_engine&#34;target=&#34;_blank&#34; rel=&#34;noopener noreferrer&#34;&gt;Github&lt;/a&gt;
+, and the code from this post is in this &lt;a href=&#34;https://github.com/eariassoto/tamarindo_engine/tree/d25910a599ead4977cad546df3850bbe7db935dd&#34;target=&#34;_blank&#34; rel=&#34;noopener noreferrer&#34;&gt;commit&lt;/a&gt;
+.&lt;/p&gt;
+&lt;p&gt;In the next post, I will introduce &lt;code&gt;GLFW&lt;/code&gt; and have the first window application running. Thanks a lot for reading :).&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -385,9 +388,11 @@ PointerAlignment: Left
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;After running the script, my project folder will look like this:&lt;/p&gt;
 &lt;p&gt;&lt;img  src=&#34;https://eariassoto.github.io/static/img/engine_explorations/base_struct.PNG&#34;
         alt=&#34;Base project structure&#34;/&gt;&lt;/p&gt;
-&lt;p&gt;I can run the executable from Visual Studio, or I can go and execute it in the &lt;code&gt;target&lt;/code&gt; folder. You can find this code in the project&amp;rsquo;s &lt;a href=&#34;https://github.com/eariassoto/tamarindo_engine/tree/a4ca92dbdb4bca9a467d26275929db3588e9f1e1&#34;target=&#34;_blank&#34; rel=&#34;noopener noreferrer&#34;&gt;Github repo&lt;/a&gt;
+&lt;p&gt;I can run the executable from Visual Studio, or I can go and execute it in the &lt;code&gt;target&lt;/code&gt; folder. You can find this project on my &lt;a href=&#34;https://github.com/eariassoto/tamarindo_engine&#34;target=&#34;_blank&#34; rel=&#34;noopener noreferrer&#34;&gt;Github&lt;/a&gt;
+, and the code from this post is in this [commit]((&lt;a href=&#34;https://github.com/eariassoto/tamarindo_engine/tree/a4ca92dbdb4bca9a467d26275929db3588e9f1e1%29&#34;target=&#34;_blank&#34; rel=&#34;noopener noreferrer&#34;&gt;https://github.com/eariassoto/tamarindo_engine/tree/a4ca92dbdb4bca9a467d26275929db3588e9f1e1)&lt;/a&gt;
 .&lt;/p&gt;
-&lt;p&gt;That is all for now :). In the next post, I will lay down the basic class hierarchy and main function for the engine.&lt;/p&gt;</description>
+&lt;p&gt;That is all for now, in the &lt;a href=&#34;https://eariassoto.github.io/post/game-engine-explorations-basic-design/&#34;&gt;next post&lt;/a&gt;
+, I will lay down the basic class hierarchy and main function for the engine. Thanks a lot for reading :).&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -439,7 +444,7 @@ PointerAlignment: Left
 &lt;/strong&gt;: This channel has an awesome series on game engine development. The first videos on their series have helped me greatly to jumpstart my project.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2 id=&#34;so-what-is-left&#34;&gt;So what is left?&lt;/h2&gt;
-&lt;p&gt;Now comes the fun part, code! In the &lt;a href=&#34;https://eariassoto.github.io/post/game-engine-explorations-hello-world/&#34;target=&#34;_blank&#34; rel=&#34;noopener noreferrer&#34;&gt;next post&lt;/a&gt;
+&lt;p&gt;Now comes the fun part, code! In the &lt;a href=&#34;https://eariassoto.github.io/post/game-engine-explorations-hello-world/&#34;&gt;next post&lt;/a&gt;
 , I will be setting up the build system and the project configuration. I promise to end up with a classic Hello World! :)&lt;/p&gt;</description>
     </item>
     
