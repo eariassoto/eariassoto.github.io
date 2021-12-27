@@ -11,6 +11,289 @@
     
     
     <item>
+      <title>Game Engine Explorations: Creating the Window and rendering a simple mesh</title>
+      <link>https://eariassoto.github.io/post/game-engine-explorations-creating-window/</link>
+      <pubDate>Mon, 27 Dec 2021 18:19:15 +0100</pubDate>
+      
+      <guid>https://eariassoto.github.io/post/game-engine-explorations-creating-window/</guid>
+      <description>&lt;p&gt;At this point, I can take the project to the graphical world. In this post, I will describe how the engine is creating and handling the window. I will also introduce an early model of the shader program and a simple mesh to render a rectangle in the window.&lt;/p&gt;
+&lt;h2 id=&#34;adding-new-dependencies-glfw-and-glad&#34;&gt;Adding new dependencies: GLFW and GLAD&lt;/h2&gt;
+&lt;p&gt;I want this project to compile in both Windows and GNU/Linux platforms. I would also like in the future to move the rendering pipeline from OpenGL to Vulkan. Because of this, I chose GLFW to create and handle windows. I forked the project from the official &lt;a href=&#34;https://github.com/glfw/glfw&#34;target=&#34;_blank&#34; rel=&#34;noopener noreferrer&#34;&gt;Github repo&lt;/a&gt;
+ to add my own premake file. This premake file uses filters to include the implementation specific source files:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-lua&#34; data-lang=&#34;lua&#34;&gt;&lt;span style=&#34;color:#586e75&#34;&gt;-- sources/engine_lib/external/glfw/premake5.lua&lt;/span&gt;
+   filter &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;system:linux&amp;#34;&lt;/span&gt;
+      pic &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;On&amp;#34;&lt;/span&gt;
+      systemversion &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;latest&amp;#34;&lt;/span&gt;
+      files {
+         &lt;span style=&#34;color:#586e75&#34;&gt;-- Linux files&lt;/span&gt;
+      }
+      defines {
+         &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;_GLFW_X11&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#586e75&#34;&gt;-- Define platform&lt;/span&gt;
+      }
+
+   filter &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;system:windows&amp;#34;&lt;/span&gt;
+      systemversion &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;latest&amp;#34;&lt;/span&gt;
+      files {
+         &lt;span style=&#34;color:#586e75&#34;&gt;-- Windows files&lt;/span&gt;
+      }
+      defines { 
+         &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;_GLFW_WIN32&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#586e75&#34;&gt;-- Define platform&lt;/span&gt;
+         &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;_CRT_SECURE_NO_WARNINGS&amp;#34;&lt;/span&gt;
+      }&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The other library that I need is &lt;code&gt;Glad&lt;/code&gt;. It is a generated OpenGL loader library. There is a &lt;a href=&#34;https://glad.dav1d.de/&#34;target=&#34;_blank&#34; rel=&#34;noopener noreferrer&#34;&gt;web service&lt;/a&gt;
+ that generated the proper source files. After that, it is only needed to add it to the engine project as another static library. I generated one for the OpenGL version 4.6.&lt;/p&gt;
+&lt;h2 id=&#34;creating-a-window&#34;&gt;Creating a Window&lt;/h2&gt;
+&lt;p&gt;There are many questions when it comes to creating a window: how big should it be? Should it have a title? What color is the background? Is it resizable? Etc. I want to keep all these descriptions in a single struct. That way, I could in the future load these settings from the main function arguments, or from a file. For now, the struct has the minimal settings:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 1&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;// engine_lib/core/window_manager.h
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 2&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;WindowProperties&lt;/span&gt; {
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 3&lt;/span&gt;    std&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;string Title;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 4&lt;/span&gt;    &lt;span style=&#34;color:#dc322f&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#dc322f&#34;&gt;int&lt;/span&gt; Width;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 5&lt;/span&gt;    &lt;span style=&#34;color:#dc322f&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#dc322f&#34;&gt;int&lt;/span&gt; Height;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 6&lt;/span&gt;    &lt;span style=&#34;color:#dc322f&#34;&gt;float&lt;/span&gt; AspectRatio;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 7&lt;/span&gt;    std&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;array&lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#dc322f&#34;&gt;float&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;4&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;&amp;gt;&lt;/span&gt; DefaultBackground &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; {&lt;span style=&#34;color:#2aa198&#34;&gt;0.0f&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;0.0f&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;0.0f&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;1.0f&lt;/span&gt;};
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 8&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 9&lt;/span&gt;    WindowProperties() &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;delete&lt;/span&gt;;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;10&lt;/span&gt;    WindowProperties(&lt;span style=&#34;color:#719e07&#34;&gt;const&lt;/span&gt; std&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;string&lt;span style=&#34;color:#719e07&#34;&gt;&amp;amp;&lt;/span&gt; title &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;Application&amp;#34;&lt;/span&gt;,
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;11&lt;/span&gt;                     &lt;span style=&#34;color:#dc322f&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#dc322f&#34;&gt;int&lt;/span&gt; width &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;800&lt;/span&gt;, &lt;span style=&#34;color:#dc322f&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#dc322f&#34;&gt;int&lt;/span&gt; height &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;600&lt;/span&gt;);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;12&lt;/span&gt;};&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The Application layer should provide these settings by overriding this private function:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;// engine_lib/core/application.h
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;2&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;Application&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;3&lt;/span&gt;{
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;4&lt;/span&gt;   &lt;span style=&#34;color:#586e75&#34;&gt;// ...
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;5&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;   &lt;span style=&#34;color:#719e07&#34;&gt;private&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;:&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;6&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;virtual&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;const&lt;/span&gt; WindowProperties&lt;span style=&#34;color:#719e07&#34;&gt;&amp;amp;&lt;/span&gt; getWindowProperties() &lt;span style=&#34;color:#719e07&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;0&lt;/span&gt;;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;7&lt;/span&gt;    &lt;span style=&#34;color:#586e75&#34;&gt;// ...
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;8&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;};&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;In comparison to other APIs, OpenGL is easy to initialize and use. The &lt;code&gt;WindowManager&lt;/code&gt; class controls both the graphical window and the OpenGL context management. It may be that in the future I will separate this class, in the case I introduce a different rendering API.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 1&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;// engine_lib/core/window_manager.h
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 2&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;WindowManager&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 3&lt;/span&gt;{
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 4&lt;/span&gt;   &lt;span style=&#34;color:#719e07&#34;&gt;public&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;:&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 5&lt;/span&gt;    &lt;span style=&#34;color:#dc322f&#34;&gt;bool&lt;/span&gt; initialize(&lt;span style=&#34;color:#719e07&#34;&gt;const&lt;/span&gt; WindowProperties&lt;span style=&#34;color:#719e07&#34;&gt;&amp;amp;&lt;/span&gt; properties);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 6&lt;/span&gt;    &lt;span style=&#34;color:#dc322f&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;terminate&lt;/span&gt;();
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 7&lt;/span&gt;
+&lt;span style=&#34;display:block;width:100%;background-color:#19404a&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 8&lt;/span&gt;    &lt;span style=&#34;color:#dc322f&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;processEvents&lt;/span&gt;();
+&lt;/span&gt;&lt;span style=&#34;display:block;width:100%;background-color:#19404a&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 9&lt;/span&gt;    &lt;span style=&#34;color:#dc322f&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;swapBuffers&lt;/span&gt;();
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;10&lt;/span&gt;
+&lt;span style=&#34;display:block;width:100%;background-color:#19404a&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;11&lt;/span&gt;    &lt;span style=&#34;color:#dc322f&#34;&gt;bool&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;shouldWindowClose&lt;/span&gt;() &lt;span style=&#34;color:#719e07&#34;&gt;const&lt;/span&gt;;
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;12&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;13&lt;/span&gt;   &lt;span style=&#34;color:#719e07&#34;&gt;private&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;:&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;14&lt;/span&gt;    GLFWwindow&lt;span style=&#34;color:#719e07&#34;&gt;*&lt;/span&gt; m_Window &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;nullptr&lt;/span&gt;;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;15&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;16&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#dc322f&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;glfwErrorCb&lt;/span&gt;(&lt;span style=&#34;color:#dc322f&#34;&gt;int&lt;/span&gt; error, &lt;span style=&#34;color:#719e07&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#dc322f&#34;&gt;char&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;*&lt;/span&gt; desc);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;17&lt;/span&gt;};&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;This class is also declared and managed as a component from the &lt;code&gt;Application&lt;/code&gt; class. The application main loop will call the functions &lt;code&gt;processEvents&lt;/code&gt;, &lt;code&gt;swapBuffers&lt;/code&gt;, and &lt;code&gt;shouldWindowClose&lt;/code&gt;.  The main loop, also called game loop, is the application&amp;rsquo;s orchestrator. It takes execution control to call the logic code and render the application.&lt;/p&gt;
+&lt;h1 id=&#34;adding-the-game-loop&#34;&gt;Adding the game loop&lt;/h1&gt;
+&lt;p&gt;I do not plan to have physics simulation yet, so I will keep the game loop as simple as possible. When I get into physics simulations, I will follow the advice from the popular article: &lt;a href=&#34;https://gafferongames.com/post/fix_your_timestep/&#34;target=&#34;_blank&#34; rel=&#34;noopener noreferrer&#34;&gt;&amp;ldquo;Fix your timelines&amp;rdquo;&lt;/a&gt;
+. This first game loop will measure the elapsed time and pass it to an update function.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 1&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;// engine_lib/core/application.cpp
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 2&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#dc322f&#34;&gt;void&lt;/span&gt; Application&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;run()
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 3&lt;/span&gt;{
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 4&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;using&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;namespace&lt;/span&gt; std&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;literals;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 5&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;using&lt;/span&gt; Clock &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; std&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;chrono&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;steady_clock;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 6&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;using&lt;/span&gt; duration &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; std&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;chrono&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;duration&lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#dc322f&#34;&gt;double&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;&amp;gt;&lt;/span&gt;;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 7&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;using&lt;/span&gt; time_point &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; std&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;chrono&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;time_point&lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&lt;/span&gt;Clock, duration&lt;span style=&#34;color:#719e07&#34;&gt;&amp;gt;&lt;/span&gt;;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 8&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 9&lt;/span&gt;    time_point current_time &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; Clock&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;now();
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;10&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;11&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;const&lt;/span&gt; std&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;array&lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#dc322f&#34;&gt;float&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;4&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;&amp;gt;&amp;amp;&lt;/span&gt; default_bg &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; getWindowProperties().DefaultBackground;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;12&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;13&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;while&lt;/span&gt; (&lt;span style=&#34;color:#719e07&#34;&gt;!&lt;/span&gt;m_WindowManager.shouldWindowClose()) {
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;14&lt;/span&gt;        m_WindowManager.processEvents();
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;15&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;16&lt;/span&gt;        time_point new_time &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; Clock&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;now();
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;17&lt;/span&gt;        &lt;span style=&#34;color:#719e07&#34;&gt;auto&lt;/span&gt; delta_time &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; new_time &lt;span style=&#34;color:#719e07&#34;&gt;-&lt;/span&gt; current_time;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;18&lt;/span&gt;        current_time &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; new_time;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;19&lt;/span&gt;
+&lt;span style=&#34;display:block;width:100%;background-color:#19404a&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;20&lt;/span&gt;        doUpdate(delta_time);
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;21&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;22&lt;/span&gt;        glClearColor(default_bg[&lt;span style=&#34;color:#2aa198&#34;&gt;0&lt;/span&gt;], default_bg[&lt;span style=&#34;color:#2aa198&#34;&gt;1&lt;/span&gt;], default_bg[&lt;span style=&#34;color:#2aa198&#34;&gt;2&lt;/span&gt;], &lt;span style=&#34;color:#2aa198&#34;&gt;1.0f&lt;/span&gt;);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;23&lt;/span&gt;        glClear(GL_COLOR_BUFFER_BIT &lt;span style=&#34;color:#719e07&#34;&gt;|&lt;/span&gt; GL_DEPTH_BUFFER_BIT);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;24&lt;/span&gt;
+&lt;span style=&#34;display:block;width:100%;background-color:#19404a&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;25&lt;/span&gt;        doRender();
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;26&lt;/span&gt;        m_WindowManager.swapBuffers();
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;27&lt;/span&gt;    }
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;28&lt;/span&gt;}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Another behavior that I do not find ideal is to delegate the rendering to the Application layer. I will create a proper rendering manager, but that can wait. For now, I have declared these virtual functions:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;// engine_lib/core/application.h
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;2&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;Application&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;3&lt;/span&gt;{
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;4&lt;/span&gt;   &lt;span style=&#34;color:#586e75&#34;&gt;// ...
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;5&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;   &lt;span style=&#34;color:#719e07&#34;&gt;private&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;:&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;6&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;virtual&lt;/span&gt; &lt;span style=&#34;color:#dc322f&#34;&gt;void&lt;/span&gt; doUpdate(std&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;chrono&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;duration&lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#dc322f&#34;&gt;double&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;&amp;gt;&lt;/span&gt; delta_time) &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;0&lt;/span&gt;;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;7&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;virtual&lt;/span&gt; &lt;span style=&#34;color:#dc322f&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;doRender&lt;/span&gt;() &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;0&lt;/span&gt;;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;8&lt;/span&gt;    &lt;span style=&#34;color:#586e75&#34;&gt;// ...
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;9&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;};&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h1 id=&#34;implementing-shaders-and-meshes&#34;&gt;Implementing shaders and meshes&lt;/h1&gt;
+&lt;p&gt;OpenGL uses the GLSL language to create shaders. They can be compiled in runtime. For simplicity, that is why I am going to do in this first iteration. I declared a namespace to compile a shader program and get an ID for it.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 1&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;// engine_lib/rendering/shader_program.h
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 2&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;typedef&lt;/span&gt; &lt;span style=&#34;color:#dc322f&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#dc322f&#34;&gt;int&lt;/span&gt; ShaderProgramID;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 3&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 4&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;namespace&lt;/span&gt; ShaderProgram
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 5&lt;/span&gt;{
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 6&lt;/span&gt;[[nodiscard]] std&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;pair&lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#dc322f&#34;&gt;bool&lt;/span&gt;, ShaderProgramID&lt;span style=&#34;color:#719e07&#34;&gt;&amp;gt;&lt;/span&gt; createNewShader(
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 7&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;const&lt;/span&gt; std&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;string&lt;span style=&#34;color:#719e07&#34;&gt;&amp;amp;&lt;/span&gt; vertex_shader_code,
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 8&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;const&lt;/span&gt; std&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;string&lt;span style=&#34;color:#719e07&#34;&gt;&amp;amp;&lt;/span&gt; fragment_shader_code);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 9&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;10&lt;/span&gt;&lt;span style=&#34;color:#dc322f&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;bindShader&lt;/span&gt;(ShaderProgramID shader_program);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;11&lt;/span&gt;&lt;span style=&#34;color:#dc322f&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;terminateShader&lt;/span&gt;(ShaderProgramID shader_program);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;12&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;13&lt;/span&gt;}  &lt;span style=&#34;color:#586e75&#34;&gt;// namespace ShaderProgram
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The &lt;code&gt;createNewShader&lt;/code&gt; takes the code for both shaders. In the future, I will create a resources manager that can read files from disk. That way, the application layer can register a shader and the engine layer will compile it.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 1&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;// game_app/game_app.cpp
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 2&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#dc322f&#34;&gt;bool&lt;/span&gt; GameApp&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;doInitialize()
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 3&lt;/span&gt;{
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 4&lt;/span&gt;    std&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;string vertex_shader &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 5&lt;/span&gt;        &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;#version 460 core&lt;/span&gt;&lt;span style=&#34;color:#cb4b16&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 6&lt;/span&gt;        &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;layout(location = 0) in vec3 aPos;&amp;#34;&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 7&lt;/span&gt;        &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;layout(location = 1) in vec2 aUVs;&amp;#34;&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 8&lt;/span&gt;        &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;out vec2 UVs;&amp;#34;&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 9&lt;/span&gt;        &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;void main() {&amp;#34;&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;10&lt;/span&gt;        &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);&amp;#34;&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;11&lt;/span&gt;        &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;UVs = aUVs;&amp;#34;&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;12&lt;/span&gt;        &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;}&amp;#34;&lt;/span&gt;;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;13&lt;/span&gt;    std&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;string fragment_shader &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;14&lt;/span&gt;        &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;#version 460 core&lt;/span&gt;&lt;span style=&#34;color:#cb4b16&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;15&lt;/span&gt;        &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;in vec2 UVs;&amp;#34;&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;16&lt;/span&gt;        &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;out vec4 FragColor;&amp;#34;&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;17&lt;/span&gt;        &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;void main() {&amp;#34;&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;18&lt;/span&gt;        &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;FragColor = vec4(UVs.x, UVs.y, 0.0f, 1.0f);&amp;#34;&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;19&lt;/span&gt;        &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;}&amp;#34;&lt;/span&gt;;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;20&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;21&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;auto&lt;/span&gt; [init, shader_id] &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;22&lt;/span&gt;        ShaderProgram&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;createNewShader(vertex_shader, fragment_shader);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;23&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;if&lt;/span&gt; (&lt;span style=&#34;color:#719e07&#34;&gt;!&lt;/span&gt;init) {
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;24&lt;/span&gt;        TM_LOG_ERROR(&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;Could not create shader&amp;#34;&lt;/span&gt;);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;25&lt;/span&gt;        &lt;span style=&#34;color:#719e07&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#b58900&#34;&gt;false&lt;/span&gt;;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;26&lt;/span&gt;    }
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;27&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;28&lt;/span&gt;    m_ShaderProgram &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; shader_id;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;29&lt;/span&gt;    &lt;span style=&#34;color:#586e75&#34;&gt;// ...
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;30&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#b58900&#34;&gt;true&lt;/span&gt;;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;31&lt;/span&gt;}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The next thing that I need is a basic Mesh class. This call will accept a &amp;ldquo;hard coded&amp;rdquo; format for the vertex input. For this, I mean that the vertex input data consists of positions and UV points:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 1&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;// engine_lib/rendering/mesh.h
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 2&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;MeshInstanceID&lt;/span&gt; {
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 3&lt;/span&gt;    &lt;span style=&#34;color:#dc322f&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#dc322f&#34;&gt;int&lt;/span&gt; VertexAttrArray;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 4&lt;/span&gt;    &lt;span style=&#34;color:#dc322f&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#dc322f&#34;&gt;int&lt;/span&gt; IndexSize;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 5&lt;/span&gt;};
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 6&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 7&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;Mesh&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 8&lt;/span&gt;{
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 9&lt;/span&gt;   &lt;span style=&#34;color:#719e07&#34;&gt;public&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;:&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;10&lt;/span&gt;    Mesh() &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;default&lt;/span&gt;;  &lt;span style=&#34;color:#586e75&#34;&gt;// TODO: consider delete
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;11&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;    Mesh(&lt;span style=&#34;color:#dc322f&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#dc322f&#34;&gt;int&lt;/span&gt; vertex_size, &lt;span style=&#34;color:#dc322f&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#dc322f&#34;&gt;int&lt;/span&gt; index_size);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;12&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;13&lt;/span&gt;    &lt;span style=&#34;color:#dc322f&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;addVertex&lt;/span&gt;(&lt;span style=&#34;color:#dc322f&#34;&gt;float&lt;/span&gt; x, &lt;span style=&#34;color:#dc322f&#34;&gt;float&lt;/span&gt; y, &lt;span style=&#34;color:#dc322f&#34;&gt;float&lt;/span&gt; z, &lt;span style=&#34;color:#dc322f&#34;&gt;float&lt;/span&gt; u, &lt;span style=&#34;color:#dc322f&#34;&gt;float&lt;/span&gt; v);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;14&lt;/span&gt;    &lt;span style=&#34;color:#dc322f&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;addIndex&lt;/span&gt;(&lt;span style=&#34;color:#dc322f&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#dc322f&#34;&gt;int&lt;/span&gt; index);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;15&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;16&lt;/span&gt;    std&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;vector&lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#dc322f&#34;&gt;float&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;&amp;gt;&lt;/span&gt; Vertices;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;17&lt;/span&gt;    std&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;vector&lt;span style=&#34;color:#719e07&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#dc322f&#34;&gt;unsigned&lt;/span&gt; &lt;span style=&#34;color:#dc322f&#34;&gt;int&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;&amp;gt;&lt;/span&gt; Indices;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;18&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;19&lt;/span&gt;    [[nodiscard]] &lt;span style=&#34;color:#719e07&#34;&gt;static&lt;/span&gt; MeshInstanceID createInstance(&lt;span style=&#34;color:#719e07&#34;&gt;const&lt;/span&gt; Mesh&lt;span style=&#34;color:#719e07&#34;&gt;&amp;amp;&lt;/span&gt; mesh);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;20&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#dc322f&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;terminateInstance&lt;/span&gt;(MeshInstanceID mesh_instance_id);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;21&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#dc322f&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;renderMeshInstance&lt;/span&gt;(MeshInstanceID mesh_instance_id);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;22&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;23&lt;/span&gt;    &lt;span style=&#34;color:#586e75&#34;&gt;// TODO: Make this flexible
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;24&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;   &lt;span style=&#34;color:#719e07&#34;&gt;private&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;:&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;25&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;constexpr&lt;/span&gt; &lt;span style=&#34;color:#dc322f&#34;&gt;int&lt;/span&gt; VERTEX_ATTR_POS_SIZE &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;3&lt;/span&gt;;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;26&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;constexpr&lt;/span&gt; &lt;span style=&#34;color:#dc322f&#34;&gt;int&lt;/span&gt; VERTEX_ATTR_UV_SIZE &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;2&lt;/span&gt;;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;27&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;28&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;constexpr&lt;/span&gt; &lt;span style=&#34;color:#dc322f&#34;&gt;int&lt;/span&gt; VERTEX_ATTR_STRIDE &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;5&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;*&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;sizeof&lt;/span&gt;(&lt;span style=&#34;color:#dc322f&#34;&gt;float&lt;/span&gt;);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;29&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;30&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;constexpr&lt;/span&gt; &lt;span style=&#34;color:#dc322f&#34;&gt;int&lt;/span&gt; VERTEX_ATTR_POS_OFFSET &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;0&lt;/span&gt;;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;31&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;constexpr&lt;/span&gt; &lt;span style=&#34;color:#dc322f&#34;&gt;int&lt;/span&gt; VERTEX_ATTR_UV_OFFSET &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;3&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;*&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;sizeof&lt;/span&gt;(&lt;span style=&#34;color:#dc322f&#34;&gt;float&lt;/span&gt;);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;32&lt;/span&gt;};&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;I will make this more flexible in the future, but for now this is good enough to define a simple square mesh. This is also done in the application layer, for now:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 1&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;// game_app/game_app.cpp
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 2&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#dc322f&#34;&gt;bool&lt;/span&gt; GameApp&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;doInitialize()
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 3&lt;/span&gt;{
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 4&lt;/span&gt;    &lt;span style=&#34;color:#586e75&#34;&gt;// shader creation ...
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 5&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 6&lt;/span&gt;    &lt;span style=&#34;color:#586e75&#34;&gt;/*
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 7&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;     * The first three parameters of the vertex are the position
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 8&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;     * of the vertex itself. Here we are creating a rectangle that is
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 9&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;     * half the size of the screen. Notice that the origin is in the center:
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;10&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;     *
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;11&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;     *   +---------------------------------+
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;12&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;     *   |   (-0.5,0.5)         (0.5,0,5)  |
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;13&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;     *   |       +-----------------+       |
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;14&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;     *   |       |                 |       |
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;15&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;     *   |       |      (0,0)      |       |
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;16&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;     *   |       |                 |       |
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;17&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;     *   |       +-----------------+       |
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;18&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;     *   | (-0.5,-0.5)         (0.5,-0.5)  |
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;19&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;     *   +---------------------------------+
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;20&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;     *
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;21&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;     * The second two parameters are the UV coordinates. The origin here is in
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;22&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;     * the top left corner:
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;23&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;     *
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;24&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;     *  (0,0)       (1,0)
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;25&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;     *     +---------+
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;26&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;     *     |         |
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;27&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;     *     |         |
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;28&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;     *     |         |
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;29&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;     *     |         |
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;30&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;     *     +---------+
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;31&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;     *  (0,1)       (1,1)
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;32&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;     */&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;33&lt;/span&gt;    Mesh &lt;span style=&#34;color:#268bd2&#34;&gt;rectMesh&lt;/span&gt;(&lt;span style=&#34;color:#2aa198&#34;&gt;4&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;6&lt;/span&gt;);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;34&lt;/span&gt;    rectMesh.addVertex(&lt;span style=&#34;color:#2aa198&#34;&gt;0.5f&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;0.5f&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;0.0f&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;1.0f&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;0.0f&lt;/span&gt;);    &lt;span style=&#34;color:#586e75&#34;&gt;// top right
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;35&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;    rectMesh.addVertex(&lt;span style=&#34;color:#2aa198&#34;&gt;0.5f&lt;/span&gt;, &lt;span style=&#34;color:#719e07&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;0.5f&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;0.0f&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;1.0f&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;1.0f&lt;/span&gt;);   &lt;span style=&#34;color:#586e75&#34;&gt;// bottom right
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;36&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;    rectMesh.addVertex(&lt;span style=&#34;color:#719e07&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;0.5f&lt;/span&gt;, &lt;span style=&#34;color:#719e07&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;0.5f&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;0.0f&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;0.0f&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;1.0f&lt;/span&gt;);  &lt;span style=&#34;color:#586e75&#34;&gt;// bottom left
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;37&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;    rectMesh.addVertex(&lt;span style=&#34;color:#719e07&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;0.5f&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;0.5f&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;0.0f&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;0.0f&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;0.0f&lt;/span&gt;);   &lt;span style=&#34;color:#586e75&#34;&gt;// top left
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;38&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;    rectMesh.addIndex(&lt;span style=&#34;color:#2aa198&#34;&gt;0&lt;/span&gt;);                                &lt;span style=&#34;color:#586e75&#34;&gt;// first triangle
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;39&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;    rectMesh.addIndex(&lt;span style=&#34;color:#2aa198&#34;&gt;1&lt;/span&gt;);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;40&lt;/span&gt;    rectMesh.addIndex(&lt;span style=&#34;color:#2aa198&#34;&gt;3&lt;/span&gt;);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;41&lt;/span&gt;    rectMesh.addIndex(&lt;span style=&#34;color:#2aa198&#34;&gt;1&lt;/span&gt;);  &lt;span style=&#34;color:#586e75&#34;&gt;// second triangle
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;42&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;    rectMesh.addIndex(&lt;span style=&#34;color:#2aa198&#34;&gt;2&lt;/span&gt;);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;43&lt;/span&gt;    rectMesh.addIndex(&lt;span style=&#34;color:#2aa198&#34;&gt;3&lt;/span&gt;);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;44&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;45&lt;/span&gt;    m_RectMeshInstance &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; Mesh&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;createInstance(rectMesh);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;46&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;47&lt;/span&gt;    &lt;span style=&#34;color:#719e07&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#b58900&#34;&gt;true&lt;/span&gt;;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;48&lt;/span&gt;}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h2 id=&#34;putting-it-all-together&#34;&gt;Putting it all together&lt;/h2&gt;
+&lt;p&gt;That is all I require for now to simple render a rectangle. The rendering code only needs to know the shader program and the mesh instance:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;// game_app/game_app.cpp
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;2&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#dc322f&#34;&gt;void&lt;/span&gt; GameApp&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;doRender()
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;3&lt;/span&gt;{
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;4&lt;/span&gt;    ShaderProgram&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;bindShader(m_ShaderProgram);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;5&lt;/span&gt;    Mesh&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;renderMeshInstance(m_RectMeshInstance);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;6&lt;/span&gt;}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;These functions are in charge of calling the OpenGL API functions:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 1&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;// engine_lib/rendering/shader_program.cpp
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 2&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#dc322f&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;bindShader&lt;/span&gt;(ShaderProgramID shader_program)
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 3&lt;/span&gt;{
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 4&lt;/span&gt;    glUseProgram(shader_program);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 5&lt;/span&gt;}
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 6&lt;/span&gt;
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 7&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;// engine_lib/rendering/mesh.cpp
+&lt;/span&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 8&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;/*static*/&lt;/span&gt; &lt;span style=&#34;color:#dc322f&#34;&gt;void&lt;/span&gt; Mesh&lt;span style=&#34;color:#719e07&#34;&gt;::&lt;/span&gt;renderMeshInstance(MeshInstanceID mesh_instance_id)
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt; 9&lt;/span&gt;{
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;10&lt;/span&gt;    glBindVertexArray(mesh_instance_id.VertexAttrArray);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;11&lt;/span&gt;    glDrawElements(GL_TRIANGLES, mesh_instance_id.IndexSize, GL_UNSIGNED_INT,
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;12&lt;/span&gt;                   &lt;span style=&#34;color:#2aa198&#34;&gt;0&lt;/span&gt;);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;13&lt;/span&gt;    glBindVertexArray(&lt;span style=&#34;color:#2aa198&#34;&gt;0&lt;/span&gt;);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;14&lt;/span&gt;}&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Executing the application finally shows some graphics:&lt;/p&gt;
+&lt;p&gt;&lt;img  src=&#34;https://eariassoto.github.io/static/img/engine_explorations/first_window_1.png&#34;
+        alt=&#34;First triangles&#34;/&gt;&lt;/p&gt;
+&lt;p&gt;There are two things to notice here. The mesh vertices should render a square, but in the application, it looks more like a rectangle. This is because the vertex positions are in screen space, and the window&amp;rsquo;s aspect ratio is 4:3. This will get fixed once I add a proper camera system.&lt;/p&gt;
+&lt;p&gt;The second thing is about the colors of the rectangle. I am using the vertex&amp;rsquo;s UV coordinates to output the vertex color in the fragment shader. I intended to do this to test that the vertices are properly rendered. Notice again the fragment shader:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-glsl&#34; data-lang=&#34;glsl&#34;&gt;&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;void&lt;/span&gt; main() {
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;2&lt;/span&gt;    FragColor &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;vec4&lt;/span&gt;(UVs.x, UVs.y, &lt;span style=&#34;color:#2aa198&#34;&gt;0.0&lt;/span&gt;f, &lt;span style=&#34;color:#2aa198&#34;&gt;1.0&lt;/span&gt;f);
+&lt;span style=&#34;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050&#34;&gt;3&lt;/span&gt;};&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The top left corner of the rectangle is black because the UV coordinates are (0,0). In contrary, the bottom-right UV coordinates are (1.0, 1.0), so they completely combine red and green. The other two corners interpolate to the red and green colors. This UV coordinates will be useful later to apply textures to the meshes.&lt;/p&gt;
+&lt;p&gt;That is all for now, the application can now use the engine to render meshes with simple shader programs. I would like to have a proper resources manager before jumping to the 3D world. In the next post, I will write about 2D meshes, textures and orthographic cameras.&lt;/p&gt;
+&lt;p&gt;You can find this project on my &lt;a href=&#34;https://github.com/eariassoto/tamarindo_engine&#34;target=&#34;_blank&#34; rel=&#34;noopener noreferrer&#34;&gt;Github&lt;/a&gt;
+, and the code from this post is in this &lt;a href=&#34;https://github.com/eariassoto/tamarindo_engine/commit/e18425402825b1000f84995c90c98406aa14112a&#34;target=&#34;_blank&#34; rel=&#34;noopener noreferrer&#34;&gt;commit&lt;/a&gt;
+.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
       <title>Game Engine Explorations: Name, Base Design and Logging</title>
       <link>https://eariassoto.github.io/post/game-engine-explorations-basic-design/</link>
       <pubDate>Thu, 23 Dec 2021 17:04:02 +0100</pubDate>
@@ -1496,306 +1779,6 @@ Hello Emmanuel!
 &lt;li&gt;&lt;a href=&#34;https://golang.org/doc/&#34;target=&#34;_blank&#34; rel=&#34;noopener noreferrer&#34;&gt;Go Documentation&lt;/a&gt;
  Official Go documentation&lt;/li&gt;
 &lt;/ul&gt;</description>
-    </item>
-    
-    <item>
-      <title>Source-to-source compilation with Lex-Yacc</title>
-      <link>https://eariassoto.github.io/post/source-to-source-compilation-with-lex-yacc/</link>
-      <pubDate>Sat, 15 Jul 2017 10:43:23 -0600</pubDate>
-      
-      <guid>https://eariassoto.github.io/post/source-to-source-compilation-with-lex-yacc/</guid>
-      <description>&lt;p&gt;In this post, I will describe a source-to-source compiler that transforms a Brainfuck program into its equivalent 64 bits assembly code. The assembly program can be built into a executable, thus allowing you to run Brainfuck programs natively.&lt;/p&gt;
-&lt;p&gt;A source-to-source compiler is a compiler that takes a program written in a certain language and outputs the equivalent program in another language. This process is useful to compile a program to an intermediate language, or to provide backward compatibility for a legacy language. The Babel compiler, for instance, can parse Javascript ES6 to Javascript ES5 standard. The ES6 standard comes with a lot of improvements and new features, but it is currently not supported by most web browsers. Or maybe, you can come up with a new language and translate it to another one. Take for example this list of &lt;a href=&#34;https://github.com/jashkenas/coffeescript/wiki/list-of-languages-that-compile-to-js&#34;target=&#34;_blank&#34; rel=&#34;noopener noreferrer&#34;&gt;languages that compile to Javascript&lt;/a&gt;
-.&lt;/p&gt;
-&lt;p&gt;&lt;a class=button href=&#34;https://github.com/eariassoto/brasm/&#34; target=&#34;%5fblank&#34;&gt;Get the code on GitHub&lt;/a&gt;&lt;/p&gt;
-&lt;h1 id=&#34;requirements&#34;&gt;Requirements&lt;/h1&gt;
-&lt;p&gt;I used Python to develop the compiler. In order to run the compiler you need to have Python installed on your computer. Also, you need the Python Lex-Yacc (PLY) module installed in your python environment. You can download the latest PLY version (I used the 3.10 version) from the &lt;a href=&#34;http://www.dabeaz.com/ply/&#34;target=&#34;_blank&#34; rel=&#34;noopener noreferrer&#34;&gt;PLY homepage&lt;/a&gt;
-. To install PLY uncompress the file you downloaded, open a terminal within the uncompressed folder and run:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ sudo python setup.py install
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;In case you want to compile the assembly code, you need the &lt;a href=&#34;http://www.x86asm.us/&#34;target=&#34;_blank&#34; rel=&#34;noopener noreferrer&#34;&gt;x86asm assembler&lt;/a&gt;
-, and the Linux dynamic linker (ld command). I decided to go with x86asm because it supports the Intel assembly syntax which is more readable than the AT&amp;amp;T syntax.&lt;/p&gt;
-&lt;h1 id=&#34;the-source-language-brainfuck&#34;&gt;The source language: Brainfuck&lt;/h1&gt;
-&lt;p&gt;Brainfuck is a  &lt;a href=&#34;https://en.wikipedia.org/wiki/Turing_completeness&#34;target=&#34;_blank&#34; rel=&#34;noopener noreferrer&#34;&gt;Turing complete&lt;/a&gt;
- programming language. I chose this language as input language because it has a small set of instructions. Its only memory structure is a buffer of at least 30,000 bytes initialized to zero. In C, that buffer can be declared as &lt;code&gt;char buffer[30000] = {0};&lt;/code&gt;. The only variable is a data pointer that starts at the beginning of the buffer. To continue the C analogy, the data pointer might be declared as &lt;code&gt;char *ptr = buffer;&lt;/code&gt;&lt;/p&gt;
-&lt;p&gt;A Brainfuck program is structured as a series of instructions. The most basic instructions manipulate memory buffer using the data pointer. There are two streams of bytes for input and output. Also, there are two instructions to implement loops. Table below describes all the instructions:&lt;/p&gt;
-&lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;Command&lt;/th&gt;
-&lt;th style=&#34;text-align:center&#34;&gt;Description&lt;/th&gt;
-&lt;th style=&#34;text-align:right&#34;&gt;C equivalent&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td&gt;&amp;gt;&lt;/td&gt;
-&lt;td style=&#34;text-align:center&#34;&gt;Increment data pointer&lt;/td&gt;
-&lt;td style=&#34;text-align:right&#34;&gt;++ptr;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;&amp;lt;&lt;/td&gt;
-&lt;td style=&#34;text-align:center&#34;&gt;Decrement data pointer&lt;/td&gt;
-&lt;td style=&#34;text-align:right&#34;&gt;&amp;ndash;ptr;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;+&lt;/td&gt;
-&lt;td style=&#34;text-align:center&#34;&gt;Increment by one byte at the data pointer&lt;/td&gt;
-&lt;td style=&#34;text-align:right&#34;&gt;++*ptr;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;-&lt;/td&gt;
-&lt;td style=&#34;text-align:center&#34;&gt;Decrement by one byte at the data pointer&lt;/td&gt;
-&lt;td style=&#34;text-align:right&#34;&gt;&amp;ndash;*ptr;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;.&lt;/td&gt;
-&lt;td style=&#34;text-align:center&#34;&gt;Print byte at the data pointer&lt;/td&gt;
-&lt;td style=&#34;text-align:right&#34;&gt;putchar(*ptr);&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;,&lt;/td&gt;
-&lt;td style=&#34;text-align:center&#34;&gt;Read char from input, store in the byte at the data pointer&lt;/td&gt;
-&lt;td style=&#34;text-align:right&#34;&gt;*ptr=getchar();&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;[&lt;/td&gt;
-&lt;td style=&#34;text-align:center&#34;&gt;If the byte at the data pointer is zero, jump to matching &lt;code&gt;]&lt;/code&gt;&lt;/td&gt;
-&lt;td style=&#34;text-align:right&#34;&gt;while (*ptr) {&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;]&lt;/td&gt;
-&lt;td style=&#34;text-align:center&#34;&gt;if the byte at the data pointer is nonzero, jump to matching &lt;code&gt;[&lt;/code&gt;&lt;/td&gt;
-&lt;td style=&#34;text-align:right&#34;&gt;}&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
-&lt;p&gt;Brainfuck falls into the category of &lt;a href=&#34;https://en.wikipedia.org/wiki/Esoteric_programming_language&#34;target=&#34;_blank&#34; rel=&#34;noopener noreferrer&#34;&gt;esoteric programming languages&lt;/a&gt;
-. So, Brainfuck programs are really hard to understand. For example, this is an implementation of the classic &amp;ldquo;Hello World&amp;rdquo; program written in Brainfuck:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-brainfuck&#34; data-lang=&#34;brainfuck&#34;&gt;&lt;span style=&#34;color:#b58900&#34;&gt;++++++++++&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;[&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#b58900&#34;&gt;+++++++&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#b58900&#34;&gt;++++++++++&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#b58900&#34;&gt;+++&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#b58900&#34;&gt;+&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;&amp;lt;&amp;lt;&amp;lt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#b58900&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;]&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#b58900&#34;&gt;++&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#b58900&#34;&gt;+&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#b58900&#34;&gt;+++++++&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;..&lt;/span&gt;&lt;span style=&#34;color:#b58900&#34;&gt;+++&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#b58900&#34;&gt;++&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#b58900&#34;&gt;+++++++++++++++&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#b58900&#34;&gt;+++&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#b58900&#34;&gt;------&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#b58900&#34;&gt;--------&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#b58900&#34;&gt;+&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;.&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h1 id=&#34;hello-assembly&#34;&gt;Hello Assembly&lt;/h1&gt;
-&lt;p&gt;For this post, I will assume you are familiarized with x86-64 assembly code. To compare the previous example, I wrote a Hello World in x86-64 assembly code.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-GAS&#34; data-lang=&#34;GAS&#34;&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;global&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;_start&lt;/span&gt;
-
-&lt;span style=&#34;color:#268bd2&#34;&gt;section&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;.text&lt;/span&gt;
-_start:
-&lt;span style=&#34;color:#268bd2&#34;&gt;mov&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;rax&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;1&lt;/span&gt;
-&lt;span style=&#34;color:#268bd2&#34;&gt;mov&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;rdi&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;1&lt;/span&gt;
-&lt;span style=&#34;color:#268bd2&#34;&gt;mov&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;rsi&lt;/span&gt;, &lt;span style=&#34;color:#cb4b16&#34;&gt;message&lt;/span&gt;
-&lt;span style=&#34;color:#268bd2&#34;&gt;mov&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;rdx&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;13&lt;/span&gt;
-&lt;span style=&#34;color:#268bd2&#34;&gt;syscall&lt;/span&gt;
-
-&lt;span style=&#34;color:#268bd2&#34;&gt;mov&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;eax&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;60&lt;/span&gt;
-&lt;span style=&#34;color:#268bd2&#34;&gt;xor&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;rdi&lt;/span&gt;, &lt;span style=&#34;color:#cb4b16&#34;&gt;rdi&lt;/span&gt;
-&lt;span style=&#34;color:#268bd2&#34;&gt;syscall&lt;/span&gt;
-
-message:
-&lt;span style=&#34;color:#268bd2&#34;&gt;db&lt;/span&gt; &amp;#34;&lt;span style=&#34;color:#cb4b16&#34;&gt;Hello&lt;/span&gt;, &lt;span style=&#34;color:#cb4b16&#34;&gt;World&lt;/span&gt;&amp;#34;, &lt;span style=&#34;color:#2aa198&#34;&gt;10&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The &lt;code&gt;global _start&lt;/code&gt; directive defines the entry point for our program. The &lt;code&gt;.text&lt;/code&gt; section contains the program instructions and all constants we defined. This program calls two special functions, called system calls. System calls are functions executed by the kernel because they required higher privileges. These functions take parameters using registers, and they are invoked using the &lt;code&gt;syscall&lt;/code&gt; instruction. This “hello world” program calls the  &lt;code&gt;sys_write&lt;/code&gt; system call to print the string &lt;code&gt;&amp;quot;Hello World&amp;quot;&lt;/code&gt;, and the &lt;code&gt;sys_exit&lt;/code&gt; system call to exit the program. To check all the available system calls and their parameters, &lt;a href=&#34;http://blog.rchapman.org/posts/Linux_System_Call_Table_for_x86_64/&#34;target=&#34;_blank&#34; rel=&#34;noopener noreferrer&#34;&gt;check this list&lt;/a&gt;
-.&lt;/p&gt;
-&lt;h1 id=&#34;translating-brainfuck-instructions-set-to-x64-assembly&#34;&gt;Translating Brainfuck instructions set to x64 assembly&lt;/h1&gt;
-&lt;p&gt;The first thing I needed to define was the buffer memory and the data pointer. I declared the buffer as a 30000 bytes zero-initialized array in the &lt;code&gt;.bss&lt;/code&gt; section. In this section, the program declared static variables. These variables will be allocated and initialized by the program loader. All variables in the &lt;code&gt;.bss&lt;/code&gt; section are zero-initialized. For the data pointer, I will use register &lt;code&gt;r9&lt;/code&gt;. When the program starts, the buffer address will be stored in this register.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-GAS&#34; data-lang=&#34;GAS&#34;&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;section&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;.bss&lt;/span&gt;
-buffer: &lt;span style=&#34;color:#268bd2&#34;&gt;resb&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;30000&lt;/span&gt;
-
-_start:
-&lt;span style=&#34;color:#268bd2&#34;&gt;mov&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;r9&lt;/span&gt;, &lt;span style=&#34;color:#cb4b16&#34;&gt;buffer&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;I will break Brainfuck instructions into four subsections: pointer instructions, data instructions, input/output instructions, and the loop instruction.&lt;/p&gt;
-&lt;h2 id=&#34;pointer-instructions&#34;&gt;Pointer instructions&lt;/h2&gt;
-&lt;p&gt;Instructions &lt;code&gt;&amp;gt;&lt;/code&gt; and &lt;code&gt;&amp;lt;&lt;/code&gt; move the data pointer through the buffer. For this task, address in register &lt;code&gt;r9&lt;/code&gt; should move eight positions (so the address moves a byte) forward or backwards.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-GAS&#34; data-lang=&#34;GAS&#34;&gt;&lt;span style=&#34;color:#586e75&#34;&gt;; &amp;gt; move data pointer forward
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;add&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;r9&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;8&lt;/span&gt;
-
-&lt;span style=&#34;color:#586e75&#34;&gt;; &amp;lt; move data pointer backward
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;sub&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;r9&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;8&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;data-instructions&#34;&gt;Data instructions&lt;/h2&gt;
-&lt;p&gt;Here, the byte stored in the address in register &lt;code&gt;r9&lt;/code&gt; is modified using a temporary register, &lt;code&gt;r10b&lt;/code&gt;. Then, the result value is stored back into the same address.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-GAS&#34; data-lang=&#34;GAS&#34;&gt;&lt;span style=&#34;color:#586e75&#34;&gt;; + add 1 to byte at data pointer
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;mov&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;byte&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;r10b&lt;/span&gt;, [&lt;span style=&#34;color:#cb4b16&#34;&gt;r9&lt;/span&gt;]
-&lt;span style=&#34;color:#268bd2&#34;&gt;add&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;r10b&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;1&lt;/span&gt;
-&lt;span style=&#34;color:#268bd2&#34;&gt;mov&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;byte&lt;/span&gt; [&lt;span style=&#34;color:#cb4b16&#34;&gt;r9&lt;/span&gt;], &lt;span style=&#34;color:#cb4b16&#34;&gt;r10b&lt;/span&gt;
-
-&lt;span style=&#34;color:#586e75&#34;&gt;; - subtract 1 to byte at data pointer
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;mov&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;byte&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;r10b&lt;/span&gt;, [&lt;span style=&#34;color:#cb4b16&#34;&gt;r9&lt;/span&gt;]
-&lt;span style=&#34;color:#268bd2&#34;&gt;sub&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;r10b&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;1&lt;/span&gt;
-&lt;span style=&#34;color:#268bd2&#34;&gt;mov&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;byte&lt;/span&gt; [&lt;span style=&#34;color:#cb4b16&#34;&gt;r9&lt;/span&gt;], &lt;span style=&#34;color:#cb4b16&#34;&gt;r10b&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;inputoutput-instructions&#34;&gt;Input/Output instructions&lt;/h2&gt;
-&lt;p&gt;To provide the input and output data streams, I used system calls. These are functions provided and executed by the kernel that allow a program to interact with higher level functionality. Before calling a system call the register &lt;code&gt;rax&lt;/code&gt; must have the system call id number. Some system calls may take parameters from specific registers. The compiler uses the &lt;code&gt;sys_write&lt;/code&gt; and &lt;code&gt;sys_read&lt;/code&gt; system calls to read and write from &lt;code&gt;stdin&lt;/code&gt; and &lt;code&gt;stdout&lt;/code&gt; respectively.&lt;/p&gt;
-&lt;p&gt;The &lt;code&gt;_print_byte&lt;/code&gt; function prints an input byte on &lt;code&gt;stdout&lt;/code&gt;. Input byte must be store on the register &lt;code&gt;rcx&lt;/code&gt;. The function pushes the register &lt;code&gt;rcx&lt;/code&gt; into the stack. Then, it prepares the registers needed by the system call &lt;code&gt;sys_write&lt;/code&gt;. Register &lt;code&gt;rdi&lt;/code&gt; contains the file descriptor. In this case &lt;code&gt;stdout&lt;/code&gt; file descriptor is &lt;code&gt;1&lt;/code&gt;. Register &lt;code&gt;rsi&lt;/code&gt; has the address of the content to be written, in our case the stack address. Register &lt;code&gt;rdx&lt;/code&gt; has the length of the buffer. Finally, register &lt;code&gt;rax&lt;/code&gt; contains the system call id, for &lt;code&gt;sys_write&lt;/code&gt; the id is &lt;code&gt;1&lt;/code&gt;. Before calling &lt;code&gt;_print_byte&lt;/code&gt; function, the program will store on register &lt;code&gt;cl&lt;/code&gt; (lowest byte in register &lt;code&gt;rcx&lt;/code&gt;) the byte at data pointer.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-GAS&#34; data-lang=&#34;GAS&#34;&gt;_print_byte:
-&lt;span style=&#34;color:#268bd2&#34;&gt;push&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;rcx&lt;/span&gt; &lt;span style=&#34;color:#586e75&#34;&gt;; grow stack and push output byte to stack
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#cb4b16&#34;&gt;mov&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;rdi&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color:#586e75&#34;&gt;; file descriptor 1 is stdout
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#cb4b16&#34;&gt;mov&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;rsi&lt;/span&gt;, &lt;span style=&#34;color:#cb4b16&#34;&gt;rsp&lt;/span&gt; &lt;span style=&#34;color:#586e75&#34;&gt;; stack address
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#cb4b16&#34;&gt;mov&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;rdx&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color:#586e75&#34;&gt;; number of bytes to print
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#cb4b16&#34;&gt;mov&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;rax&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color:#586e75&#34;&gt;; system call 1 is write
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#cb4b16&#34;&gt;syscall&lt;/span&gt; &lt;span style=&#34;color:#586e75&#34;&gt;; call OS system call
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#cb4b16&#34;&gt;pop&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;rcx&lt;/span&gt; &lt;span style=&#34;color:#586e75&#34;&gt;; decrease stack
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#cb4b16&#34;&gt;ret&lt;/span&gt;
-
-&lt;span style=&#34;color:#586e75&#34;&gt;; . call _print_byte function
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;mov&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;cl&lt;/span&gt;, [&lt;span style=&#34;color:#cb4b16&#34;&gt;r9&lt;/span&gt;]
-&lt;span style=&#34;color:#268bd2&#34;&gt;call&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;_print_byte&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The &lt;code&gt;_read_byte&lt;/code&gt; function is very similar to the &lt;code&gt;_print_byte&lt;/code&gt; function. The only difference is that &lt;code&gt;sys_read&lt;/code&gt; id number is &lt;code&gt;0&lt;/code&gt;, and the file descriptor for &lt;code&gt;stdin&lt;/code&gt; is also &lt;code&gt;0&lt;/code&gt;. After calling &lt;code&gt;_read_byte&lt;/code&gt; function, the program stores the byte returned by &lt;code&gt;_read_byte&lt;/code&gt; on &lt;code&gt;cl&lt;/code&gt; at data pointer.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-GAS&#34; data-lang=&#34;GAS&#34;&gt;_read_byte:
-&lt;span style=&#34;color:#268bd2&#34;&gt;sub&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;rsp&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;8&lt;/span&gt; &lt;span style=&#34;color:#586e75&#34;&gt;; grow stack
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#cb4b16&#34;&gt;mov&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;rsi&lt;/span&gt;, &lt;span style=&#34;color:#cb4b16&#34;&gt;rsp&lt;/span&gt; &lt;span style=&#34;color:#586e75&#34;&gt;; stack address
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#cb4b16&#34;&gt;mov&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;rdi&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;0&lt;/span&gt; &lt;span style=&#34;color:#586e75&#34;&gt;; file descriptor 0 is stdin
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#cb4b16&#34;&gt;mov&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;rdx&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;1&lt;/span&gt; &lt;span style=&#34;color:#586e75&#34;&gt;; number of bytes
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#cb4b16&#34;&gt;mov&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;rax&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;0&lt;/span&gt; &lt;span style=&#34;color:#586e75&#34;&gt;; syscall 0 is read
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#cb4b16&#34;&gt;syscall&lt;/span&gt; &lt;span style=&#34;color:#586e75&#34;&gt;; call OS system call
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#cb4b16&#34;&gt;pop&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;rcx&lt;/span&gt; &lt;span style=&#34;color:#586e75&#34;&gt;; decrease stack and save input
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#cb4b16&#34;&gt;ret&lt;/span&gt;
-
-&lt;span style=&#34;color:#586e75&#34;&gt;; , call _read_byte function
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;call&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;_read_byte&lt;/span&gt;
-&lt;span style=&#34;color:#268bd2&#34;&gt;mov&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;byte&lt;/span&gt; [&lt;span style=&#34;color:#cb4b16&#34;&gt;r9&lt;/span&gt;], &lt;span style=&#34;color:#cb4b16&#34;&gt;cl&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;loop-instruction&#34;&gt;Loop instruction&lt;/h2&gt;
-&lt;p&gt;The instructions &lt;code&gt;[&lt;/code&gt; and &lt;code&gt;]&lt;/code&gt; are the C equivalent of &lt;code&gt;while (*ptr) { }&lt;/code&gt;. The assembly loop jumps into the comparison between the byte at data pointer and zero. If the value is not zero, the program jumps to the &lt;code&gt;_cloop&lt;/code&gt; tag. Between the &lt;code&gt;_cloop&lt;/code&gt; and &lt;code&gt;_loop&lt;/code&gt; tags, the compiler will put all the parsed Brainfuck code that was originally between &lt;code&gt;[&lt;/code&gt; and &lt;code&gt;]&lt;/code&gt; instructions.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-GAS&#34; data-lang=&#34;GAS&#34;&gt;&lt;span style=&#34;color:#268bd2&#34;&gt;jmp&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;_loop0&lt;/span&gt;
-_cloop0:
-&lt;span style=&#34;color:#586e75&#34;&gt;; [loop code]
-&lt;/span&gt;&lt;span style=&#34;color:#586e75&#34;&gt;&lt;/span&gt;_loop0:
-&lt;span style=&#34;color:#268bd2&#34;&gt;mov&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;byte&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;cl&lt;/span&gt;, [&lt;span style=&#34;color:#cb4b16&#34;&gt;r9&lt;/span&gt;]
-&lt;span style=&#34;color:#268bd2&#34;&gt;cmp&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;cl&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;0&lt;/span&gt;
-&lt;span style=&#34;color:#268bd2&#34;&gt;jne&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;_cloop0&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h1 id=&#34;building-the-compiler&#34;&gt;Building the compiler&lt;/h1&gt;
-&lt;p&gt;Compiling a program can be described, in a very basic way, as a two parts process:&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;Break the input program into the language components.&lt;/li&gt;
-&lt;li&gt;Build the program using the language components and the language specification.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;This is where Lex-Yacc comes to use. Lex will help us parsing the input program from a series of characters to strings with certain meaning, called tokens. This process is known as lexical analysis. Yacc will generate a parser from a grammar. The parser will take the tokens and try to find a valid match for the grammar. In this process, the grammar rules will trigger actions that will create the output code.&lt;/p&gt;
-&lt;h2 id=&#34;lexical-analysis&#34;&gt;Lexical analysis&lt;/h2&gt;
-&lt;p&gt;Here, I will go into details about what the PLY Lex implementation needs to build a lexical analyzer. First thing, Lex requires a list of token names. I defined one token for each Brainfuck instruction.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;tokens &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; (
-    &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#39;INCR_PTR&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#39;DECR_PTR&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#39;INCR_VAL&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#39;DECR_VAL&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#39;WRITE&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#39;READ&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#39;LB&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#39;RB&amp;#39;&lt;/span&gt;
-)
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Each token needs a rule to match the input with the token. Rules are defined as functions named as the token with the prefix &lt;code&gt;t_&lt;/code&gt;. Some rules are simple, and can be defined as regular expressions. I defined simple regular expressions for each Brainfuck instruction.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;color:#586e75&#34;&gt;# Simple Tokens&lt;/span&gt;
-t_INCR_PTR &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;r&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#39;\&amp;gt;&amp;#39;&lt;/span&gt;
-t_DECR_PTR &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;r&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#39;\&amp;lt;&amp;#39;&lt;/span&gt;
-t_INCR_VAL &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;r&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#39;\+&amp;#39;&lt;/span&gt;
-t_DECR_VAL &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;r&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#39;\-&amp;#39;&lt;/span&gt;
-t_WRITE &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;r&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#39;\.&amp;#39;&lt;/span&gt;
-t_READ &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;r&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#39;\,&amp;#39;&lt;/span&gt;
-t_LB &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;r&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#39;\[&amp;#39;&lt;/span&gt;
-t_RB &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;r&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#39;\]&amp;#39;&lt;/span&gt;
-
-t_ignore &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34; &lt;/span&gt;&lt;span style=&#34;color:#cb4b16&#34;&gt;\t&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#586e75&#34;&gt;# Ignored characters&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Some rules need to perform an action for every token they find. For example, I will set a rule to count the number of lines in order to indicate the line number in a compilation error. Also, I will treat any other characters the input program might have as comments.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;color:#719e07&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;t_newline&lt;/span&gt;(t):
-    &lt;span style=&#34;color:#2aa198&#34;&gt;r&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#39;\n+&amp;#39;&lt;/span&gt;
-    t&lt;span style=&#34;color:#719e07&#34;&gt;.&lt;/span&gt;lexer&lt;span style=&#34;color:#719e07&#34;&gt;.&lt;/span&gt;lineno &lt;span style=&#34;color:#719e07&#34;&gt;+=&lt;/span&gt; t&lt;span style=&#34;color:#719e07&#34;&gt;.&lt;/span&gt;value&lt;span style=&#34;color:#719e07&#34;&gt;.&lt;/span&gt;count(&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#cb4b16&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;&lt;/span&gt;)
-
-&lt;span style=&#34;color:#719e07&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;t_error&lt;/span&gt;(t):
-    &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;&amp;#34;&amp;#34; Ignore all other characters &amp;#34;&amp;#34;&amp;#34;&lt;/span&gt;
-    t&lt;span style=&#34;color:#719e07&#34;&gt;.&lt;/span&gt;lexer&lt;span style=&#34;color:#719e07&#34;&gt;.&lt;/span&gt;skip(&lt;span style=&#34;color:#2aa198&#34;&gt;1&lt;/span&gt;)
-
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;With these, we can tell Lex to build the lexical analyzer.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;color:#586e75&#34;&gt;# Build the lexer&lt;/span&gt;
-&lt;span style=&#34;color:#719e07&#34;&gt;import&lt;/span&gt; ply.lex &lt;span style=&#34;color:#719e07&#34;&gt;as&lt;/span&gt; lex
-lex&lt;span style=&#34;color:#719e07&#34;&gt;.&lt;/span&gt;lex()
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;parsing-the-tokens&#34;&gt;Parsing the tokens&lt;/h2&gt;
-&lt;p&gt;Yacc will generate our parser based on a &lt;a href=&#34;https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form&#34;target=&#34;_blank&#34; rel=&#34;noopener noreferrer&#34;&gt;Backus–Naur form (BNF) grammar&lt;/a&gt;
-. The grammar I used is simple because Brainfuck programs are just a sequence of valid instructions. I defined two types of instructions: simple instructions (&lt;code&gt;&amp;gt; &amp;lt; + - . ,&lt;/code&gt;) and loops (&lt;code&gt;[ ]&lt;/code&gt;). Loops are treated as a different type of instructions because Brainfuck allows nested loops. The entire grammar is specified below.&lt;/p&gt;
-&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;program : instruction
-
-instruction : simpleInstruction
-| loopInstruction
-| simpleInstruction instruction
-| loopInstruction instruction
-
-loopInstruction : LB instruction RB
-
-simpleInstruction : INCR_PTR
-| DECR_PTR
-| INCR_VAL
-| DECR_VAL
-| WRITE
-| READ
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Grammar rules are defined in Yacc as functions. These functions need the prefix &lt;code&gt;p_&lt;/code&gt; and take one parameter named &lt;code&gt;p&lt;/code&gt;. &lt;code&gt;p&lt;/code&gt; is an array containing the values of each grammar symbol in the corresponding rule. The rule is written in a triple quote comment after the function definition. The function body will be the actions that the rule will perform if it founds a match. Rules that are reduced should save in &lt;code&gt;p[0]&lt;/code&gt; the final result.&lt;/p&gt;
-&lt;p&gt;The first rule defined will be the starting point for the parse. These is the starting rule for my compiler:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;color:#719e07&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;p_program&lt;/span&gt;(p):
-    &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#39;&amp;#39;&amp;#39; program : instructions &amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
-    &lt;span style=&#34;color:#719e07&#34;&gt;global&lt;/span&gt; global_success
-    compile_program(p[&lt;span style=&#34;color:#2aa198&#34;&gt;1&lt;/span&gt;])
-    global_success &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;True&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This rule will translate all the Brainfuck instructions into their assembly equivalents. The &lt;code&gt;compile_program&lt;/code&gt; function will replace Brainfuck operations into assembly instructions and save the result on a file. The next rules reduce all the instructions into the final &lt;code&gt;instructions&lt;/code&gt; symbol.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;color:#719e07&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;p_instructions_expansion&lt;/span&gt;(p):
-    &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#39;&amp;#39;&amp;#39; instructions : simpleInstruction instructions
-&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;    | loop_instruction instructions
-&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;    &amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
-    p[&lt;span style=&#34;color:#2aa198&#34;&gt;0&lt;/span&gt;] &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; p[&lt;span style=&#34;color:#2aa198&#34;&gt;1&lt;/span&gt;] &lt;span style=&#34;color:#719e07&#34;&gt;+&lt;/span&gt; p[&lt;span style=&#34;color:#2aa198&#34;&gt;2&lt;/span&gt;]
-
-&lt;span style=&#34;color:#719e07&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;p_instructions&lt;/span&gt;(p):
-    &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#39;&amp;#39;&amp;#39; instructions : simpleInstruction
-&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;    | loop_instruction
-&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;    &amp;#39;&amp;#39;&amp;#39;&lt;/span&gt;
-    p[&lt;span style=&#34;color:#2aa198&#34;&gt;0&lt;/span&gt;] &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; p[&lt;span style=&#34;color:#2aa198&#34;&gt;1&lt;/span&gt;]
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The rules to match the instructions will reduce the instruction within a wrapper structure. The wrapper will store the instruction type and the instruction (or instructions in case it is a loop).&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;color:#719e07&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;make_instruction_action&lt;/span&gt;(&lt;span style=&#34;color:#b58900&#34;&gt;type&lt;/span&gt;, payload):
-    &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;&amp;#34;&amp;#34; Wraps the instruction content into a struct &amp;#34;&amp;#34;&amp;#34;&lt;/span&gt;
-    obj &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; {}
-    obj[INSTR_OBJ_PROP_TYPE] &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#b58900&#34;&gt;type&lt;/span&gt;
-    obj[INSTR_OBJ_PROP_PAYLOAD] &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; payload
-    &lt;span style=&#34;color:#719e07&#34;&gt;return&lt;/span&gt; obj
-
-&lt;span style=&#34;color:#719e07&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;p_loop_instruction&lt;/span&gt;(p):
-    &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;&amp;#34;&amp;#34; loop_instruction : LB instructions RB
-&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;    &amp;#34;&amp;#34;&amp;#34;&lt;/span&gt;
-    action &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; make_instruction_action(&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#39;loop&amp;#39;&lt;/span&gt;, p[&lt;span style=&#34;color:#2aa198&#34;&gt;2&lt;/span&gt;])
-    p[&lt;span style=&#34;color:#2aa198&#34;&gt;0&lt;/span&gt;] &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; [action]
-
-
-&lt;span style=&#34;color:#719e07&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;p_simple_instruction&lt;/span&gt;(p):
-    &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;&amp;#34;&amp;#34;simpleInstruction : INCR_PTR
-&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;    | DECR_PTR
-&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;    | INCR_VAL
-&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;    | DECR_VAL
-&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;    | WRITE
-&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;    | READ
-&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;    &amp;#34;&amp;#34;&amp;#34;&lt;/span&gt;
-    action &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; make_instruction_action(&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#39;op&amp;#39;&lt;/span&gt;, p[&lt;span style=&#34;color:#2aa198&#34;&gt;1&lt;/span&gt;])
-    p[&lt;span style=&#34;color:#2aa198&#34;&gt;0&lt;/span&gt;] &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; [action]
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;I also defined a rule in case the parser encounters a error in the input program.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;color:#719e07&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;p_error&lt;/span&gt;(p):
-    &lt;span style=&#34;color:#719e07&#34;&gt;if&lt;/span&gt; p:
-        &lt;span style=&#34;color:#b58900&#34;&gt;print&lt;/span&gt;(&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;Syntax error at &amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;%s&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#39;&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#719e07&#34;&gt;%&lt;/span&gt; p&lt;span style=&#34;color:#719e07&#34;&gt;.&lt;/span&gt;value)
-    &lt;span style=&#34;color:#719e07&#34;&gt;else&lt;/span&gt;:
-        &lt;span style=&#34;color:#b58900&#34;&gt;print&lt;/span&gt;(&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;Error, input program empty.&amp;#34;&lt;/span&gt;)
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Finally, I just need to build the parser and give the compiler a starting point.&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;color:#719e07&#34;&gt;import&lt;/span&gt; ply.yacc &lt;span style=&#34;color:#719e07&#34;&gt;as&lt;/span&gt; yacc
-yacc&lt;span style=&#34;color:#719e07&#34;&gt;.&lt;/span&gt;yacc()
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;color:#719e07&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#268bd2&#34;&gt;main&lt;/span&gt;():
-    &lt;span style=&#34;color:#719e07&#34;&gt;global&lt;/span&gt; global_compiled_filename
-    parser &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; argparse&lt;span style=&#34;color:#719e07&#34;&gt;.&lt;/span&gt;ArgumentParser()
-    parser&lt;span style=&#34;color:#719e07&#34;&gt;.&lt;/span&gt;add_argument(&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;file&amp;#34;&lt;/span&gt;, help&lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;Brainfuck input file to be parsed&amp;#34;&lt;/span&gt;)
-    parser&lt;span style=&#34;color:#719e07&#34;&gt;.&lt;/span&gt;add_argument(&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;-o&amp;#34;&lt;/span&gt;, help&lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;file name for the output assembly code&amp;#34;&lt;/span&gt;)
-    args &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; parser&lt;span style=&#34;color:#719e07&#34;&gt;.&lt;/span&gt;parse_args()
-    &lt;span style=&#34;color:#719e07&#34;&gt;if&lt;/span&gt; args&lt;span style=&#34;color:#719e07&#34;&gt;.&lt;/span&gt;o:
-        global_compiled_filename &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; args&lt;span style=&#34;color:#719e07&#34;&gt;.&lt;/span&gt;o
-    &lt;span style=&#34;color:#719e07&#34;&gt;try&lt;/span&gt;:
-        f &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#b58900&#34;&gt;open&lt;/span&gt;(args&lt;span style=&#34;color:#719e07&#34;&gt;.&lt;/span&gt;file, &lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#39;r&amp;#39;&lt;/span&gt;)
-        program_str &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; f&lt;span style=&#34;color:#719e07&#34;&gt;.&lt;/span&gt;read()
-        f&lt;span style=&#34;color:#719e07&#34;&gt;.&lt;/span&gt;close()
-        result &lt;span style=&#34;color:#719e07&#34;&gt;=&lt;/span&gt; yacc&lt;span style=&#34;color:#719e07&#34;&gt;.&lt;/span&gt;parse(program_str)
-
-    &lt;span style=&#34;color:#719e07&#34;&gt;if&lt;/span&gt;(global_success):
-        &lt;span style=&#34;color:#b58900&#34;&gt;print&lt;/span&gt;(&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;Program compiled. To build the executable run:&lt;/span&gt;&lt;span style=&#34;color:#cb4b16&#34;&gt;\
-&lt;/span&gt;&lt;span style=&#34;color:#cb4b16&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;        &lt;/span&gt;&lt;span style=&#34;color:#cb4b16&#34;&gt;\n\t&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;x86asm -f elf64 &lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;{0}&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;.asm &amp;amp;&amp;amp; ld &lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;{0}&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;.o -o &lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;{0}&lt;/span&gt;&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#719e07&#34;&gt;.&lt;/span&gt;format(global_compiled_filename))
-    &lt;span style=&#34;color:#719e07&#34;&gt;except&lt;/span&gt; &lt;span style=&#34;color:#cb4b16&#34;&gt;IOError&lt;/span&gt;:
-        sys&lt;span style=&#34;color:#719e07&#34;&gt;.&lt;/span&gt;exit(&lt;span style=&#34;color:#2aa198&#34;&gt;&amp;#39;Error, input file not found!&amp;#39;&lt;/span&gt;)
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h1 id=&#34;improvement-proposals&#34;&gt;Improvement proposals&lt;/h1&gt;
-&lt;ul&gt;
-&lt;li&gt;Optimize the compiler. Group pointer and data instructions to no repeat a lot of assembly code.&lt;/li&gt;
-&lt;li&gt;Support reading/writing files. Perhaps the memory buffer can be loaded from/saved into a file.&lt;/li&gt;
-&lt;li&gt;Extend Brainfuck specification to support variables and string constants.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&#34;bigger-challenge&#34;&gt;Bigger challenge&lt;/h2&gt;
-&lt;ul&gt;
-&lt;li&gt;Create a compiler to translate a subset of the C language to Brainfuck. Then, use this compiler to translate the Brainfuck code into assembly.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;&lt;a class=button href=&#34;https://github.com/eariassoto/brasm/&#34; target=&#34;_blank&#34;&gt;Get the code on GitHub&lt;/a&gt;&lt;/p&gt;</description>
     </item>
     
   </channel>
