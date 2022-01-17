@@ -1,15 +1,155 @@
 <!DOCTYPE html>
-<html lang="en"><meta charset="utf-8"><meta name="generator" content="Hugo 0.90.1" /><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="color-scheme" content="light dark">
-<meta name="supported-color-schemes" content="light dark"><title>Game Engine Explorations: Name, Base Design and Logging&nbsp;&ndash;&nbsp;Emmanuel Arias</title><link rel="stylesheet" href="/css/core.min.9e958365cf0319ede466a402e1369f31dc1f205c868aa836fe25581725c829d3f3545d9f142cccafe35363950a63e2a6.css" integrity="sha384-npWDZc8DGe3kZqQC4TafMdwfIFyGiqg2/iVYFyXIKdPzVF2fFCzMr&#43;NTY5UKY&#43;Km"><meta name="twitter:card" content="summary" />
-<meta name="twitter:title" content="Game Engine Explorations: Name, Base Design and Logging" /><body><section id="header">
-    <div class="header wrap"><span class="header left-side"><a class="site home" href="/"><span class="site name">Emmanuel Arias</span></a></span>
-        <span class="header right-side"><div class="nav wrap"><nav class="nav"><a class="nav item" href="/categories/">Categories</a></nav></div></span></div><div class="site slogan"><span class="title">A software developer looking for his <span style='font-family: monospace;'>$PATH</span></span></div></section><section id="content"><div class="article-container"><section class="article header">
-    <h1 class="article title">Game Engine Explorations: Name, Base Design and Logging</h1><p class="article date">Dec 23, 2021</p></section><article class="article markdown-body"><p>In this post, I will not get to the point where I can show a graphical window. Before jumping to the graphical world, I will write about the basic design for the engine. This will only cover the entry point and the base Application class. Additionally, I will give an example of a component by implementing a logging service.</p>
+<html lang="en">
+  <head>
+    
+      <title>
+        Game Engine Explorations: Name, Base Design and Logging ::
+        Emmanuel Arias — Blog
+      </title>
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta
+  name="description"
+  content="In this post, I will not get to the point where I can show a graphical window. Before jumping to the graphical world, I will write about the basic design for the engine. This will only cover the entry point and the base Application class. Additionally, I will give an example of a component by implementing a logging service.
+"
+/>
+<meta
+  name="keywords"
+  content=""
+/>
+<meta name="robots" content="noodp" />
+<link rel="canonical" href="https://eariassoto.github.io/post/game-engine-explorations-basic-design/" />
+
+
+
+
+
+<link rel="stylesheet" href="https://eariassoto.github.io/assets/style.css" />
+
+<link rel="stylesheet" href="https://eariassoto.github.io/style.css" />
+
+
+<link
+  rel="apple-touch-icon-precomposed"
+  sizes="144x144"
+  href="https://eariassoto.github.io/img/apple-touch-icon-144-precomposed.png"
+/>
+<link rel="shortcut icon" href="https://eariassoto.github.io/img/favicon.png" />
+
+
+<link href="https://eariassoto.github.io/assets/fonts/Inter-Italic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-Regular.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-Medium.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-MediumItalic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-Bold.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-BoldItalic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Game Engine Explorations: Name, Base Design and Logging"/>
+<meta name="twitter:description" content="In this post, I will not get to the point where I can show a graphical window. Before jumping to the graphical world, I will write about the basic design for the engine. This will only cover the entry point and the base Application class. Additionally, I will give an example of a component by implementing a logging service."/>
+
+
+
+<meta property="og:title" content="Game Engine Explorations: Name, Base Design and Logging" />
+<meta property="og:description" content="In this post, I will not get to the point where I can show a graphical window. Before jumping to the graphical world, I will write about the basic design for the engine. This will only cover the entry point and the base Application class. Additionally, I will give an example of a component by implementing a logging service." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://eariassoto.github.io/post/game-engine-explorations-basic-design/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2021-12-23T17:04:02+01:00" />
+<meta property="article:modified_time" content="2021-12-23T17:04:02+01:00" /><meta property="og:site_name" content="Emmanuel Arias" />
+
+
+
+
+
+
+
+  </head>
+  <body class="dark-theme">
+    <div class="container">
+      <header class="header">
+  <span class="header__inner">
+    <a
+  href="/"
+  class="logo"
+  style="text-decoration: none;"
+>
+  
+    <span class="logo__mark"><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44">
+  <path fill="none" d="M15 8l14.729 14.382L15 35.367" />
+</svg>
+</span>
+    <span class="logo__text"
+      >Emmanuel Arias</span
+    >
+    
+  
+</a>
+
+    <span class="header__right">
+      
+      <span class="theme-toggle">
+        <svg
+  class="theme-toggler"
+  width="24"
+  height="24"
+  viewBox="0 0 48 48"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path
+    d="M22 41C32.4934 41 41 32.4934 41 22C41 11.5066 32.4934 3 22
+  3C11.5066 3 3 11.5066 3 22C3 32.4934 11.5066 41 22 41ZM7 22C7
+  13.7157 13.7157 7 22 7V37C13.7157 37 7 30.2843 7 22Z"
+  />
+</svg>
+
+      </span>
+    </span>
+  </span>
+</header>
+
+
+      <div class="content">
+        
+  
+  
+
+  <div class="post">
+    <h1 class="post-title">Game Engine Explorations: Name, Base Design and Logging</h1>
+    <div class="post-meta">
+      
+        <span class="post-date">
+          2021-12-23
+        </span>
+
+        
+          
+        
+      
+
+      
+
+
+      
+    </div>
+
+    
+      <span class="post-tags">
+        
+          <a href="https://eariassoto.github.io/tags/c&#43;&#43;/">#C&#43;&#43;</a>&nbsp;
+        
+      </span>
+    
+
+    
+
+    <div class="post-content">
+      
+      <p>In this post, I will not get to the point where I can show a graphical window. Before jumping to the graphical world, I will write about the basic design for the engine. This will only cover the entry point and the base Application class. Additionally, I will give an example of a component by implementing a logging service.</p>
 <h2 id="choosing-a-name-for-the-engine">Choosing a name for the engine</h2>
-<p>I decided to call this engine <code>tamarindo</code>, after <a href="https://en.wikipedia.org/wiki/Tamarind"target="_blank" rel="noopener noreferrer">the fruit</a>
- and <a href="https://en.wikipedia.org/wiki/Tamarindo,_Costa_Rica"target="_blank" rel="noopener noreferrer">a beach</a>
- in my home country. I will use that name for the <code>engine</code>&rsquo;s namespace. For macros, I will use the <code>TM_</code> prefix.</p>
+<p>I decided to call this engine <code>tamarindo</code>, after <a href="https://en.wikipedia.org/wiki/Tamarind">the fruit</a> and <a href="https://en.wikipedia.org/wiki/Tamarindo,_Costa_Rica">a beach</a> in my home country. I will use that name for the <code>engine</code>&rsquo;s namespace. For macros, I will use the <code>TM_</code> prefix.</p>
 <h2 id="on-to-the-basic-design">On to the basic design</h2>
 <p>The project creates a solution with two projects: a static library and an executable. I will refer to these projects as the <code>engine</code> layer and the <code>application</code> layer. The engine layer has all the generic and required core to create a graphical application. The application layer has the specific code for the application. It extends over the engine layer to describe an application. This diagram explains it better:</p>
 <pre tabindex="0"><code>                +------------+
@@ -27,191 +167,263 @@ game_app.exe          |                   |         Application Layer
               +---------------+
 </code></pre><p>The engine layer is independent and can be reused in other application projects. This modular design eases development, iterations and testing.</p>
 <p>As the diagram showed, the <code>main</code> function yields the execution to the engine layer entry point:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">1</span><span style="color:#586e75">// game_app/main.cpp
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">2</span><span style="color:#586e75"></span><span style="color:#719e07">#include</span> <span style="color:#719e07">&#34;engine_lib/core/entry_point.h&#34;</span><span style="color:#719e07">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">3</span><span style="color:#719e07"></span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">4</span><span style="color:#dc322f">int</span> <span style="color:#268bd2">main</span>(<span style="color:#dc322f">int</span> argc, <span style="color:#dc322f">char</span><span style="color:#719e07">*</span> argv[])
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">5</span>{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">6</span>    <span style="color:#719e07">return</span> tamarindo<span style="color:#719e07">::</span>main(argc, argv);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">7</span>}</code></pre></div>
-<p>The <code>tamarindo::main</code> function is responsible of creating, initializing and starting the application:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 1</span><span style="color:#586e75">// engine_lib/core/entry_point.h
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 2</span><span style="color:#586e75"></span><span style="color:#719e07">namespace</span> tamarindo
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 3</span>{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 4</span><span style="color:#dc322f">int</span> <span style="color:#268bd2">main</span>(<span style="color:#dc322f">int</span> argc, <span style="color:#dc322f">char</span><span style="color:#719e07">*</span> argv[])
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 5</span>{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 6</span>    std<span style="color:#719e07">::</span>unique_ptr<span style="color:#719e07">&lt;</span>tamarindo<span style="color:#719e07">::</span>Application<span style="color:#719e07">&gt;</span> app <span style="color:#719e07">=</span> CreateApplication();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 7</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 8</span>    <span style="color:#719e07">if</span> (<span style="color:#719e07">!</span>app<span style="color:#719e07">-&gt;</span>initialize()) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 9</span>        std<span style="color:#719e07">::</span>cerr <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;Could not initialize application</span><span style="color:#cb4b16">\n</span><span style="color:#2aa198">&#34;</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">10</span>        <span style="color:#719e07">return</span> <span style="color:#719e07">-</span><span style="color:#2aa198">1</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">11</span>    }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">12</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">13</span>    std<span style="color:#719e07">::</span>cerr <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;Starting application...</span><span style="color:#cb4b16">\n</span><span style="color:#2aa198">&#34;</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">14</span>    app<span style="color:#719e07">-&gt;</span>run();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">15</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">16</span>    app<span style="color:#719e07">-&gt;</span>terminate();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">17</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">18</span>    <span style="color:#719e07">return</span> <span style="color:#2aa198">0</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">19</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">20</span>}  <span style="color:#586e75">// namespace tamarindo
-</span></code></pre></div>
-<p>The <code>run</code> routine will take control of the execution and start the application&rsquo;s main loop. This may change in the future if I ever get to have multithreaded services.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#75715e">// game_app/main.cpp
+</span><span style="color:#75715e"></span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;engine_lib/core/entry_point.h&#34;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>(<span style="color:#66d9ef">int</span> argc, <span style="color:#66d9ef">char</span><span style="color:#f92672">*</span> argv[])
+{
+    <span style="color:#66d9ef">return</span> tamarindo<span style="color:#f92672">::</span>main(argc, argv);
+}
+</code></pre></div><p>The <code>tamarindo::main</code> function is responsible of creating, initializing and starting the application:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#75715e">// engine_lib/core/entry_point.h
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">namespace</span> tamarindo
+{
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>(<span style="color:#66d9ef">int</span> argc, <span style="color:#66d9ef">char</span><span style="color:#f92672">*</span> argv[])
+{
+    std<span style="color:#f92672">::</span>unique_ptr<span style="color:#f92672">&lt;</span>tamarindo<span style="color:#f92672">::</span>Application<span style="color:#f92672">&gt;</span> app <span style="color:#f92672">=</span> CreateApplication();
+
+    <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>app<span style="color:#f92672">-&gt;</span>initialize()) {
+        std<span style="color:#f92672">::</span>cerr <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;Could not initialize application</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>;
+        <span style="color:#66d9ef">return</span> <span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>;
+    }
+
+    std<span style="color:#f92672">::</span>cerr <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;Starting application...</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>;
+    app<span style="color:#f92672">-&gt;</span>run();
+
+    app<span style="color:#f92672">-&gt;</span>terminate();
+
+    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+}
+}  <span style="color:#75715e">// namespace tamarindo
+</span></code></pre></div><p>The <code>run</code> routine will take control of the execution and start the application&rsquo;s main loop. This may change in the future if I ever get to have multithreaded services.</p>
 <p>The <code>Application</code> class is in control of the graphical application. The application layer must create a derived class and override the abstract functions. The <code>Application</code> class call these functions to execute the logic code. In this first iteration, the class looks like this:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 1</span><span style="color:#586e75">// engine_lib/core/application.h
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 2</span><span style="color:#586e75"></span><span style="color:#719e07">namespace</span> tamarindo
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 3</span>{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 4</span><span style="color:#719e07">class</span> <span style="color:#268bd2">Application</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 5</span>{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 6</span>   <span style="color:#719e07">public</span><span style="color:#719e07">:</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 7</span>    <span style="color:#719e07">virtual</span> <span style="color:#719e07">~</span>Application() <span style="color:#719e07">=</span> <span style="color:#719e07">default</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 8</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 9</span>    <span style="color:#dc322f">bool</span> <span style="color:#268bd2">initialize</span>();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">10</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">11</span>    <span style="color:#dc322f">void</span> <span style="color:#268bd2">run</span>();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">12</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">13</span>    <span style="color:#dc322f">void</span> <span style="color:#268bd2">terminate</span>();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">14</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">15</span>   <span style="color:#719e07">private</span><span style="color:#719e07">:</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">16</span>    <span style="color:#719e07">virtual</span> <span style="color:#dc322f">bool</span> doInitialize() <span style="color:#719e07">=</span> <span style="color:#2aa198">0</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">17</span>    <span style="color:#719e07">virtual</span> <span style="color:#dc322f">void</span> <span style="color:#268bd2">doTerminate</span>() <span style="color:#719e07">=</span> <span style="color:#2aa198">0</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">18</span>};
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">19</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">20</span>}  <span style="color:#586e75">// namespace tamarindo
-</span></code></pre></div>
-<p>This class shows some patterns that I will use in this project. The base class implements the public API functions. These functions call the private virtual functions. The application layer is only required to implement them. These functions follow the naming convention  <code>do</code> + <code>base class function name</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#75715e">// engine_lib/core/application.h
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">namespace</span> tamarindo
+{
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Application</span>
+{
+   <span style="color:#66d9ef">public</span><span style="color:#f92672">:</span>
+    <span style="color:#66d9ef">virtual</span> <span style="color:#f92672">~</span>Application() <span style="color:#f92672">=</span> <span style="color:#66d9ef">default</span>;
+
+    <span style="color:#66d9ef">bool</span> <span style="color:#a6e22e">initialize</span>();
+
+    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">run</span>();
+
+    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">terminate</span>();
+
+   <span style="color:#66d9ef">private</span><span style="color:#f92672">:</span>
+    <span style="color:#66d9ef">virtual</span> <span style="color:#66d9ef">bool</span> doInitialize() <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+    <span style="color:#66d9ef">virtual</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">doTerminate</span>() <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+};
+
+}  <span style="color:#75715e">// namespace tamarindo
+</span></code></pre></div><p>This class shows some patterns that I will use in this project. The base class implements the public API functions. These functions call the private virtual functions. The application layer is only required to implement them. These functions follow the naming convention  <code>do</code> + <code>base class function name</code>.</p>
 <p>Another pattern that shows up here is the <code>initialize/terminate</code> functions. It is quite common in C++ to rely on the RAII principle to design classes. But, I want to be explicit with resources initialization and termination. This pattern will also be present in the design of internal components.</p>
 <p>Finally, the application layer is also required to implement this function:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#586e75">// engine_lib/core/application.h
-</span><span style="color:#586e75"></span><span style="color:#719e07">extern</span> std<span style="color:#719e07">::</span>unique_ptr<span style="color:#719e07">&lt;</span>tamarindo<span style="color:#719e07">::</span>Application<span style="color:#719e07">&gt;</span> CreateApplication();</code></pre></div>
-<p>As shown above, the entry point will use this function to create an instance of the application.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#75715e">// engine_lib/core/application.h
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">extern</span> std<span style="color:#f92672">::</span>unique_ptr<span style="color:#f92672">&lt;</span>tamarindo<span style="color:#f92672">::</span>Application<span style="color:#f92672">&gt;</span> CreateApplication();
+</code></pre></div><p>As shown above, the entry point will use this function to create an instance of the application.</p>
 <h2 id="the-first-component-logging">The first component: logging</h2>
 <p>Using <code>&lt;iostream&gt;</code> from the beginning is quick and easy but can become a headache to replace later on. That is why I will implement a logging service that I can change, iterate and improve.</p>
-<p>For this service, I will use the <a href="https://github.com/gabime/spdlog"target="_blank" rel="noopener noreferrer"><code>spdlog</code></a>
- library. This library is fast, it uses the <code>fmt</code> library, and it can be customized to output logs to files or console.</p>
+<p>For this service, I will use the <a href="https://github.com/gabime/spdlog"><code>spdlog</code></a> library. This library is fast, it uses the <code>fmt</code> library, and it can be customized to output logs to files or console.</p>
 <p>The first step is to clone the repository as a submodule. I will do it in the <code>sources/engine_lib/external</code> folder. This library can be used as a header-only library, or it can be compiled as a static library. For now, I will use it as header-only, so there is no need to create a premake file for it. To manage include folder paths, I will create the <code>premake/dependencies.lua</code> file. This file will declare a global hash map with paths relative to the root folder:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lua" data-lang="lua"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">1</span><span style="color:#586e75">-- premake/dependencies.lua</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">2</span><span style="color:#586e75">-- Copyright (c) 2021 Emmanuel Arias</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">3</span>IncludeDir <span style="color:#719e07">=</span> {}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">4</span>IncludeDir[<span style="color:#2aa198">&#34;spdlog&#34;</span>] <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;sources/engine_lib/external/spdlog/include&#34;</span></code></pre></div>
-<p>Then I can include this file in the main <code>premake5.lua</code> file to make it available to all premake files:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lua" data-lang="lua"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">1</span><span style="color:#586e75">-- premake/premake5.lua</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">2</span>include <span style="color:#2aa198">&#34;dependencies.lua&#34;</span></code></pre></div>
-<p>And finally register the folder in the projects' premake files:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lua" data-lang="lua"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">1</span><span style="color:#586e75">-- sources/engine_lib/premake5.lua</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">2</span>   includedirs {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">3</span>      (ROOT <span style="color:#719e07">..</span> PROJECT_ROOT <span style="color:#719e07">..</span> <span style="color:#2aa198">&#34;engine_lib&#34;</span>),
-<span style="display:block;width:100%;background-color:#19404a"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">4</span>      (ROOT <span style="color:#719e07">..</span> <span style="color:#2aa198">&#34;%{IncludeDir.spdlog}&#34;</span>)
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">5</span>   }</code></pre></div>
-<p>As I mentioned before, the <code>Logger</code> class is the first of the <code>Application</code> components. Here is the first definition of it:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 1</span><span style="color:#586e75">// logging/logger.h
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 2</span><span style="color:#586e75"></span><span style="color:#719e07">namespace</span> tamarindo
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 3</span>{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 4</span><span style="color:#719e07">class</span> <span style="color:#268bd2">Logger</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 5</span>{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 6</span>   <span style="color:#719e07">public</span><span style="color:#719e07">:</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 7</span>    <span style="color:#dc322f">void</span> initialize();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 8</span>    <span style="color:#dc322f">void</span> <span style="color:#268bd2">terminate</span>();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 9</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">10</span>    <span style="color:#586e75">// ...
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">11</span><span style="color:#586e75"></span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">12</span>    <span style="color:#586e75">// There will be only one logger instantiated
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">13</span><span style="color:#586e75"></span>    <span style="color:#719e07">static</span> Logger<span style="color:#719e07">*</span> <span style="color:#268bd2">getLogger</span>();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">14</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">15</span>   <span style="color:#719e07">private</span><span style="color:#719e07">:</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">16</span>    <span style="color:#719e07">static</span> <span style="color:#dc322f">void</span> provideInstance(Logger<span style="color:#719e07">*</span> instance);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">17</span>};
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">18</span>}  <span style="color:#586e75">// namespace tamarindo
-</span></code></pre></div>
-<p>Here is another pattern that needs some explanation. More often than not, global resources are not recommended to use. But, some APIs are designed to be unique and accessed by many components. One example of these APIs is the logging service. Passing a pointer around for logging does not sound like a good decision. Here I am borrowing from a chapter in Robert Nystrom&rsquo;s &ldquo;Game Programming Patterns&rdquo; book. You can read it online <a href="https://gameprogrammingpatterns.com/service-locator.html"target="_blank" rel="noopener noreferrer">here</a>
-.</p>
-<p>I defined the <code>s_LoggerInstance</code> pointer in an anonymous namespace in <code>logger.cpp</code>. This will give the variable internal linkage, i.e. it will only be accessible by the translation unit. For more information, refer to <a href="https://docs.microsoft.com/en-us/cpp/cpp/namespaces-cpp?view=msvc-170#anonymous-or-unnamed-namespaces"target="_blank" rel="noopener noreferrer">this link</a>
-. The logging service instance will be accessible by a public getter in the Logger class.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 1</span><span style="color:#586e75">// logging/logger.cpp
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 2</span><span style="color:#586e75"></span><span style="color:#719e07">#include</span> <span style="color:#719e07">&lt;iostream&gt;</span><span style="color:#719e07">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 3</span><span style="color:#719e07"></span>
-<span style="display:block;width:100%;background-color:#19404a"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 4</span><span style="color:#719e07">namespace</span>
-</span><span style="display:block;width:100%;background-color:#19404a"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 5</span>{
-</span><span style="display:block;width:100%;background-color:#19404a"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 6</span>tamarindo<span style="color:#719e07">::</span>Logger<span style="color:#719e07">*</span> s_LoggerInstance <span style="color:#719e07">=</span> <span style="color:#719e07">nullptr</span>;
-</span><span style="display:block;width:100%;background-color:#19404a"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 7</span>}
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 8</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 9</span><span style="color:#719e07">namespace</span> tamarindo
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">10</span>{
-<span style="display:block;width:100%;background-color:#19404a"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">11</span><span style="color:#dc322f">void</span> Logger<span style="color:#719e07">::</span>initialize() { provideInstance(<span style="color:#719e07">this</span>); }
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">12</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">13</span>Logger<span style="color:#719e07">*</span> Logger<span style="color:#719e07">::</span>getLogger()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">14</span>{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">15</span>    <span style="color:#586e75">// TODO: check if null
-</span><span style="display:block;width:100%;background-color:#19404a"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">16</span><span style="color:#586e75"></span>    <span style="color:#719e07">return</span> s_LoggerInstance;
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">17</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">18</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">19</span><span style="color:#dc322f">void</span> Logger<span style="color:#719e07">::</span>provideInstance(Logger<span style="color:#719e07">*</span> instance)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">20</span>{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">21</span>    <span style="color:#586e75">// TODO: check if exists
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">22</span><span style="color:#586e75"></span>    <span style="color:#719e07">if</span> (s_LoggerInstance <span style="color:#719e07">==</span> <span style="color:#719e07">nullptr</span>) {
-<span style="display:block;width:100%;background-color:#19404a"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">23</span>        s_LoggerInstance <span style="color:#719e07">=</span> instance;
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">24</span>    }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">25</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">26</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">27</span>}  <span style="color:#586e75">// namespace tamarindo
-</span></code></pre></div>
-<p>For now <code>spdlog</code> initialization is quite simple. I will output to the console with some simple formatting:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 1</span><span style="color:#586e75">// logging/logger.cpp
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 2</span><span style="color:#586e75"></span><span style="color:#dc322f">void</span> Logger<span style="color:#719e07">::</span>initialize()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 3</span>{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 4</span>    spdlog<span style="color:#719e07">::</span>set_pattern(<span style="color:#2aa198">&#34;[%T] %^[%l]%$ %n: %v&#34;</span>);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 5</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 6</span>    m_SpdLogger <span style="color:#719e07">=</span> spdlog<span style="color:#719e07">::</span>stdout_color_mt(<span style="color:#2aa198">&#34;TM_CORE&#34;</span>);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 7</span>    m_SpdLogger<span style="color:#719e07">-&gt;</span>set_level(spdlog<span style="color:#719e07">::</span>level<span style="color:#719e07">::</span>trace);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 8</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 9</span>    provideInstance(<span style="color:#719e07">this</span>);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">10</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">11</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">12</span><span style="color:#dc322f">void</span> Logger<span style="color:#719e07">::</span>terminate() { m_SpdLogger.reset(); }</code></pre></div>
-<p>The logging API functions are defined in the header, because they rely on templates:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">1</span><span style="color:#586e75">// logging/logger.h
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">2</span><span style="color:#586e75"></span><span style="color:#719e07">template</span> <span style="color:#719e07">&lt;</span><span style="color:#719e07">typename</span>... Args<span style="color:#719e07">&gt;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">3</span><span style="color:#dc322f">void</span> trace(fmt<span style="color:#719e07">::</span>format_string<span style="color:#719e07">&lt;</span>Args...<span style="color:#719e07">&gt;</span> fmt, Args <span style="color:#719e07">&amp;&amp;</span>...args)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">4</span>{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">5</span>    m_SpdLogger<span style="color:#719e07">-&gt;</span>trace(fmt, std<span style="color:#719e07">::</span>forward<span style="color:#719e07">&lt;</span>Args<span style="color:#719e07">&gt;</span>(args)...);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">6</span>}</code></pre></div>
-<p>and to make things easier, I defined macros:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">1</span><span style="color:#586e75">// logging/logger.h
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">2</span><span style="color:#586e75"></span><span style="color:#719e07">#define TM_LOG_TRACE(...) ::tamarindo::Logger::getLogger()-&gt;trace(__VA_ARGS__)</span></code></pre></div>
-<p>The API offer the logging levels <code>trace</code>, <code>info</code>, <code>debug</code>, <code>warn</code> and <code>error</code>.</p>
-<p>To test things, I added some logs to the <code>intialize</code> and <code>terminate</code> functions:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 1</span><span style="color:#dc322f">bool</span> Application<span style="color:#719e07">::</span>initialize()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 2</span>{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 3</span>    <span style="color:#586e75">// Initialize internal modules here
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 4</span><span style="color:#586e75"></span>    m_Logger.initialize();
-<span style="display:block;width:100%;background-color:#19404a"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 5</span>    TM_LOG_DEBUG(<span style="color:#2aa198">&#34;Initializing application&#34;</span>);
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 6</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 7</span>    <span style="color:#719e07">return</span> <span style="color:#268bd2">doInitialize</span>();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 8</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 9</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">10</span><span style="color:#dc322f">void</span> Application<span style="color:#719e07">::</span>run() { TM_LOG_DEBUG(<span style="color:#2aa198">&#34;Running application&#34;</span>); }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">11</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">12</span><span style="color:#dc322f">void</span> Application<span style="color:#719e07">::</span>terminate()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">13</span>{
-<span style="display:block;width:100%;background-color:#19404a"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">14</span>    TM_LOG_DEBUG(<span style="color:#2aa198">&#34;Terminating application&#34;</span>);
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">15</span>    doTerminate();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">16</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">17</span>    <span style="color:#586e75">// Terminate internal modules here
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">18</span><span style="color:#586e75"></span>    m_Logger.terminate();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">19</span>}</code></pre></div>
-<p>Executing the current application will give as output:</p>
-<p><img  src="/static/img/engine_explorations/basic_design_1.png"
-        alt="Base project structure"/></p>
-<p>No graphics so far, but I promise it will come out soon. You can find this project on my <a href="https://github.com/eariassoto/tamarindo_engine"target="_blank" rel="noopener noreferrer">Github</a>
-, and the code from this post is in this <a href="https://github.com/eariassoto/tamarindo_engine/tree/d25910a599ead4977cad546df3850bbe7db935dd"target="_blank" rel="noopener noreferrer">commit</a>
-.</p>
-<p>In the next post, I will introduce <code>GLFW</code> and have the first window application running. Thanks a lot for reading :).</p></article><section class="article labels"><a class="category" href=/categories/game-engine-explorations/>Game Engine Explorations</a><a class="tag" href=/tags/c&#43;&#43;/>C&#43;&#43;</a></section>
-</div>
-<div class="article bottom"><section class="article navigation"><p><a class="link" href="/post/game-engine-explorations-creating-window/"><span class="iconfont icon-article"></span>Game Engine Explorations: Creating the Window and rendering a simple mesh</a></p><p><a class="link" href="/post/game-engine-explorations-hello-world/"><span class="iconfont icon-article"></span>Game Engine Explorations: Hello World</a></p></section></div></section><section id="footer"><div class="footer-wrap">
-    <p class="copyright">©2017-2021 Emmanuel Arias.</p>
-    <p class="powerby"><span>Powered&nbsp;by&nbsp;</span><a href="https://gohugo.io" 
-        target="_blank" rel="noopener noreferrer">Hugo</a><span>&nbsp;&amp;&nbsp;</span><a href="https://themes.gohugo.io/hugo-notepadium/" 
-        target="_blank" rel="noopener noreferrer">Notepadium</a></p></div>
-</section></body>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lua" data-lang="lua"><span style="color:#75715e">-- premake/dependencies.lua</span>
+<span style="color:#75715e">-- Copyright (c) 2021 Emmanuel Arias</span>
+IncludeDir <span style="color:#f92672">=</span> {}
+IncludeDir[<span style="color:#e6db74">&#34;spdlog&#34;</span>] <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;sources/engine_lib/external/spdlog/include&#34;</span>
+</code></pre></div><p>Then I can include this file in the main <code>premake5.lua</code> file to make it available to all premake files:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lua" data-lang="lua"><span style="color:#75715e">-- premake/premake5.lua</span>
+include <span style="color:#e6db74">&#34;dependencies.lua&#34;</span>
+</code></pre></div><p>And finally register the folder in the projects' premake files:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lua" data-lang="lua"><span style="color:#75715e">-- sources/engine_lib/premake5.lua</span>
+   includedirs {
+      (ROOT <span style="color:#f92672">..</span> PROJECT_ROOT <span style="color:#f92672">..</span> <span style="color:#e6db74">&#34;engine_lib&#34;</span>),
+      (ROOT <span style="color:#f92672">..</span> <span style="color:#e6db74">&#34;%{IncludeDir.spdlog}&#34;</span>)
+   }
+</code></pre></div><p>As I mentioned before, the <code>Logger</code> class is the first of the <code>Application</code> components. Here is the first definition of it:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#75715e">// logging/logger.h
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">namespace</span> tamarindo
+{
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Logger</span>
+{
+   <span style="color:#66d9ef">public</span><span style="color:#f92672">:</span>
+    <span style="color:#66d9ef">void</span> initialize();
+    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">terminate</span>();
 
+    <span style="color:#75715e">// ...
+</span><span style="color:#75715e"></span>
+    <span style="color:#75715e">// There will be only one logger instantiated
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">static</span> Logger<span style="color:#f92672">*</span> <span style="color:#a6e22e">getLogger</span>();
+
+   <span style="color:#66d9ef">private</span><span style="color:#f92672">:</span>
+    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> provideInstance(Logger<span style="color:#f92672">*</span> instance);
+};
+}  <span style="color:#75715e">// namespace tamarindo
+</span></code></pre></div><p>Here is another pattern that needs some explanation. More often than not, global resources are not recommended to use. But, some APIs are designed to be unique and accessed by many components. One example of these APIs is the logging service. Passing a pointer around for logging does not sound like a good decision. Here I am borrowing from a chapter in Robert Nystrom&rsquo;s &ldquo;Game Programming Patterns&rdquo; book. You can read it online <a href="https://gameprogrammingpatterns.com/service-locator.html">here</a>.</p>
+<p>I defined the <code>s_LoggerInstance</code> pointer in an anonymous namespace in <code>logger.cpp</code>. This will give the variable internal linkage, i.e. it will only be accessible by the translation unit. For more information, refer to <a href="https://docs.microsoft.com/en-us/cpp/cpp/namespaces-cpp?view=msvc-170#anonymous-or-unnamed-namespaces">this link</a>. The logging service instance will be accessible by a public getter in the Logger class.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#75715e">// logging/logger.cpp
+</span><span style="color:#75715e"></span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">namespace</span>
+{
+tamarindo<span style="color:#f92672">::</span>Logger<span style="color:#f92672">*</span> s_LoggerInstance <span style="color:#f92672">=</span> <span style="color:#66d9ef">nullptr</span>;
+}
+
+<span style="color:#66d9ef">namespace</span> tamarindo
+{
+<span style="color:#66d9ef">void</span> Logger<span style="color:#f92672">::</span>initialize() { provideInstance(<span style="color:#66d9ef">this</span>); }
+
+Logger<span style="color:#f92672">*</span> Logger<span style="color:#f92672">::</span>getLogger()
+{
+    <span style="color:#75715e">// TODO: check if null
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">return</span> s_LoggerInstance;
+}
+
+<span style="color:#66d9ef">void</span> Logger<span style="color:#f92672">::</span>provideInstance(Logger<span style="color:#f92672">*</span> instance)
+{
+    <span style="color:#75715e">// TODO: check if exists
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">if</span> (s_LoggerInstance <span style="color:#f92672">==</span> <span style="color:#66d9ef">nullptr</span>) {
+        s_LoggerInstance <span style="color:#f92672">=</span> instance;
+    }
+}
+
+}  <span style="color:#75715e">// namespace tamarindo
+</span></code></pre></div><p>For now <code>spdlog</code> initialization is quite simple. I will output to the console with some simple formatting:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#75715e">// logging/logger.cpp
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">void</span> Logger<span style="color:#f92672">::</span>initialize()
+{
+    spdlog<span style="color:#f92672">::</span>set_pattern(<span style="color:#e6db74">&#34;[%T] %^[%l]%$ %n: %v&#34;</span>);
+
+    m_SpdLogger <span style="color:#f92672">=</span> spdlog<span style="color:#f92672">::</span>stdout_color_mt(<span style="color:#e6db74">&#34;TM_CORE&#34;</span>);
+    m_SpdLogger<span style="color:#f92672">-&gt;</span>set_level(spdlog<span style="color:#f92672">::</span>level<span style="color:#f92672">::</span>trace);
+
+    provideInstance(<span style="color:#66d9ef">this</span>);
+}
+
+<span style="color:#66d9ef">void</span> Logger<span style="color:#f92672">::</span>terminate() { m_SpdLogger.reset(); }
+{<span style="color:#960050;background-color:#1e0010">```</span>
+
+The logging API functions are defined in the header, because they rely on templates:
+
+<span style="color:#960050;background-color:#1e0010">```</span>c<span style="color:#f92672">++</span>
+<span style="color:#75715e">// logging/logger.h
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">template</span> <span style="color:#f92672">&lt;</span><span style="color:#66d9ef">typename</span>... Args<span style="color:#f92672">&gt;</span>
+<span style="color:#66d9ef">void</span> trace(fmt<span style="color:#f92672">::</span>format_string<span style="color:#f92672">&lt;</span>Args...<span style="color:#f92672">&gt;</span> fmt, Args <span style="color:#f92672">&amp;&amp;</span>...args)
+{
+    m_SpdLogger<span style="color:#f92672">-&gt;</span>trace(fmt, std<span style="color:#f92672">::</span>forward<span style="color:#f92672">&lt;</span>Args<span style="color:#f92672">&gt;</span>(args)...);
+}
+</code></pre></div><p>and to make things easier, I defined macros:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#75715e">// logging/logger.h
+</span><span style="color:#75715e"></span><span style="color:#75715e">#define TM_LOG_TRACE(...) ::tamarindo::Logger::getLogger()-&gt;trace(__VA_ARGS__)
+</span></code></pre></div><p>The API offer the logging levels <code>trace</code>, <code>info</code>, <code>debug</code>, <code>warn</code> and <code>error</code>.</p>
+<p>To test things, I added some logs to the <code>intialize</code> and <code>terminate</code> functions:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#66d9ef">bool</span> Application<span style="color:#f92672">::</span>initialize()
+{
+    <span style="color:#75715e">// Initialize internal modules here
+</span><span style="color:#75715e"></span>    m_Logger.initialize();
+    TM_LOG_DEBUG(<span style="color:#e6db74">&#34;Initializing application&#34;</span>);
+
+    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">doInitialize</span>();
+}
+
+<span style="color:#66d9ef">void</span> Application<span style="color:#f92672">::</span>run() { TM_LOG_DEBUG(<span style="color:#e6db74">&#34;Running application&#34;</span>); }
+
+<span style="color:#66d9ef">void</span> Application<span style="color:#f92672">::</span>terminate()
+{
+    TM_LOG_DEBUG(<span style="color:#e6db74">&#34;Terminating application&#34;</span>);
+    doTerminate();
+
+    <span style="color:#75715e">// Terminate internal modules here
+</span><span style="color:#75715e"></span>    m_Logger.terminate();
+}
+</code></pre></div><p>Executing the current application will give as output:</p>
+<p><img src="/static/img/engine_explorations/basic_design_1.png" alt="Base project structure"></p>
+<p>No graphics so far, but I promise it will come out soon. You can find this project on my <a href="https://github.com/eariassoto/tamarindo_engine">Github</a>, and the code from this post is in this <a href="https://github.com/eariassoto/tamarindo_engine/tree/d25910a599ead4977cad546df3850bbe7db935dd">commit</a>.</p>
+<p>In the next post, I will introduce <code>GLFW</code> and have the first window application running. Thanks a lot for reading :).</p>
+    </div>
+    
+      
+        <div class="pagination">
+          <div class="pagination__title">
+            <span class="pagination__title-h"
+              >Read other posts</span
+            >
+            <hr />
+          </div>
+          <div class="pagination__buttons">
+            
+              <span class="button previous">
+                <a href="https://eariassoto.github.io/post/game-engine-explorations-creating-window/">
+                  <span class="button__icon">←</span>
+                  <span class="button__text">Game Engine Explorations: Creating the Window and rendering a simple mesh</span>
+                </a>
+              </span>
+            
+            
+              <span class="button next">
+                <a href="https://eariassoto.github.io/post/game-engine-explorations-hello-world/">
+                  <span class="button__text">Game Engine Explorations: Hello World</span>
+                  <span class="button__icon">→</span>
+                </a>
+              </span>
+            
+          </div>
+        </div>
+      
+    
+
+    
+      
+        
+
+      
+    
+  </div>
+
+      </div>
+
+      
+        <footer class="footer">
+  <div class="footer__inner">
+    
+      <a
+  href="/"
+  class="logo"
+  style="text-decoration: none;"
+>
+  
+    <span class="logo__mark"><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44">
+  <path fill="none" d="M15 8l14.729 14.382L15 35.367" />
+</svg>
+</span>
+    <span class="logo__text"
+      >Emmanuel Arias</span
+    >
+    
+  
+</a>
+
+      <div class="copyright">
+        <span
+          >© 2022 Powered by
+          <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a></span
+        >
+        <span>
+          <a href="https://github.com/eariassoto/hugo-theme-hello-friend" target="_blank" rel="noopener">Theme</a> created by
+          <a href="https://twitter.com/panr" target="_blank" rel="noopener">panr</a>
+        </span>
+      </div>
+    
+  </div>
+</footer>
+
+<script src="https://eariassoto.github.io/assets/main.js"></script>
+<script src="https://eariassoto.github.io/assets/prism.js"></script>
+
+
+      
+    </div>
+
+    
+  </body>
 </html>

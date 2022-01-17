@@ -1,291 +1,497 @@
 <!DOCTYPE html>
-<html lang="en"><meta charset="utf-8"><meta name="generator" content="Hugo 0.90.1" /><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="color-scheme" content="light dark">
-<meta name="supported-color-schemes" content="light dark"><title>Game Engine Explorations: Creating the Window and rendering a simple mesh&nbsp;&ndash;&nbsp;Emmanuel Arias</title><link rel="stylesheet" href="/css/core.min.9e958365cf0319ede466a402e1369f31dc1f205c868aa836fe25581725c829d3f3545d9f142cccafe35363950a63e2a6.css" integrity="sha384-npWDZc8DGe3kZqQC4TafMdwfIFyGiqg2/iVYFyXIKdPzVF2fFCzMr&#43;NTY5UKY&#43;Km"><meta name="twitter:card" content="summary" />
-<meta name="twitter:title" content="Game Engine Explorations: Creating the Window and rendering a simple mesh" /><body><section id="header">
-    <div class="header wrap"><span class="header left-side"><a class="site home" href="/"><span class="site name">Emmanuel Arias</span></a></span>
-        <span class="header right-side"><div class="nav wrap"><nav class="nav"><a class="nav item" href="/categories/">Categories</a></nav></div></span></div><div class="site slogan"><span class="title">A software developer looking for his <span style='font-family: monospace;'>$PATH</span></span></div></section><section id="content"><div class="article-container"><section class="article header">
-    <h1 class="article title">Game Engine Explorations: Creating the Window and rendering a simple mesh</h1><p class="article date">Dec 27, 2021</p></section><article class="article markdown-body"><p>At this point, I can take the project to the graphical world. In this post, I will describe how the engine is creating and handling the window. I will also introduce an early model of the shader program and a simple mesh to render a rectangle in the window.</p>
+<html lang="en">
+  <head>
+    
+      <title>
+        Game Engine Explorations: Creating the Window and rendering a simple mesh ::
+        Emmanuel Arias — Blog
+      </title>
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta
+  name="description"
+  content="At this point, I can take the project to the graphical world. In this post, I will describe how the engine is creating and handling the window. I will also introduce an early model of the shader program and a simple mesh to render a rectangle in the window.
+"
+/>
+<meta
+  name="keywords"
+  content=""
+/>
+<meta name="robots" content="noodp" />
+<link rel="canonical" href="https://eariassoto.github.io/post/game-engine-explorations-creating-window/" />
+
+
+
+
+
+<link rel="stylesheet" href="https://eariassoto.github.io/assets/style.css" />
+
+<link rel="stylesheet" href="https://eariassoto.github.io/style.css" />
+
+
+<link
+  rel="apple-touch-icon-precomposed"
+  sizes="144x144"
+  href="https://eariassoto.github.io/img/apple-touch-icon-144-precomposed.png"
+/>
+<link rel="shortcut icon" href="https://eariassoto.github.io/img/favicon.png" />
+
+
+<link href="https://eariassoto.github.io/assets/fonts/Inter-Italic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-Regular.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-Medium.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-MediumItalic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-Bold.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-BoldItalic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Game Engine Explorations: Creating the Window and rendering a simple mesh"/>
+<meta name="twitter:description" content="At this point, I can take the project to the graphical world. In this post, I will describe how the engine is creating and handling the window. I will also introduce an early model of the shader program and a simple mesh to render a rectangle in the window."/>
+
+
+
+<meta property="og:title" content="Game Engine Explorations: Creating the Window and rendering a simple mesh" />
+<meta property="og:description" content="At this point, I can take the project to the graphical world. In this post, I will describe how the engine is creating and handling the window. I will also introduce an early model of the shader program and a simple mesh to render a rectangle in the window." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://eariassoto.github.io/post/game-engine-explorations-creating-window/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2021-12-27T18:19:15+01:00" />
+<meta property="article:modified_time" content="2021-12-27T18:19:15+01:00" /><meta property="og:site_name" content="Emmanuel Arias" />
+
+
+
+
+
+
+
+  </head>
+  <body class="dark-theme">
+    <div class="container">
+      <header class="header">
+  <span class="header__inner">
+    <a
+  href="/"
+  class="logo"
+  style="text-decoration: none;"
+>
+  
+    <span class="logo__mark"><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44">
+  <path fill="none" d="M15 8l14.729 14.382L15 35.367" />
+</svg>
+</span>
+    <span class="logo__text"
+      >Emmanuel Arias</span
+    >
+    
+  
+</a>
+
+    <span class="header__right">
+      
+      <span class="theme-toggle">
+        <svg
+  class="theme-toggler"
+  width="24"
+  height="24"
+  viewBox="0 0 48 48"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path
+    d="M22 41C32.4934 41 41 32.4934 41 22C41 11.5066 32.4934 3 22
+  3C11.5066 3 3 11.5066 3 22C3 32.4934 11.5066 41 22 41ZM7 22C7
+  13.7157 13.7157 7 22 7V37C13.7157 37 7 30.2843 7 22Z"
+  />
+</svg>
+
+      </span>
+    </span>
+  </span>
+</header>
+
+
+      <div class="content">
+        
+  
+  
+
+  <div class="post">
+    <h1 class="post-title">Game Engine Explorations: Creating the Window and rendering a simple mesh</h1>
+    <div class="post-meta">
+      
+        <span class="post-date">
+          2021-12-27
+        </span>
+
+        
+          
+        
+      
+
+      
+
+
+      
+    </div>
+
+    
+      <span class="post-tags">
+        
+          <a href="https://eariassoto.github.io/tags/c&#43;&#43;/">#C&#43;&#43;</a>&nbsp;
+        
+      </span>
+    
+
+    
+
+    <div class="post-content">
+      
+      <p>At this point, I can take the project to the graphical world. In this post, I will describe how the engine is creating and handling the window. I will also introduce an early model of the shader program and a simple mesh to render a rectangle in the window.</p>
 <h2 id="adding-new-dependencies-glfw-and-glad">Adding new dependencies: GLFW and GLAD</h2>
-<p>I want this project to compile in both Windows and GNU/Linux platforms. I would also like in the future to move the rendering pipeline from OpenGL to Vulkan. Because of this, I chose GLFW to create and handle windows. I forked the project from the official <a href="https://github.com/glfw/glfw"target="_blank" rel="noopener noreferrer">Github repo</a>
- to add my own premake file. This premake file uses filters to include the implementation specific source files:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lua" data-lang="lua"><span style="color:#586e75">-- sources/engine_lib/external/glfw/premake5.lua</span>
-   filter <span style="color:#2aa198">&#34;system:linux&#34;</span>
-      pic <span style="color:#2aa198">&#34;On&#34;</span>
-      systemversion <span style="color:#2aa198">&#34;latest&#34;</span>
+<p>I want this project to compile in both Windows and GNU/Linux platforms. I would also like in the future to move the rendering pipeline from OpenGL to Vulkan. Because of this, I chose GLFW to create and handle windows. I forked the project from the official <a href="https://github.com/glfw/glfw">Github repo</a> to add my own premake file. This premake file uses filters to include the implementation specific source files:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lua" data-lang="lua"><span style="color:#75715e">-- sources/engine_lib/external/glfw/premake5.lua</span>
+   filter <span style="color:#e6db74">&#34;system:linux&#34;</span>
+      pic <span style="color:#e6db74">&#34;On&#34;</span>
+      systemversion <span style="color:#e6db74">&#34;latest&#34;</span>
       files {
-         <span style="color:#586e75">-- Linux files</span>
+         <span style="color:#75715e">-- Linux files</span>
       }
       defines {
-         <span style="color:#2aa198">&#34;_GLFW_X11&#34;</span> <span style="color:#586e75">-- Define platform</span>
+         <span style="color:#e6db74">&#34;_GLFW_X11&#34;</span> <span style="color:#75715e">-- Define platform</span>
       }
 
-   filter <span style="color:#2aa198">&#34;system:windows&#34;</span>
-      systemversion <span style="color:#2aa198">&#34;latest&#34;</span>
+   filter <span style="color:#e6db74">&#34;system:windows&#34;</span>
+      systemversion <span style="color:#e6db74">&#34;latest&#34;</span>
       files {
-         <span style="color:#586e75">-- Windows files</span>
+         <span style="color:#75715e">-- Windows files</span>
       }
       defines { 
-         <span style="color:#2aa198">&#34;_GLFW_WIN32&#34;</span>, <span style="color:#586e75">-- Define platform</span>
-         <span style="color:#2aa198">&#34;_CRT_SECURE_NO_WARNINGS&#34;</span>
-      }</code></pre></div>
-<p>The other library that I need is <code>Glad</code>. It is a generated OpenGL loader library. There is a <a href="https://glad.dav1d.de/"target="_blank" rel="noopener noreferrer">web service</a>
- that generated the proper source files. After that, it is only needed to add it to the engine project as another static library. I generated one for the OpenGL version 4.6.</p>
+         <span style="color:#e6db74">&#34;_GLFW_WIN32&#34;</span>, <span style="color:#75715e">-- Define platform</span>
+         <span style="color:#e6db74">&#34;_CRT_SECURE_NO_WARNINGS&#34;</span>
+      }
+</code></pre></div><p>The other library that I need is <code>Glad</code>. It is a generated OpenGL loader library. There is a <a href="https://glad.dav1d.de/">web service</a> that generated the proper source files. After that, it is only needed to add it to the engine project as another static library. I generated one for the OpenGL version 4.6.</p>
 <h2 id="creating-a-window">Creating a Window</h2>
 <p>There are many questions when it comes to creating a window: how big should it be? Should it have a title? What color is the background? Is it resizable? Etc. I want to keep all these descriptions in a single struct. That way, I could in the future load these settings from the main function arguments, or from a file. For now, the struct has the minimal settings:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 1</span><span style="color:#586e75">// engine_lib/core/window_manager.h
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 2</span><span style="color:#586e75"></span><span style="color:#719e07">struct</span> <span style="color:#268bd2">WindowProperties</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 3</span>    std<span style="color:#719e07">::</span>string Title;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 4</span>    <span style="color:#dc322f">unsigned</span> <span style="color:#dc322f">int</span> Width;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 5</span>    <span style="color:#dc322f">unsigned</span> <span style="color:#dc322f">int</span> Height;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 6</span>    <span style="color:#dc322f">float</span> AspectRatio;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 7</span>    std<span style="color:#719e07">::</span>array<span style="color:#719e07">&lt;</span><span style="color:#dc322f">float</span>, <span style="color:#2aa198">4</span><span style="color:#719e07">&gt;</span> DefaultBackground <span style="color:#719e07">=</span> {<span style="color:#2aa198">0.0f</span>, <span style="color:#2aa198">0.0f</span>, <span style="color:#2aa198">0.0f</span>, <span style="color:#2aa198">1.0f</span>};
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 8</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 9</span>    WindowProperties() <span style="color:#719e07">=</span> <span style="color:#719e07">delete</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">10</span>    WindowProperties(<span style="color:#719e07">const</span> std<span style="color:#719e07">::</span>string<span style="color:#719e07">&amp;</span> title <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;Application&#34;</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">11</span>                     <span style="color:#dc322f">unsigned</span> <span style="color:#dc322f">int</span> width <span style="color:#719e07">=</span> <span style="color:#2aa198">800</span>, <span style="color:#dc322f">unsigned</span> <span style="color:#dc322f">int</span> height <span style="color:#719e07">=</span> <span style="color:#2aa198">600</span>);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">12</span>};</code></pre></div>
-<p>The Application layer should provide these settings by overriding this private function:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">1</span><span style="color:#586e75">// engine_lib/core/application.h
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">2</span><span style="color:#586e75"></span><span style="color:#719e07">class</span> <span style="color:#268bd2">Application</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">3</span>{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">4</span>   <span style="color:#586e75">// ...
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">5</span><span style="color:#586e75"></span>   <span style="color:#719e07">private</span><span style="color:#719e07">:</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">6</span>    <span style="color:#719e07">virtual</span> <span style="color:#719e07">const</span> WindowProperties<span style="color:#719e07">&amp;</span> getWindowProperties() <span style="color:#719e07">const</span> <span style="color:#719e07">=</span> <span style="color:#2aa198">0</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">7</span>    <span style="color:#586e75">// ...
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">8</span><span style="color:#586e75"></span>};</code></pre></div>
-<p>In comparison to other APIs, OpenGL is easy to initialize and use. The <code>WindowManager</code> class controls both the graphical window and the OpenGL context management. It may be that in the future I will separate this class, in the case I introduce a different rendering API.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 1</span><span style="color:#586e75">// engine_lib/core/window_manager.h
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 2</span><span style="color:#586e75"></span><span style="color:#719e07">class</span> <span style="color:#268bd2">WindowManager</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 3</span>{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 4</span>   <span style="color:#719e07">public</span><span style="color:#719e07">:</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 5</span>    <span style="color:#dc322f">bool</span> initialize(<span style="color:#719e07">const</span> WindowProperties<span style="color:#719e07">&amp;</span> properties);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 6</span>    <span style="color:#dc322f">void</span> <span style="color:#268bd2">terminate</span>();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 7</span>
-<span style="display:block;width:100%;background-color:#19404a"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 8</span>    <span style="color:#dc322f">void</span> <span style="color:#268bd2">processEvents</span>();
-</span><span style="display:block;width:100%;background-color:#19404a"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 9</span>    <span style="color:#dc322f">void</span> <span style="color:#268bd2">swapBuffers</span>();
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">10</span>
-<span style="display:block;width:100%;background-color:#19404a"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">11</span>    <span style="color:#dc322f">bool</span> <span style="color:#268bd2">shouldWindowClose</span>() <span style="color:#719e07">const</span>;
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">12</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">13</span>   <span style="color:#719e07">private</span><span style="color:#719e07">:</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">14</span>    GLFWwindow<span style="color:#719e07">*</span> m_Window <span style="color:#719e07">=</span> <span style="color:#719e07">nullptr</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">15</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">16</span>    <span style="color:#719e07">static</span> <span style="color:#dc322f">void</span> <span style="color:#268bd2">glfwErrorCb</span>(<span style="color:#dc322f">int</span> error, <span style="color:#719e07">const</span> <span style="color:#dc322f">char</span><span style="color:#719e07">*</span> desc);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">17</span>};</code></pre></div>
-<p>This class is also declared and managed as a component from the <code>Application</code> class. The application main loop will call the functions <code>processEvents</code>, <code>swapBuffers</code>, and <code>shouldWindowClose</code>.  The main loop, also called game loop, is the application&rsquo;s orchestrator. It takes execution control to call the logic code and render the application.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#75715e">// engine_lib/core/window_manager.h
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">WindowProperties</span> {
+    std<span style="color:#f92672">::</span>string Title;
+    <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span> Width;
+    <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span> Height;
+    <span style="color:#66d9ef">float</span> AspectRatio;
+    std<span style="color:#f92672">::</span>array<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">float</span>, <span style="color:#ae81ff">4</span><span style="color:#f92672">&gt;</span> DefaultBackground <span style="color:#f92672">=</span> {<span style="color:#ae81ff">0.0f</span>, <span style="color:#ae81ff">0.0f</span>, <span style="color:#ae81ff">0.0f</span>, <span style="color:#ae81ff">1.0f</span>};
+
+    WindowProperties() <span style="color:#f92672">=</span> <span style="color:#66d9ef">delete</span>;
+    WindowProperties(<span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>string<span style="color:#f92672">&amp;</span> title <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Application&#34;</span>,
+                     <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span> width <span style="color:#f92672">=</span> <span style="color:#ae81ff">800</span>, <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span> height <span style="color:#f92672">=</span> <span style="color:#ae81ff">600</span>);
+};
+</code></pre></div><p>The Application layer should provide these settings by overriding this private function:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#75715e">// engine_lib/core/application.h
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Application</span>
+{
+   <span style="color:#75715e">// ...
+</span><span style="color:#75715e"></span>   <span style="color:#66d9ef">private</span><span style="color:#f92672">:</span>
+    <span style="color:#66d9ef">virtual</span> <span style="color:#66d9ef">const</span> WindowProperties<span style="color:#f92672">&amp;</span> getWindowProperties() <span style="color:#66d9ef">const</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+    <span style="color:#75715e">// ...
+</span><span style="color:#75715e"></span>};
+</code></pre></div><p>In comparison to other APIs, OpenGL is easy to initialize and use. The <code>WindowManager</code> class controls both the graphical window and the OpenGL context management. It may be that in the future I will separate this class, in the case I introduce a different rendering API.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#75715e">// engine_lib/core/window_manager.h
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">WindowManager</span>
+{
+   <span style="color:#66d9ef">public</span><span style="color:#f92672">:</span>
+    <span style="color:#66d9ef">bool</span> initialize(<span style="color:#66d9ef">const</span> WindowProperties<span style="color:#f92672">&amp;</span> properties);
+    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">terminate</span>();
+
+    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">processEvents</span>();
+    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">swapBuffers</span>();
+
+    <span style="color:#66d9ef">bool</span> <span style="color:#a6e22e">shouldWindowClose</span>() <span style="color:#66d9ef">const</span>;
+
+   <span style="color:#66d9ef">private</span><span style="color:#f92672">:</span>
+    GLFWwindow<span style="color:#f92672">*</span> m_Window <span style="color:#f92672">=</span> <span style="color:#66d9ef">nullptr</span>;
+
+    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">glfwErrorCb</span>(<span style="color:#66d9ef">int</span> error, <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">char</span><span style="color:#f92672">*</span> desc);
+};
+</code></pre></div><p>This class is also declared and managed as a component from the <code>Application</code> class. The application main loop will call the functions <code>processEvents</code>, <code>swapBuffers</code>, and <code>shouldWindowClose</code>.  The main loop, also called game loop, is the application&rsquo;s orchestrator. It takes execution control to call the logic code and render the application.</p>
 <h1 id="adding-the-game-loop">Adding the game loop</h1>
-<p>I do not plan to have physics simulation yet, so I will keep the game loop as simple as possible. When I get into physics simulations, I will follow the advice from the popular article: <a href="https://gafferongames.com/post/fix_your_timestep/"target="_blank" rel="noopener noreferrer">&ldquo;Fix your timelines&rdquo;</a>
-. This first game loop will measure the elapsed time and pass it to an update function.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 1</span><span style="color:#586e75">// engine_lib/core/application.cpp
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 2</span><span style="color:#586e75"></span><span style="color:#dc322f">void</span> Application<span style="color:#719e07">::</span>run()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 3</span>{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 4</span>    <span style="color:#719e07">using</span> <span style="color:#719e07">namespace</span> std<span style="color:#719e07">::</span>literals;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 5</span>    <span style="color:#719e07">using</span> Clock <span style="color:#719e07">=</span> std<span style="color:#719e07">::</span>chrono<span style="color:#719e07">::</span>steady_clock;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 6</span>    <span style="color:#719e07">using</span> duration <span style="color:#719e07">=</span> std<span style="color:#719e07">::</span>chrono<span style="color:#719e07">::</span>duration<span style="color:#719e07">&lt;</span><span style="color:#dc322f">double</span><span style="color:#719e07">&gt;</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 7</span>    <span style="color:#719e07">using</span> time_point <span style="color:#719e07">=</span> std<span style="color:#719e07">::</span>chrono<span style="color:#719e07">::</span>time_point<span style="color:#719e07">&lt;</span>Clock, duration<span style="color:#719e07">&gt;</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 8</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 9</span>    time_point current_time <span style="color:#719e07">=</span> Clock<span style="color:#719e07">::</span>now();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">10</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">11</span>    <span style="color:#719e07">const</span> std<span style="color:#719e07">::</span>array<span style="color:#719e07">&lt;</span><span style="color:#dc322f">float</span>, <span style="color:#2aa198">4</span><span style="color:#719e07">&gt;&amp;</span> default_bg <span style="color:#719e07">=</span> getWindowProperties().DefaultBackground;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">12</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">13</span>    <span style="color:#719e07">while</span> (<span style="color:#719e07">!</span>m_WindowManager.shouldWindowClose()) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">14</span>        m_WindowManager.processEvents();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">15</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">16</span>        time_point new_time <span style="color:#719e07">=</span> Clock<span style="color:#719e07">::</span>now();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">17</span>        <span style="color:#719e07">auto</span> delta_time <span style="color:#719e07">=</span> new_time <span style="color:#719e07">-</span> current_time;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">18</span>        current_time <span style="color:#719e07">=</span> new_time;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">19</span>
-<span style="display:block;width:100%;background-color:#19404a"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">20</span>        doUpdate(delta_time);
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">21</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">22</span>        glClearColor(default_bg[<span style="color:#2aa198">0</span>], default_bg[<span style="color:#2aa198">1</span>], default_bg[<span style="color:#2aa198">2</span>], <span style="color:#2aa198">1.0f</span>);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">23</span>        glClear(GL_COLOR_BUFFER_BIT <span style="color:#719e07">|</span> GL_DEPTH_BUFFER_BIT);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">24</span>
-<span style="display:block;width:100%;background-color:#19404a"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">25</span>        doRender();
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">26</span>        m_WindowManager.swapBuffers();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">27</span>    }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">28</span>}</code></pre></div>
-<p>Another behavior that I do not find ideal is to delegate the rendering to the Application layer. I will create a proper rendering manager, but that can wait. For now, I have declared these virtual functions:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">1</span><span style="color:#586e75">// engine_lib/core/application.h
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">2</span><span style="color:#586e75"></span><span style="color:#719e07">class</span> <span style="color:#268bd2">Application</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">3</span>{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">4</span>   <span style="color:#586e75">// ...
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">5</span><span style="color:#586e75"></span>   <span style="color:#719e07">private</span><span style="color:#719e07">:</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">6</span>    <span style="color:#719e07">virtual</span> <span style="color:#dc322f">void</span> doUpdate(std<span style="color:#719e07">::</span>chrono<span style="color:#719e07">::</span>duration<span style="color:#719e07">&lt;</span><span style="color:#dc322f">double</span><span style="color:#719e07">&gt;</span> delta_time) <span style="color:#719e07">=</span> <span style="color:#2aa198">0</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">7</span>    <span style="color:#719e07">virtual</span> <span style="color:#dc322f">void</span> <span style="color:#268bd2">doRender</span>() <span style="color:#719e07">=</span> <span style="color:#2aa198">0</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">8</span>    <span style="color:#586e75">// ...
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">9</span><span style="color:#586e75"></span>};</code></pre></div>
-<h1 id="implementing-shaders-and-meshes">Implementing shaders and meshes</h1>
+<p>I do not plan to have physics simulation yet, so I will keep the game loop as simple as possible. When I get into physics simulations, I will follow the advice from the popular article: <a href="https://gafferongames.com/post/fix_your_timestep/">&ldquo;Fix your timelines&rdquo;</a>. This first game loop will measure the elapsed time and pass it to an update function.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#75715e">// engine_lib/core/application.cpp
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">void</span> Application<span style="color:#f92672">::</span>run()
+{
+    <span style="color:#66d9ef">using</span> <span style="color:#66d9ef">namespace</span> std<span style="color:#f92672">::</span>literals;
+    <span style="color:#66d9ef">using</span> Clock <span style="color:#f92672">=</span> std<span style="color:#f92672">::</span>chrono<span style="color:#f92672">::</span>steady_clock;
+    <span style="color:#66d9ef">using</span> duration <span style="color:#f92672">=</span> std<span style="color:#f92672">::</span>chrono<span style="color:#f92672">::</span>duration<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">double</span><span style="color:#f92672">&gt;</span>;
+    <span style="color:#66d9ef">using</span> time_point <span style="color:#f92672">=</span> std<span style="color:#f92672">::</span>chrono<span style="color:#f92672">::</span>time_point<span style="color:#f92672">&lt;</span>Clock, duration<span style="color:#f92672">&gt;</span>;
+
+    time_point current_time <span style="color:#f92672">=</span> Clock<span style="color:#f92672">::</span>now();
+
+    <span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>array<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">float</span>, <span style="color:#ae81ff">4</span><span style="color:#f92672">&gt;&amp;</span> default_bg <span style="color:#f92672">=</span> getWindowProperties().DefaultBackground;
+
+    <span style="color:#66d9ef">while</span> (<span style="color:#f92672">!</span>m_WindowManager.shouldWindowClose()) {
+        m_WindowManager.processEvents();
+
+        time_point new_time <span style="color:#f92672">=</span> Clock<span style="color:#f92672">::</span>now();
+        <span style="color:#66d9ef">auto</span> delta_time <span style="color:#f92672">=</span> new_time <span style="color:#f92672">-</span> current_time;
+        current_time <span style="color:#f92672">=</span> new_time;
+
+        doUpdate(delta_time);
+
+        glClearColor(default_bg[<span style="color:#ae81ff">0</span>], default_bg[<span style="color:#ae81ff">1</span>], default_bg[<span style="color:#ae81ff">2</span>], <span style="color:#ae81ff">1.0f</span>);
+        glClear(GL_COLOR_BUFFER_BIT <span style="color:#f92672">|</span> GL_DEPTH_BUFFER_BIT);
+
+        doRender();
+        m_WindowManager.swapBuffers();
+    }
+}
+</code></pre></div><p>Another behavior that I do not find ideal is to delegate the rendering to the Application layer. I will create a proper rendering manager, but that can wait. For now, I have declared these virtual functions:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#75715e">// engine_lib/core/application.h
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Application</span>
+{
+   <span style="color:#75715e">// ...
+</span><span style="color:#75715e"></span>   <span style="color:#66d9ef">private</span><span style="color:#f92672">:</span>
+    <span style="color:#66d9ef">virtual</span> <span style="color:#66d9ef">void</span> doUpdate(std<span style="color:#f92672">::</span>chrono<span style="color:#f92672">::</span>duration<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">double</span><span style="color:#f92672">&gt;</span> delta_time) <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+    <span style="color:#66d9ef">virtual</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">doRender</span>() <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+    <span style="color:#75715e">// ...
+</span><span style="color:#75715e"></span>};
+</code></pre></div><h1 id="implementing-shaders-and-meshes">Implementing shaders and meshes</h1>
 <p>OpenGL uses the GLSL language to create shaders. They can be compiled in runtime. For simplicity, that is why I am going to do in this first iteration. I declared a namespace to compile a shader program and get an ID for it.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 1</span><span style="color:#586e75">// engine_lib/rendering/shader_program.h
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 2</span><span style="color:#586e75"></span><span style="color:#719e07">typedef</span> <span style="color:#dc322f">unsigned</span> <span style="color:#dc322f">int</span> ShaderProgramID;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 3</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 4</span><span style="color:#719e07">namespace</span> ShaderProgram
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 5</span>{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 6</span>[[nodiscard]] std<span style="color:#719e07">::</span>pair<span style="color:#719e07">&lt;</span><span style="color:#dc322f">bool</span>, ShaderProgramID<span style="color:#719e07">&gt;</span> createNewShader(
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 7</span>    <span style="color:#719e07">const</span> std<span style="color:#719e07">::</span>string<span style="color:#719e07">&amp;</span> vertex_shader_code,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 8</span>    <span style="color:#719e07">const</span> std<span style="color:#719e07">::</span>string<span style="color:#719e07">&amp;</span> fragment_shader_code);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 9</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">10</span><span style="color:#dc322f">void</span> <span style="color:#268bd2">bindShader</span>(ShaderProgramID shader_program);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">11</span><span style="color:#dc322f">void</span> <span style="color:#268bd2">terminateShader</span>(ShaderProgramID shader_program);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">12</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">13</span>}  <span style="color:#586e75">// namespace ShaderProgram
-</span></code></pre></div>
-<p>The <code>createNewShader</code> takes the code for both shaders. In the future, I will create a resources manager that can read files from disk. That way, the application layer can register a shader and the engine layer will compile it.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 1</span><span style="color:#586e75">// game_app/game_app.cpp
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 2</span><span style="color:#586e75"></span><span style="color:#dc322f">bool</span> GameApp<span style="color:#719e07">::</span>doInitialize()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 3</span>{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 4</span>    std<span style="color:#719e07">::</span>string vertex_shader <span style="color:#719e07">=</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 5</span>        <span style="color:#2aa198">&#34;#version 460 core</span><span style="color:#cb4b16">\n</span><span style="color:#2aa198">&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 6</span>        <span style="color:#2aa198">&#34;layout(location = 0) in vec3 aPos;&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 7</span>        <span style="color:#2aa198">&#34;layout(location = 1) in vec2 aUVs;&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 8</span>        <span style="color:#2aa198">&#34;out vec2 UVs;&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 9</span>        <span style="color:#2aa198">&#34;void main() {&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">10</span>        <span style="color:#2aa198">&#34;gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">11</span>        <span style="color:#2aa198">&#34;UVs = aUVs;&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">12</span>        <span style="color:#2aa198">&#34;}&#34;</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">13</span>    std<span style="color:#719e07">::</span>string fragment_shader <span style="color:#719e07">=</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">14</span>        <span style="color:#2aa198">&#34;#version 460 core</span><span style="color:#cb4b16">\n</span><span style="color:#2aa198">&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">15</span>        <span style="color:#2aa198">&#34;in vec2 UVs;&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">16</span>        <span style="color:#2aa198">&#34;out vec4 FragColor;&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">17</span>        <span style="color:#2aa198">&#34;void main() {&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">18</span>        <span style="color:#2aa198">&#34;FragColor = vec4(UVs.x, UVs.y, 0.0f, 1.0f);&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">19</span>        <span style="color:#2aa198">&#34;}&#34;</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">20</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">21</span>    <span style="color:#719e07">auto</span> [init, shader_id] <span style="color:#719e07">=</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">22</span>        ShaderProgram<span style="color:#719e07">::</span>createNewShader(vertex_shader, fragment_shader);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">23</span>    <span style="color:#719e07">if</span> (<span style="color:#719e07">!</span>init) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">24</span>        TM_LOG_ERROR(<span style="color:#2aa198">&#34;Could not create shader&#34;</span>);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">25</span>        <span style="color:#719e07">return</span> <span style="color:#b58900">false</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">26</span>    }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">27</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">28</span>    m_ShaderProgram <span style="color:#719e07">=</span> shader_id;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">29</span>    <span style="color:#586e75">// ...
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">30</span><span style="color:#586e75"></span>    <span style="color:#719e07">return</span> <span style="color:#b58900">true</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">31</span>}</code></pre></div>
-<p>The next thing that I need is a basic Mesh class. This call will accept a &ldquo;hard coded&rdquo; format for the vertex input. For this, I mean that the vertex input data consists of positions and UV points:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 1</span><span style="color:#586e75">// engine_lib/rendering/mesh.h
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 2</span><span style="color:#586e75"></span><span style="color:#719e07">struct</span> <span style="color:#268bd2">MeshInstanceID</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 3</span>    <span style="color:#dc322f">unsigned</span> <span style="color:#dc322f">int</span> VertexAttrArray;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 4</span>    <span style="color:#dc322f">unsigned</span> <span style="color:#dc322f">int</span> IndexSize;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 5</span>};
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 6</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 7</span><span style="color:#719e07">struct</span> <span style="color:#268bd2">Mesh</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 8</span>{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 9</span>   <span style="color:#719e07">public</span><span style="color:#719e07">:</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">10</span>    Mesh() <span style="color:#719e07">=</span> <span style="color:#719e07">default</span>;  <span style="color:#586e75">// TODO: consider delete
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">11</span><span style="color:#586e75"></span>    Mesh(<span style="color:#dc322f">unsigned</span> <span style="color:#dc322f">int</span> vertex_size, <span style="color:#dc322f">unsigned</span> <span style="color:#dc322f">int</span> index_size);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">12</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">13</span>    <span style="color:#dc322f">void</span> <span style="color:#268bd2">addVertex</span>(<span style="color:#dc322f">float</span> x, <span style="color:#dc322f">float</span> y, <span style="color:#dc322f">float</span> z, <span style="color:#dc322f">float</span> u, <span style="color:#dc322f">float</span> v);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">14</span>    <span style="color:#dc322f">void</span> <span style="color:#268bd2">addIndex</span>(<span style="color:#dc322f">unsigned</span> <span style="color:#dc322f">int</span> index);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">15</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">16</span>    std<span style="color:#719e07">::</span>vector<span style="color:#719e07">&lt;</span><span style="color:#dc322f">float</span><span style="color:#719e07">&gt;</span> Vertices;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">17</span>    std<span style="color:#719e07">::</span>vector<span style="color:#719e07">&lt;</span><span style="color:#dc322f">unsigned</span> <span style="color:#dc322f">int</span><span style="color:#719e07">&gt;</span> Indices;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">18</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">19</span>    [[nodiscard]] <span style="color:#719e07">static</span> MeshInstanceID createInstance(<span style="color:#719e07">const</span> Mesh<span style="color:#719e07">&amp;</span> mesh);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">20</span>    <span style="color:#719e07">static</span> <span style="color:#dc322f">void</span> <span style="color:#268bd2">terminateInstance</span>(MeshInstanceID mesh_instance_id);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">21</span>    <span style="color:#719e07">static</span> <span style="color:#dc322f">void</span> <span style="color:#268bd2">renderMeshInstance</span>(MeshInstanceID mesh_instance_id);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">22</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">23</span>    <span style="color:#586e75">// TODO: Make this flexible
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">24</span><span style="color:#586e75"></span>   <span style="color:#719e07">private</span><span style="color:#719e07">:</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">25</span>    <span style="color:#719e07">static</span> <span style="color:#719e07">constexpr</span> <span style="color:#dc322f">int</span> VERTEX_ATTR_POS_SIZE <span style="color:#719e07">=</span> <span style="color:#2aa198">3</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">26</span>    <span style="color:#719e07">static</span> <span style="color:#719e07">constexpr</span> <span style="color:#dc322f">int</span> VERTEX_ATTR_UV_SIZE <span style="color:#719e07">=</span> <span style="color:#2aa198">2</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">27</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">28</span>    <span style="color:#719e07">static</span> <span style="color:#719e07">constexpr</span> <span style="color:#dc322f">int</span> VERTEX_ATTR_STRIDE <span style="color:#719e07">=</span> <span style="color:#2aa198">5</span> <span style="color:#719e07">*</span> <span style="color:#719e07">sizeof</span>(<span style="color:#dc322f">float</span>);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">29</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">30</span>    <span style="color:#719e07">static</span> <span style="color:#719e07">constexpr</span> <span style="color:#dc322f">int</span> VERTEX_ATTR_POS_OFFSET <span style="color:#719e07">=</span> <span style="color:#2aa198">0</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">31</span>    <span style="color:#719e07">static</span> <span style="color:#719e07">constexpr</span> <span style="color:#dc322f">int</span> VERTEX_ATTR_UV_OFFSET <span style="color:#719e07">=</span> <span style="color:#2aa198">3</span> <span style="color:#719e07">*</span> <span style="color:#719e07">sizeof</span>(<span style="color:#dc322f">float</span>);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">32</span>};</code></pre></div>
-<p>I will make this more flexible in the future, but for now this is good enough to define a simple square mesh. This is also done in the application layer, for now:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 1</span><span style="color:#586e75">// game_app/game_app.cpp
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 2</span><span style="color:#586e75"></span><span style="color:#dc322f">bool</span> GameApp<span style="color:#719e07">::</span>doInitialize()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 3</span>{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 4</span>    <span style="color:#586e75">// shader creation ...
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 5</span><span style="color:#586e75"></span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 6</span>    <span style="color:#586e75">/*
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 7</span><span style="color:#586e75">     * The first three parameters of the vertex are the position
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 8</span><span style="color:#586e75">     * of the vertex itself. Here we are creating a rectangle that is
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 9</span><span style="color:#586e75">     * half the size of the screen. Notice that the origin is in the center:
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">10</span><span style="color:#586e75">     *
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">11</span><span style="color:#586e75">     *   +---------------------------------+
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">12</span><span style="color:#586e75">     *   |   (-0.5,0.5)         (0.5,0,5)  |
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">13</span><span style="color:#586e75">     *   |       +-----------------+       |
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">14</span><span style="color:#586e75">     *   |       |                 |       |
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">15</span><span style="color:#586e75">     *   |       |      (0,0)      |       |
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">16</span><span style="color:#586e75">     *   |       |                 |       |
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">17</span><span style="color:#586e75">     *   |       +-----------------+       |
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">18</span><span style="color:#586e75">     *   | (-0.5,-0.5)         (0.5,-0.5)  |
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">19</span><span style="color:#586e75">     *   +---------------------------------+
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">20</span><span style="color:#586e75">     *
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">21</span><span style="color:#586e75">     * The second two parameters are the UV coordinates. The origin here is in
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">22</span><span style="color:#586e75">     * the top left corner:
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">23</span><span style="color:#586e75">     *
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">24</span><span style="color:#586e75">     *  (0,0)       (1,0)
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">25</span><span style="color:#586e75">     *     +---------+
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">26</span><span style="color:#586e75">     *     |         |
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">27</span><span style="color:#586e75">     *     |         |
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">28</span><span style="color:#586e75">     *     |         |
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">29</span><span style="color:#586e75">     *     |         |
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">30</span><span style="color:#586e75">     *     +---------+
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">31</span><span style="color:#586e75">     *  (0,1)       (1,1)
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">32</span><span style="color:#586e75">     */</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">33</span>    Mesh <span style="color:#268bd2">rectMesh</span>(<span style="color:#2aa198">4</span>, <span style="color:#2aa198">6</span>);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">34</span>    rectMesh.addVertex(<span style="color:#2aa198">0.5f</span>, <span style="color:#2aa198">0.5f</span>, <span style="color:#2aa198">0.0f</span>, <span style="color:#2aa198">1.0f</span>, <span style="color:#2aa198">0.0f</span>);    <span style="color:#586e75">// top right
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">35</span><span style="color:#586e75"></span>    rectMesh.addVertex(<span style="color:#2aa198">0.5f</span>, <span style="color:#719e07">-</span><span style="color:#2aa198">0.5f</span>, <span style="color:#2aa198">0.0f</span>, <span style="color:#2aa198">1.0f</span>, <span style="color:#2aa198">1.0f</span>);   <span style="color:#586e75">// bottom right
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">36</span><span style="color:#586e75"></span>    rectMesh.addVertex(<span style="color:#719e07">-</span><span style="color:#2aa198">0.5f</span>, <span style="color:#719e07">-</span><span style="color:#2aa198">0.5f</span>, <span style="color:#2aa198">0.0f</span>, <span style="color:#2aa198">0.0f</span>, <span style="color:#2aa198">1.0f</span>);  <span style="color:#586e75">// bottom left
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">37</span><span style="color:#586e75"></span>    rectMesh.addVertex(<span style="color:#719e07">-</span><span style="color:#2aa198">0.5f</span>, <span style="color:#2aa198">0.5f</span>, <span style="color:#2aa198">0.0f</span>, <span style="color:#2aa198">0.0f</span>, <span style="color:#2aa198">0.0f</span>);   <span style="color:#586e75">// top left
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">38</span><span style="color:#586e75"></span>    rectMesh.addIndex(<span style="color:#2aa198">0</span>);                                <span style="color:#586e75">// first triangle
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">39</span><span style="color:#586e75"></span>    rectMesh.addIndex(<span style="color:#2aa198">1</span>);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">40</span>    rectMesh.addIndex(<span style="color:#2aa198">3</span>);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">41</span>    rectMesh.addIndex(<span style="color:#2aa198">1</span>);  <span style="color:#586e75">// second triangle
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">42</span><span style="color:#586e75"></span>    rectMesh.addIndex(<span style="color:#2aa198">2</span>);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">43</span>    rectMesh.addIndex(<span style="color:#2aa198">3</span>);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">44</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">45</span>    m_RectMeshInstance <span style="color:#719e07">=</span> Mesh<span style="color:#719e07">::</span>createInstance(rectMesh);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">46</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">47</span>    <span style="color:#719e07">return</span> <span style="color:#b58900">true</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">48</span>}</code></pre></div>
-<h2 id="putting-it-all-together">Putting it all together</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#75715e">// engine_lib/rendering/shader_program.h
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span> ShaderProgramID;
+
+<span style="color:#66d9ef">namespace</span> ShaderProgram
+{
+<span style="color:#a6e22e">[[nodiscard]]</span> std<span style="color:#f92672">::</span>pair<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">bool</span>, ShaderProgramID<span style="color:#f92672">&gt;</span> createNewShader(
+    <span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>string<span style="color:#f92672">&amp;</span> vertex_shader_code,
+    <span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>string<span style="color:#f92672">&amp;</span> fragment_shader_code);
+
+<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">bindShader</span>(ShaderProgramID shader_program);
+<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">terminateShader</span>(ShaderProgramID shader_program);
+
+}  <span style="color:#75715e">// namespace ShaderProgram
+</span></code></pre></div><p>The <code>createNewShader</code> takes the code for both shaders. In the future, I will create a resources manager that can read files from disk. That way, the application layer can register a shader and the engine layer will compile it.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#75715e">// game_app/game_app.cpp
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">bool</span> GameApp<span style="color:#f92672">::</span>doInitialize()
+{
+    std<span style="color:#f92672">::</span>string vertex_shader <span style="color:#f92672">=</span>
+        <span style="color:#e6db74">&#34;#version 460 core</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>
+        <span style="color:#e6db74">&#34;layout(location = 0) in vec3 aPos;&#34;</span>
+        <span style="color:#e6db74">&#34;layout(location = 1) in vec2 aUVs;&#34;</span>
+        <span style="color:#e6db74">&#34;out vec2 UVs;&#34;</span>
+        <span style="color:#e6db74">&#34;void main() {&#34;</span>
+        <span style="color:#e6db74">&#34;gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);&#34;</span>
+        <span style="color:#e6db74">&#34;UVs = aUVs;&#34;</span>
+        <span style="color:#e6db74">&#34;}&#34;</span>;
+    std<span style="color:#f92672">::</span>string fragment_shader <span style="color:#f92672">=</span>
+        <span style="color:#e6db74">&#34;#version 460 core</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>
+        <span style="color:#e6db74">&#34;in vec2 UVs;&#34;</span>
+        <span style="color:#e6db74">&#34;out vec4 FragColor;&#34;</span>
+        <span style="color:#e6db74">&#34;void main() {&#34;</span>
+        <span style="color:#e6db74">&#34;FragColor = vec4(UVs.x, UVs.y, 0.0f, 1.0f);&#34;</span>
+        <span style="color:#e6db74">&#34;}&#34;</span>;
+
+    <span style="color:#66d9ef">auto</span> [init, shader_id] <span style="color:#f92672">=</span>
+        ShaderProgram<span style="color:#f92672">::</span>createNewShader(vertex_shader, fragment_shader);
+    <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>init) {
+        TM_LOG_ERROR(<span style="color:#e6db74">&#34;Could not create shader&#34;</span>);
+        <span style="color:#66d9ef">return</span> false;
+    }
+
+    m_ShaderProgram <span style="color:#f92672">=</span> shader_id;
+    <span style="color:#75715e">// ...
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">return</span> true;
+}
+</code></pre></div><p>The next thing that I need is a basic Mesh class. This call will accept a &ldquo;hard coded&rdquo; format for the vertex input. For this, I mean that the vertex input data consists of positions and UV points:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#75715e">// engine_lib/rendering/mesh.h
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">MeshInstanceID</span> {
+    <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span> VertexAttrArray;
+    <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span> IndexSize;
+};
+
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Mesh</span>
+{
+   <span style="color:#66d9ef">public</span><span style="color:#f92672">:</span>
+    Mesh() <span style="color:#f92672">=</span> <span style="color:#66d9ef">default</span>;  <span style="color:#75715e">// TODO: consider delete
+</span><span style="color:#75715e"></span>    Mesh(<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span> vertex_size, <span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span> index_size);
+
+    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">addVertex</span>(<span style="color:#66d9ef">float</span> x, <span style="color:#66d9ef">float</span> y, <span style="color:#66d9ef">float</span> z, <span style="color:#66d9ef">float</span> u, <span style="color:#66d9ef">float</span> v);
+    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">addIndex</span>(<span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span> index);
+
+    std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">float</span><span style="color:#f92672">&gt;</span> Vertices;
+    std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">unsigned</span> <span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span> Indices;
+
+    <span style="color:#a6e22e">[[nodiscard]]</span> <span style="color:#66d9ef">static</span> MeshInstanceID createInstance(<span style="color:#66d9ef">const</span> Mesh<span style="color:#f92672">&amp;</span> mesh);
+    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">terminateInstance</span>(MeshInstanceID mesh_instance_id);
+    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">renderMeshInstance</span>(MeshInstanceID mesh_instance_id);
+
+    <span style="color:#75715e">// TODO: Make this flexible
+</span><span style="color:#75715e"></span>   <span style="color:#66d9ef">private</span><span style="color:#f92672">:</span>
+    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">constexpr</span> <span style="color:#66d9ef">int</span> VERTEX_ATTR_POS_SIZE <span style="color:#f92672">=</span> <span style="color:#ae81ff">3</span>;
+    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">constexpr</span> <span style="color:#66d9ef">int</span> VERTEX_ATTR_UV_SIZE <span style="color:#f92672">=</span> <span style="color:#ae81ff">2</span>;
+
+    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">constexpr</span> <span style="color:#66d9ef">int</span> VERTEX_ATTR_STRIDE <span style="color:#f92672">=</span> <span style="color:#ae81ff">5</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">sizeof</span>(<span style="color:#66d9ef">float</span>);
+
+    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">constexpr</span> <span style="color:#66d9ef">int</span> VERTEX_ATTR_POS_OFFSET <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+    <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">constexpr</span> <span style="color:#66d9ef">int</span> VERTEX_ATTR_UV_OFFSET <span style="color:#f92672">=</span> <span style="color:#ae81ff">3</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">sizeof</span>(<span style="color:#66d9ef">float</span>);
+};
+</code></pre></div><p>I will make this more flexible in the future, but for now this is good enough to define a simple square mesh. This is also done in the application layer, for now:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#75715e">// game_app/game_app.cpp
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">bool</span> GameApp<span style="color:#f92672">::</span>doInitialize()
+{
+    <span style="color:#75715e">// shader creation ...
+</span><span style="color:#75715e"></span>
+    <span style="color:#75715e">/*
+</span><span style="color:#75715e">     * The first three parameters of the vertex are the position
+</span><span style="color:#75715e">     * of the vertex itself. Here we are creating a rectangle that is
+</span><span style="color:#75715e">     * half the size of the screen. Notice that the origin is in the center:
+</span><span style="color:#75715e">     *
+</span><span style="color:#75715e">     *   +---------------------------------+
+</span><span style="color:#75715e">     *   |   (-0.5,0.5)         (0.5,0,5)  |
+</span><span style="color:#75715e">     *   |       +-----------------+       |
+</span><span style="color:#75715e">     *   |       |                 |       |
+</span><span style="color:#75715e">     *   |       |      (0,0)      |       |
+</span><span style="color:#75715e">     *   |       |                 |       |
+</span><span style="color:#75715e">     *   |       +-----------------+       |
+</span><span style="color:#75715e">     *   | (-0.5,-0.5)         (0.5,-0.5)  |
+</span><span style="color:#75715e">     *   +---------------------------------+
+</span><span style="color:#75715e">     *
+</span><span style="color:#75715e">     * The second two parameters are the UV coordinates. The origin here is in
+</span><span style="color:#75715e">     * the top left corner:
+</span><span style="color:#75715e">     *
+</span><span style="color:#75715e">     *  (0,0)       (1,0)
+</span><span style="color:#75715e">     *     +---------+
+</span><span style="color:#75715e">     *     |         |
+</span><span style="color:#75715e">     *     |         |
+</span><span style="color:#75715e">     *     |         |
+</span><span style="color:#75715e">     *     |         |
+</span><span style="color:#75715e">     *     +---------+
+</span><span style="color:#75715e">     *  (0,1)       (1,1)
+</span><span style="color:#75715e">     */</span>
+    Mesh <span style="color:#a6e22e">rectMesh</span>(<span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">6</span>);
+    rectMesh.addVertex(<span style="color:#ae81ff">0.5f</span>, <span style="color:#ae81ff">0.5f</span>, <span style="color:#ae81ff">0.0f</span>, <span style="color:#ae81ff">1.0f</span>, <span style="color:#ae81ff">0.0f</span>);    <span style="color:#75715e">// top right
+</span><span style="color:#75715e"></span>    rectMesh.addVertex(<span style="color:#ae81ff">0.5f</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">0.5f</span>, <span style="color:#ae81ff">0.0f</span>, <span style="color:#ae81ff">1.0f</span>, <span style="color:#ae81ff">1.0f</span>);   <span style="color:#75715e">// bottom right
+</span><span style="color:#75715e"></span>    rectMesh.addVertex(<span style="color:#f92672">-</span><span style="color:#ae81ff">0.5f</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">0.5f</span>, <span style="color:#ae81ff">0.0f</span>, <span style="color:#ae81ff">0.0f</span>, <span style="color:#ae81ff">1.0f</span>);  <span style="color:#75715e">// bottom left
+</span><span style="color:#75715e"></span>    rectMesh.addVertex(<span style="color:#f92672">-</span><span style="color:#ae81ff">0.5f</span>, <span style="color:#ae81ff">0.5f</span>, <span style="color:#ae81ff">0.0f</span>, <span style="color:#ae81ff">0.0f</span>, <span style="color:#ae81ff">0.0f</span>);   <span style="color:#75715e">// top left
+</span><span style="color:#75715e"></span>    rectMesh.addIndex(<span style="color:#ae81ff">0</span>);                                <span style="color:#75715e">// first triangle
+</span><span style="color:#75715e"></span>    rectMesh.addIndex(<span style="color:#ae81ff">1</span>);
+    rectMesh.addIndex(<span style="color:#ae81ff">3</span>);
+    rectMesh.addIndex(<span style="color:#ae81ff">1</span>);  <span style="color:#75715e">// second triangle
+</span><span style="color:#75715e"></span>    rectMesh.addIndex(<span style="color:#ae81ff">2</span>);
+    rectMesh.addIndex(<span style="color:#ae81ff">3</span>);
+
+    m_RectMeshInstance <span style="color:#f92672">=</span> Mesh<span style="color:#f92672">::</span>createInstance(rectMesh);
+
+    <span style="color:#66d9ef">return</span> true;
+}
+</code></pre></div><h2 id="putting-it-all-together">Putting it all together</h2>
 <p>That is all I require for now to simple render a rectangle. The rendering code only needs to know the shader program and the mesh instance:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">1</span><span style="color:#586e75">// game_app/game_app.cpp
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">2</span><span style="color:#586e75"></span><span style="color:#dc322f">void</span> GameApp<span style="color:#719e07">::</span>doRender()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">3</span>{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">4</span>    ShaderProgram<span style="color:#719e07">::</span>bindShader(m_ShaderProgram);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">5</span>    Mesh<span style="color:#719e07">::</span>renderMeshInstance(m_RectMeshInstance);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">6</span>}</code></pre></div>
-<p>These functions are in charge of calling the OpenGL API functions:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 1</span><span style="color:#586e75">// engine_lib/rendering/shader_program.cpp
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 2</span><span style="color:#586e75"></span><span style="color:#dc322f">void</span> <span style="color:#268bd2">bindShader</span>(ShaderProgramID shader_program)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 3</span>{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 4</span>    glUseProgram(shader_program);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 5</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 6</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 7</span><span style="color:#586e75">// engine_lib/rendering/mesh.cpp
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 8</span><span style="color:#586e75"></span><span style="color:#586e75">/*static*/</span> <span style="color:#dc322f">void</span> Mesh<span style="color:#719e07">::</span>renderMeshInstance(MeshInstanceID mesh_instance_id)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 9</span>{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">10</span>    glBindVertexArray(mesh_instance_id.VertexAttrArray);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">11</span>    glDrawElements(GL_TRIANGLES, mesh_instance_id.IndexSize, GL_UNSIGNED_INT,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">12</span>                   <span style="color:#2aa198">0</span>);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">13</span>    glBindVertexArray(<span style="color:#2aa198">0</span>);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">14</span>}</code></pre></div>
-<p>Executing the application finally shows some graphics:</p>
-<p><img  src="/static/img/engine_explorations/first_window_1.png"
-        alt="First triangles"/></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#75715e">// game_app/game_app.cpp
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">void</span> GameApp<span style="color:#f92672">::</span>doRender()
+{
+    ShaderProgram<span style="color:#f92672">::</span>bindShader(m_ShaderProgram);
+    Mesh<span style="color:#f92672">::</span>renderMeshInstance(m_RectMeshInstance);
+}
+</code></pre></div><p>These functions are in charge of calling the OpenGL API functions:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#75715e">// engine_lib/rendering/shader_program.cpp
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">bindShader</span>(ShaderProgramID shader_program)
+{
+    glUseProgram(shader_program);
+}
+
+<span style="color:#75715e">// engine_lib/rendering/mesh.cpp
+</span><span style="color:#75715e"></span><span style="color:#75715e">/*static*/</span> <span style="color:#66d9ef">void</span> Mesh<span style="color:#f92672">::</span>renderMeshInstance(MeshInstanceID mesh_instance_id)
+{
+    glBindVertexArray(mesh_instance_id.VertexAttrArray);
+    glDrawElements(GL_TRIANGLES, mesh_instance_id.IndexSize, GL_UNSIGNED_INT,
+                   <span style="color:#ae81ff">0</span>);
+    glBindVertexArray(<span style="color:#ae81ff">0</span>);
+}
+</code></pre></div><p>Executing the application finally shows some graphics:</p>
+<p><img src="/static/img/engine_explorations/first_window_1.png" alt="First triangles"></p>
 <p>There are two things to notice here. The mesh vertices should render a square, but in the application, it looks more like a rectangle. This is because the vertex positions are in screen space, and the window&rsquo;s aspect ratio is 4:3. This will get fixed once I add a proper camera system.</p>
 <p>The second thing is about the colors of the rectangle. I am using the vertex&rsquo;s UV coordinates to output the vertex color in the fragment shader. I intended to do this to test that the vertices are properly rendered. Notice again the fragment shader:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-glsl" data-lang="glsl"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">1</span><span style="color:#719e07">void</span> main() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">2</span>    FragColor <span style="color:#719e07">=</span> <span style="color:#719e07">vec4</span>(UVs.x, UVs.y, <span style="color:#2aa198">0.0</span>f, <span style="color:#2aa198">1.0</span>f);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">3</span>};</code></pre></div>
-<p>The top left corner of the rectangle is black because the UV coordinates are (0,0). In contrary, the bottom-right UV coordinates are (1.0, 1.0), so they completely combine red and green. The other two corners interpolate to the red and green colors. This UV coordinates will be useful later to apply textures to the meshes.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-glsl" data-lang="glsl"><span style="color:#66d9ef">void</span> main() {
+    FragColor <span style="color:#f92672">=</span> <span style="color:#66d9ef">vec4</span>(UVs.x, UVs.y, <span style="color:#ae81ff">0.0</span>f, <span style="color:#ae81ff">1.0</span>f);
+};
+</code></pre></div><p>The top left corner of the rectangle is black because the UV coordinates are (0,0). In contrary, the bottom-right UV coordinates are (1.0, 1.0), so they completely combine red and green. The other two corners interpolate to the red and green colors. This UV coordinates will be useful later to apply textures to the meshes.</p>
 <p>That is all for now, the application can now use the engine to render meshes with simple shader programs. I would like to have a proper resources manager before jumping to the 3D world. In the next post, I will write about 2D meshes, textures and orthographic cameras.</p>
-<p>You can find this project on my <a href="https://github.com/eariassoto/tamarindo_engine"target="_blank" rel="noopener noreferrer">Github</a>
-, and the code from this post is in this <a href="https://github.com/eariassoto/tamarindo_engine/commit/e18425402825b1000f84995c90c98406aa14112a"target="_blank" rel="noopener noreferrer">commit</a>
-.</p></article>
-</div>
-<div class="article bottom"><section class="article navigation"><p><a class="link" href="/post/game-engine-explorations-basic-design/"><span class="iconfont icon-article"></span>Game Engine Explorations: Name, Base Design and Logging</a></p></section></div></section><section id="footer"><div class="footer-wrap">
-    <p class="copyright">©2017-2021 Emmanuel Arias.</p>
-    <p class="powerby"><span>Powered&nbsp;by&nbsp;</span><a href="https://gohugo.io" 
-        target="_blank" rel="noopener noreferrer">Hugo</a><span>&nbsp;&amp;&nbsp;</span><a href="https://themes.gohugo.io/hugo-notepadium/" 
-        target="_blank" rel="noopener noreferrer">Notepadium</a></p></div>
-</section></body>
+<p>You can find this project on my <a href="https://github.com/eariassoto/tamarindo_engine">Github</a>, and the code from this post is in this <a href="https://github.com/eariassoto/tamarindo_engine/commit/e18425402825b1000f84995c90c98406aa14112a">commit</a>.</p>
+    </div>
+    
+      
+        <div class="pagination">
+          <div class="pagination__title">
+            <span class="pagination__title-h"
+              >Read other posts</span
+            >
+            <hr />
+          </div>
+          <div class="pagination__buttons">
+            
+            
+              <span class="button next">
+                <a href="https://eariassoto.github.io/post/game-engine-explorations-basic-design/">
+                  <span class="button__text">Game Engine Explorations: Name, Base Design and Logging</span>
+                  <span class="button__icon">→</span>
+                </a>
+              </span>
+            
+          </div>
+        </div>
+      
+    
 
+    
+      
+        
+
+      
+    
+  </div>
+
+      </div>
+
+      
+        <footer class="footer">
+  <div class="footer__inner">
+    
+      <a
+  href="/"
+  class="logo"
+  style="text-decoration: none;"
+>
+  
+    <span class="logo__mark"><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44">
+  <path fill="none" d="M15 8l14.729 14.382L15 35.367" />
+</svg>
+</span>
+    <span class="logo__text"
+      >Emmanuel Arias</span
+    >
+    
+  
+</a>
+
+      <div class="copyright">
+        <span
+          >© 2022 Powered by
+          <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a></span
+        >
+        <span>
+          <a href="https://github.com/eariassoto/hugo-theme-hello-friend" target="_blank" rel="noopener">Theme</a> created by
+          <a href="https://twitter.com/panr" target="_blank" rel="noopener">panr</a>
+        </span>
+      </div>
+    
+  </div>
+</footer>
+
+<script src="https://eariassoto.github.io/assets/main.js"></script>
+<script src="https://eariassoto.github.io/assets/prism.js"></script>
+
+
+      
+    </div>
+
+    
+  </body>
 </html>

@@ -1,40 +1,181 @@
 <!DOCTYPE html>
-<html lang="en"><meta charset="utf-8"><meta name="generator" content="Hugo 0.90.1" /><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="color-scheme" content="light dark">
-<meta name="supported-color-schemes" content="light dark"><title>Memory allocators in C&#43;&#43; - Part 1&nbsp;&ndash;&nbsp;Emmanuel Arias</title><link rel="stylesheet" href="/css/core.min.9e958365cf0319ede466a402e1369f31dc1f205c868aa836fe25581725c829d3f3545d9f142cccafe35363950a63e2a6.css" integrity="sha384-npWDZc8DGe3kZqQC4TafMdwfIFyGiqg2/iVYFyXIKdPzVF2fFCzMr&#43;NTY5UKY&#43;Km"><meta name="twitter:card" content="summary" />
-<meta name="twitter:title" content="Memory allocators in C&#43;&#43; - Part 1" /><body><section id="header">
-    <div class="header wrap"><span class="header left-side"><a class="site home" href="/"><span class="site name">Emmanuel Arias</span></a></span>
-        <span class="header right-side"><div class="nav wrap"><nav class="nav"><a class="nav item" href="/categories/">Categories</a></nav></div></span></div><div class="site slogan"><span class="title">A software developer looking for his <span style='font-family: monospace;'>$PATH</span></span></div></section><section id="content"><div class="article-container"><section class="article header">
-    <h1 class="article title">Memory allocators in C++ - Part 1</h1><p class="article date">Sep 09, 2020</p></section><article class="article markdown-body"><p>When you want to instantiate a class or a struct in the dynamic memory space, we normally use the <code>new</code> and <code>delete</code> operators.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#719e07">class</span> <span style="color:#268bd2">Point</span> {
-	<span style="color:#dc322f">float</span> m_X;
-	<span style="color:#dc322f">float</span> m_Y;
-	<span style="color:#dc322f">float</span> m_Z;
-  <span style="color:#719e07">public</span><span style="color:#719e07">:</span>
-    Point(<span style="color:#dc322f">float</span>, <span style="color:#dc322f">float</span>, <span style="color:#dc322f">float</span>);
+<html lang="en">
+  <head>
+    
+      <title>
+        Memory allocators in C&#43;&#43; - Part 1 ::
+        Emmanuel Arias — Blog
+      </title>
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta
+  name="description"
+  content="When you want to instantiate a class or a struct in the dynamic memory space, we normally use the new and delete operators.
+"
+/>
+<meta
+  name="keywords"
+  content=""
+/>
+<meta name="robots" content="noodp" />
+<link rel="canonical" href="https://eariassoto.github.io/post/memory-allocators-part-1/" />
+
+
+
+
+
+<link rel="stylesheet" href="https://eariassoto.github.io/assets/style.css" />
+
+<link rel="stylesheet" href="https://eariassoto.github.io/style.css" />
+
+
+<link
+  rel="apple-touch-icon-precomposed"
+  sizes="144x144"
+  href="https://eariassoto.github.io/img/apple-touch-icon-144-precomposed.png"
+/>
+<link rel="shortcut icon" href="https://eariassoto.github.io/img/favicon.png" />
+
+
+<link href="https://eariassoto.github.io/assets/fonts/Inter-Italic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-Regular.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-Medium.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-MediumItalic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-Bold.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-BoldItalic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Memory allocators in C&#43;&#43; - Part 1"/>
+<meta name="twitter:description" content="When you want to instantiate a class or a struct in the dynamic memory space, we normally use the new and delete operators."/>
+
+
+
+<meta property="og:title" content="Memory allocators in C&#43;&#43; - Part 1" />
+<meta property="og:description" content="When you want to instantiate a class or a struct in the dynamic memory space, we normally use the new and delete operators." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://eariassoto.github.io/post/memory-allocators-part-1/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2020-09-09T23:28:52+02:00" />
+<meta property="article:modified_time" content="2020-09-09T23:28:52+02:00" /><meta property="og:site_name" content="Emmanuel Arias" />
+
+
+
+
+
+
+
+  </head>
+  <body class="dark-theme">
+    <div class="container">
+      <header class="header">
+  <span class="header__inner">
+    <a
+  href="/"
+  class="logo"
+  style="text-decoration: none;"
+>
+  
+    <span class="logo__mark"><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44">
+  <path fill="none" d="M15 8l14.729 14.382L15 35.367" />
+</svg>
+</span>
+    <span class="logo__text"
+      >Emmanuel Arias</span
+    >
+    
+  
+</a>
+
+    <span class="header__right">
+      
+      <span class="theme-toggle">
+        <svg
+  class="theme-toggler"
+  width="24"
+  height="24"
+  viewBox="0 0 48 48"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path
+    d="M22 41C32.4934 41 41 32.4934 41 22C41 11.5066 32.4934 3 22
+  3C11.5066 3 3 11.5066 3 22C3 32.4934 11.5066 41 22 41ZM7 22C7
+  13.7157 13.7157 7 22 7V37C13.7157 37 7 30.2843 7 22Z"
+  />
+</svg>
+
+      </span>
+    </span>
+  </span>
+</header>
+
+
+      <div class="content">
+        
+  
+  
+
+  <div class="post">
+    <h1 class="post-title">Memory allocators in C++ - Part 1</h1>
+    <div class="post-meta">
+      
+        <span class="post-date">
+          2020-09-09
+        </span>
+
+        
+          
+        
+      
+
+      
+
+
+      
+    </div>
+
+    
+      <span class="post-tags">
+        
+          <a href="https://eariassoto.github.io/tags/c&#43;&#43;/">#C&#43;&#43;</a>&nbsp;
+        
+      </span>
+    
+
+    
+
+    <div class="post-content">
+      
+      <p>When you want to instantiate a class or a struct in the dynamic memory space, we normally use the <code>new</code> and <code>delete</code> operators.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Point</span> {
+	<span style="color:#66d9ef">float</span> m_X;
+	<span style="color:#66d9ef">float</span> m_Y;
+	<span style="color:#66d9ef">float</span> m_Z;
+  <span style="color:#66d9ef">public</span><span style="color:#f92672">:</span>
+    Point(<span style="color:#66d9ef">float</span>, <span style="color:#66d9ef">float</span>, <span style="color:#66d9ef">float</span>);
 };
 
-Point<span style="color:#719e07">*</span> my_point <span style="color:#719e07">=</span> <span style="color:#719e07">new</span> Point(<span style="color:#2aa198">0.f</span>, <span style="color:#2aa198">12.5f</span>, <span style="color:#719e07">-</span><span style="color:#2aa198">0.5f</span>);
-<span style="color:#586e75">// use point
-</span><span style="color:#586e75">//
-</span><span style="color:#586e75"></span><span style="color:#719e07">delete</span> my_point;
+Point<span style="color:#f92672">*</span> my_point <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Point(<span style="color:#ae81ff">0.f</span>, <span style="color:#ae81ff">12.5f</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">0.5f</span>);
+<span style="color:#75715e">// use point
+</span><span style="color:#75715e">//
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">delete</span> my_point;
 </code></pre></div><p>So what happens under the hood for these operators? The <code>new</code> operator asks the operative system for a block of memory of size <code>sizeof(Point)</code>. Then, it calls the class constructor and returns the allocated memory pointer. Similarly, <code>delete</code> calls the class destructor and then free the memory block. The operative system handles dynamic memory allocation. Therefore these two operators need to do a system call. A system call is expensive because it interrupts the program&rsquo;s execution so that a kernel routine can allocate/free the memory.</p>
 <p>When performance is not a concern, this way of allocating/freeing memory is all right. However, if our program will continuously use dynamic-allocated objects, we will need a better strategy.</p>
 <p>The <code>new-expression</code> we just saw has optional placement parameters. If we provide a memory address as a parameter, the <code>new</code> function will use that memory location to construct our object.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#dc322f">char</span><span style="color:#719e07">*</span> memPtr <span style="color:#719e07">=</span> malloc(<span style="color:#719e07">sizeof</span>(Point)); <span style="color:#586e75">// allocate enough memory
-</span><span style="color:#586e75"></span>Point<span style="color:#719e07">*</span> my_point_2 <span style="color:#719e07">=</span> <span style="color:#719e07">new</span> (memPtr) Point(<span style="color:#2aa198">0.f</span>, <span style="color:#2aa198">12.5f</span>, <span style="color:#719e07">-</span><span style="color:#2aa198">0.5f</span>);
-<span style="color:#586e75">// use point
-</span><span style="color:#586e75">//
-</span><span style="color:#586e75"></span>my_point_2<span style="color:#719e07">-&gt;~</span>Point();
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#66d9ef">char</span><span style="color:#f92672">*</span> memPtr <span style="color:#f92672">=</span> malloc(<span style="color:#66d9ef">sizeof</span>(Point)); <span style="color:#75715e">// allocate enough memory
+</span><span style="color:#75715e"></span>Point<span style="color:#f92672">*</span> my_point_2 <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> (memPtr) Point(<span style="color:#ae81ff">0.f</span>, <span style="color:#ae81ff">12.5f</span>, <span style="color:#f92672">-</span><span style="color:#ae81ff">0.5f</span>);
+<span style="color:#75715e">// use point
+</span><span style="color:#75715e">//
+</span><span style="color:#75715e"></span>my_point_2<span style="color:#f92672">-&gt;~</span>Point();
 free(memPtr);
 </code></pre></div><p>In this scenario, we cannot use <code>delete</code>. The <code>delete</code> operator can only free memory allocated by the new operator. We have to call the destructor first, and then free the memory. However, we have the same problem because we are allocating space for only one object.</p>
 <p>The solution to our problem would be to have one large allocation at the beginning of our program. The allocator would be responsible for distributing that memory. When we do not need to allocate anymore, we make one call to free the memory.</p>
 <p>In this series of articles, we will look into some memory allocators designs that help to solve this problem. In these articles, you will find details about their basic operations and the pros/cons they entail. For this first part, stack allocators will be our topic.</p>
-<p><span class="image-container"><span class="link"><img class="img" src="/static/img/stack.jpg"
-        alt="Stack of punch cards"/></span><span class="caption"><span class="title">A stack of punch cards</span></span></span></p>
+<p><img src="/static/img/stack.jpg" alt="Stack of punch cards" title="A stack of punch cards"></p>
 <p>A simple way to allocate memory is by using a stack. A stack allocator can return a marker that points to the top of it. When a new memory block that fits in the available space is requested, the allocator changes the marker pointer. Freeing memory is performed by passing a marker pointer to the allocator. The allocator will set that pointer as the new marker pointer and release the block in-between.</p>
 <p>A more visual explanation is in the figure below:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#719e07">const</span> size_t ALLOCATOR_SIZE_IN_BYTES <span style="color:#719e07">=</span> <span style="color:#2aa198">64</span>;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#66d9ef">const</span> size_t ALLOCATOR_SIZE_IN_BYTES <span style="color:#f92672">=</span> <span style="color:#ae81ff">64</span>;
 StackAllocator allocator{ALLOCATOR_SIZE_IN_BYTES};
 </code></pre></div><pre tabindex="0"><code>       +------------------------------------------------------------------+
        |                                                                  |
@@ -47,17 +188,17 @@ StackAllocator allocator{ALLOCATOR_SIZE_IN_BYTES};
  Lowest address                                                    Highest address
  Current Marker                                                        0x0040
      0x0000
-</code></pre><div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#719e07">struct</span> <span style="color:#268bd2">Point</span> {
-	<span style="color:#dc322f">int</span> x;
-	<span style="color:#dc322f">int</span> y;
+</code></pre><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Point</span> {
+	<span style="color:#66d9ef">int</span> x;
+	<span style="color:#66d9ef">int</span> y;
 };
-Marker base_marker <span style="color:#719e07">=</span> allocator.GetMarker();
+Marker base_marker <span style="color:#f92672">=</span> allocator.GetMarker();
 
-<span style="color:#dc322f">void</span><span style="color:#719e07">*</span> address <span style="color:#719e07">=</span> allocator.Allocate(<span style="color:#719e07">sizeof</span>(Point));
-Point<span style="color:#719e07">*</span> my_point_1 <span style="color:#719e07">=</span> <span style="color:#719e07">new</span> (address) Point();
+<span style="color:#66d9ef">void</span><span style="color:#f92672">*</span> address <span style="color:#f92672">=</span> allocator.Allocate(<span style="color:#66d9ef">sizeof</span>(Point));
+Point<span style="color:#f92672">*</span> my_point_1 <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> (address) Point();
 
-Point<span style="color:#719e07">*</span> my_point_2 <span style="color:#719e07">=</span> <span style="color:#719e07">new</span> ( allocator.Allocate(<span style="color:#719e07">sizeof</span>(Point)) ) Point();
-<span style="color:#586e75">// use points ..
+Point<span style="color:#f92672">*</span> my_point_2 <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> ( allocator.Allocate(<span style="color:#66d9ef">sizeof</span>(Point)) ) Point();
+<span style="color:#75715e">// use points ..
 </span></code></pre></div><pre tabindex="0"><code>      +-------+-------+--------------------------------------------------+
       |       |       |                                                  |
       |point_1|point_2|                     AVAILABLE                    |
@@ -69,7 +210,7 @@ Point<span style="color:#719e07">*</span> my_point_2 <span style="color:#719e07"
 Lowest address Current Marker                                     Highest address
   base_marker       0x0010                                             0x0040
     0x0000
-</code></pre><div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++">allocator.FreeToMarker(base_marker);
+</code></pre><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++">allocator.FreeToMarker(base_marker);
 </code></pre></div><pre tabindex="0"><code>       +------------------------------------------------------------------+
        |                                                                  |
        |                              AVAILABLE                           |
@@ -82,33 +223,33 @@ Lowest address Current Marker                                     Highest addres
  Current Marker                                                        0x0040
      0x0000base_marker
 </code></pre><p>We will go over the main functions of my stack allocator. We will leave behind simple functions, like setters and getters. The constructor tries to allocate the requested size and saves the size of it. The initial marker pointer starts as 0. This because it is going to be an offset from the initial address.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++">StackAllocator<span style="color:#719e07">::</span>StackAllocator(size_t stackSizeInBytes)
-    <span style="color:#719e07">:</span> m_StackSizeInBytes{stackSizeInBytes}, m_CurrentMarker{<span style="color:#2aa198">0</span>} {
-    m_AllocatedMemory <span style="color:#719e07">=</span> malloc(m_StackSizeInBytes);
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++">StackAllocator<span style="color:#f92672">::</span>StackAllocator(size_t stackSizeInBytes)
+    <span style="color:#f92672">:</span> m_StackSizeInBytes{stackSizeInBytes}, m_CurrentMarker{<span style="color:#ae81ff">0</span>} {
+    m_AllocatedMemory <span style="color:#f92672">=</span> malloc(m_StackSizeInBytes);
 }
 </code></pre></div><p>The allocate function checks for the available memory and calculates the new address and marker pointer if the requested size fits. In my implementation, the memory grows from bottom to top because it assumes an x86 architecture, and the allocated memory comes from the heap.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#dc322f">void</span><span style="color:#719e07">*</span> StackAllocator<span style="color:#719e07">::</span>Allocate(size_t sizeInBytes) {
-    assert(m_AllocatedMemory <span style="color:#719e07">!=</span> <span style="color:#2aa198">0</span>);
-    <span style="color:#719e07">const</span> size_t availableSize <span style="color:#719e07">=</span> m_StackSizeInBytes <span style="color:#719e07">-</span> m_CurrentMarker;
-    <span style="color:#719e07">if</span> (sizeInBytes <span style="color:#719e07">&gt;</span> <span style="color:#2aa198">0</span> <span style="color:#719e07">&amp;&amp;</span> availableSize <span style="color:#719e07">&gt;=</span> sizeInBytes) {
-        Marker newMarker <span style="color:#719e07">=</span> m_CurrentMarker <span style="color:#719e07">+</span> sizeInBytes;
-        uintptr_t assignedAddress <span style="color:#719e07">=</span>
-            <span style="color:#719e07">reinterpret_cast</span><span style="color:#719e07">&lt;</span>uintptr_t<span style="color:#719e07">&gt;</span>(m_AllocatedMemory) <span style="color:#719e07">+</span> newMarker;
-        m_CurrentMarker <span style="color:#719e07">=</span> newMarker;
-        <span style="color:#719e07">return</span> <span style="color:#719e07">reinterpret_cast</span><span style="color:#719e07">&lt;</span><span style="color:#dc322f">void</span><span style="color:#719e07">*&gt;</span>(assignedAddress);
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#66d9ef">void</span><span style="color:#f92672">*</span> StackAllocator<span style="color:#f92672">::</span>Allocate(size_t sizeInBytes) {
+    assert(m_AllocatedMemory <span style="color:#f92672">!=</span> <span style="color:#ae81ff">0</span>);
+    <span style="color:#66d9ef">const</span> size_t availableSize <span style="color:#f92672">=</span> m_StackSizeInBytes <span style="color:#f92672">-</span> m_CurrentMarker;
+    <span style="color:#66d9ef">if</span> (sizeInBytes <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">&amp;&amp;</span> availableSize <span style="color:#f92672">&gt;=</span> sizeInBytes) {
+        Marker newMarker <span style="color:#f92672">=</span> m_CurrentMarker <span style="color:#f92672">+</span> sizeInBytes;
+        uintptr_t assignedAddress <span style="color:#f92672">=</span>
+            <span style="color:#66d9ef">reinterpret_cast</span><span style="color:#f92672">&lt;</span>uintptr_t<span style="color:#f92672">&gt;</span>(m_AllocatedMemory) <span style="color:#f92672">+</span> newMarker;
+        m_CurrentMarker <span style="color:#f92672">=</span> newMarker;
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">reinterpret_cast</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">void</span><span style="color:#f92672">*&gt;</span>(assignedAddress);
     }
-    <span style="color:#719e07">return</span> <span style="color:#719e07">nullptr</span>;
+    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nullptr</span>;
 }
 </code></pre></div><p>The free function is as simple as it can be. It will only check that the marker to free the memory is a number between 0 and the current marker pointer. An invalid marker pointer will cause memory corruption. The allocator assumes that the user will use the provided function to store all the necessary marker pointers.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#dc322f">void</span> StackAllocator<span style="color:#719e07">::</span>FreeToMarker(Marker marker) {
-    <span style="color:#586e75">// Important: markers are not checked. I.e. a random marker
-</span><span style="color:#586e75"></span>    <span style="color:#586e75">// can be passed, thus corrupting memory
-</span><span style="color:#586e75"></span>    <span style="color:#719e07">if</span> (marker <span style="color:#719e07">&lt;</span> m_CurrentMarker) {
-        m_CurrentMarker <span style="color:#719e07">=</span> marker;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#66d9ef">void</span> StackAllocator<span style="color:#f92672">::</span>FreeToMarker(Marker marker) {
+    <span style="color:#75715e">// Important: markers are not checked. I.e. a random marker
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">// can be passed, thus corrupting memory
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">if</span> (marker <span style="color:#f92672">&lt;</span> m_CurrentMarker) {
+        m_CurrentMarker <span style="color:#f92672">=</span> marker;
     
 </code></pre></div><p>The stack implementation is simple and naïve. The allocator does not keep track of the valid markers. The user is in charge of giving a valid pointer to free. Otherwise, the next memory block to be allocation might be already in use.</p>
 <p>Finally, the <code>clear</code> function is a one-line function.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#dc322f">void</span> StackAllocator<span style="color:#719e07">::</span>Clear() { m_CurrentMarker <span style="color:#719e07">=</span> <span style="color:#2aa198">0</span>; }
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#66d9ef">void</span> StackAllocator<span style="color:#f92672">::</span>Clear() { m_CurrentMarker <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; }
 </code></pre></div><h1 id="stack-allocator-make-it-double">Stack allocator? Make it double</h1>
 <p>This kind of allocator is useful when you need to allocate blocks of data that do not persist in time. Let&rsquo;s suppose we have a stack allocator to handle the dynamic memory used when processing a game&rsquo;s frame. Functions can then save the last marker pointer, make use of a block of memory, and set the allocator back to the previous state. At the end of the frame, we clear the allocator, and it will be ready for the next frame.</p>
 <p>Another example is to allocate linear data. Imagine a platform game where your character can move through 2D maps.  Let&rsquo;s say that the player enters a dungeon map, and then the boss area. We could use a stack allocator to load the maps' resources. When the player leaves the boss' area, the stack allocator frees the entire level&rsquo;s resources at once.</p>
@@ -126,35 +267,112 @@ Lowest address           Lower Marker              Upper Marker   Highest addres
   base_marker               0x0010                   0x0090            0x0100
     0x0000
 </code></pre><p>The implementation of this stack is very similar to the simple stack allocator. Instead of one maker pointer, we will have to. The lower marker pointer will reference the memory allocated from the bottom of the stack. Similarly, the upper marker pointer refers to the memory allocated from the top. As you may imagine, the allocator calculates the available memory from these two pointers.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#dc322f">void</span><span style="color:#719e07">*</span> DoubleStackAllocator<span style="color:#719e07">::</span>AllocateLower(size_t sizeInBytes) {
-    assert(m_AllocatedMemory <span style="color:#719e07">!=</span> <span style="color:#2aa198">0</span>);
-    assert(m_UpperMarker <span style="color:#719e07">&gt;</span> m_LowerMarker);
-    <span style="color:#719e07">const</span> size_t availableSize <span style="color:#719e07">=</span> m_UpperMarker <span style="color:#719e07">-</span> m_LowerMarker;
-    <span style="color:#719e07">if</span> (sizeInBytes <span style="color:#719e07">&gt;</span> <span style="color:#2aa198">0</span> <span style="color:#719e07">&amp;&amp;</span> availableSize <span style="color:#719e07">&gt;=</span> sizeInBytes) {
-        Marker newMarker <span style="color:#719e07">=</span> m_LowerMarker <span style="color:#719e07">+</span> sizeInBytes;
-        uintptr_t assignedAddress <span style="color:#719e07">=</span>
-            <span style="color:#719e07">reinterpret_cast</span><span style="color:#719e07">&lt;</span>uintptr_t<span style="color:#719e07">&gt;</span>(m_AllocatedMemory) <span style="color:#719e07">+</span> newMarker;
-        m_LowerMarker <span style="color:#719e07">=</span> newMarker;
-        <span style="color:#719e07">return</span> <span style="color:#719e07">reinterpret_cast</span><span style="color:#719e07">&lt;</span><span style="color:#dc322f">void</span><span style="color:#719e07">*&gt;</span>(assignedAddress);
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#66d9ef">void</span><span style="color:#f92672">*</span> DoubleStackAllocator<span style="color:#f92672">::</span>AllocateLower(size_t sizeInBytes) {
+    assert(m_AllocatedMemory <span style="color:#f92672">!=</span> <span style="color:#ae81ff">0</span>);
+    assert(m_UpperMarker <span style="color:#f92672">&gt;</span> m_LowerMarker);
+    <span style="color:#66d9ef">const</span> size_t availableSize <span style="color:#f92672">=</span> m_UpperMarker <span style="color:#f92672">-</span> m_LowerMarker;
+    <span style="color:#66d9ef">if</span> (sizeInBytes <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span> <span style="color:#f92672">&amp;&amp;</span> availableSize <span style="color:#f92672">&gt;=</span> sizeInBytes) {
+        Marker newMarker <span style="color:#f92672">=</span> m_LowerMarker <span style="color:#f92672">+</span> sizeInBytes;
+        uintptr_t assignedAddress <span style="color:#f92672">=</span>
+            <span style="color:#66d9ef">reinterpret_cast</span><span style="color:#f92672">&lt;</span>uintptr_t<span style="color:#f92672">&gt;</span>(m_AllocatedMemory) <span style="color:#f92672">+</span> newMarker;
+        m_LowerMarker <span style="color:#f92672">=</span> newMarker;
+        <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">reinterpret_cast</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">void</span><span style="color:#f92672">*&gt;</span>(assignedAddress);
     }
-    <span style="color:#719e07">return</span> <span style="color:#719e07">nullptr</span>;
+    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">nullptr</span>;
 }
 </code></pre></div><p>The &ldquo;free&rdquo; function also checks that the markers will not corrupt the other end of the allocator. However, it won&rsquo;t validate marker pointers within the stack.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#dc322f">void</span> DoubleStackAllocator<span style="color:#719e07">::</span>FreeToUpperMarker(Marker marker) {
-    <span style="color:#586e75">// Important: markers are not checked. I.e. a random marker
-</span><span style="color:#586e75"></span>    <span style="color:#586e75">// can be passed, thus corrupting memory
-</span><span style="color:#586e75"></span>    <span style="color:#719e07">if</span> (marker <span style="color:#719e07">&gt;</span> m_UpperMarker <span style="color:#719e07">&amp;&amp;</span> marker <span style="color:#719e07">&lt;</span> m_StackSizeInBytes) {
-        m_UpperMarker <span style="color:#719e07">=</span> marker;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#66d9ef">void</span> DoubleStackAllocator<span style="color:#f92672">::</span>FreeToUpperMarker(Marker marker) {
+    <span style="color:#75715e">// Important: markers are not checked. I.e. a random marker
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">// can be passed, thus corrupting memory
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">if</span> (marker <span style="color:#f92672">&gt;</span> m_UpperMarker <span style="color:#f92672">&amp;&amp;</span> marker <span style="color:#f92672">&lt;</span> m_StackSizeInBytes) {
+        m_UpperMarker <span style="color:#f92672">=</span> marker;
     }
 }
-</code></pre></div><p>That should cover the overall implementation of this simple memory allocator. You can find the full source code in <a href="https://github.com/eariassoto/custom-allocators-cpp"target="_blank" rel="noopener noreferrer">this repository</a>
-. For the next article, we will go into the details of pool allocators.</p></article><section class="article labels"><a class="category" href=/categories/cpp-development/>Cpp Development</a><a class="tag" href=/tags/c&#43;&#43;/>C&#43;&#43;</a></section>
-</div>
-<div class="article bottom"><section class="article navigation"><p><a class="link" href="/post/game-engine-explorations-first-steps/"><span class="iconfont icon-article"></span>Game Engine Explorations: First steps</a></p><p><a class="link" href="/post/producer-consumer/"><span class="iconfont icon-article"></span>Minimal implementations in Modern C++: Producer-Consumer problem</a></p></section></div></section><section id="footer"><div class="footer-wrap">
-    <p class="copyright">©2017-2021 Emmanuel Arias.</p>
-    <p class="powerby"><span>Powered&nbsp;by&nbsp;</span><a href="https://gohugo.io" 
-        target="_blank" rel="noopener noreferrer">Hugo</a><span>&nbsp;&amp;&nbsp;</span><a href="https://themes.gohugo.io/hugo-notepadium/" 
-        target="_blank" rel="noopener noreferrer">Notepadium</a></p></div>
-</section></body>
+</code></pre></div><p>That should cover the overall implementation of this simple memory allocator. You can find the full source code in <a href="https://github.com/eariassoto/custom-allocators-cpp">this repository</a>. For the next article, we will go into the details of pool allocators.</p>
+    </div>
+    
+      
+        <div class="pagination">
+          <div class="pagination__title">
+            <span class="pagination__title-h"
+              >Read other posts</span
+            >
+            <hr />
+          </div>
+          <div class="pagination__buttons">
+            
+              <span class="button previous">
+                <a href="https://eariassoto.github.io/post/game-engine-explorations-first-steps/">
+                  <span class="button__icon">←</span>
+                  <span class="button__text">Game Engine Explorations: First steps</span>
+                </a>
+              </span>
+            
+            
+              <span class="button next">
+                <a href="https://eariassoto.github.io/post/producer-consumer/">
+                  <span class="button__text">Minimal implementations in Modern C&#43;&#43;: Producer-Consumer problem</span>
+                  <span class="button__icon">→</span>
+                </a>
+              </span>
+            
+          </div>
+        </div>
+      
+    
 
+    
+      
+        
+
+      
+    
+  </div>
+
+      </div>
+
+      
+        <footer class="footer">
+  <div class="footer__inner">
+    
+      <a
+  href="/"
+  class="logo"
+  style="text-decoration: none;"
+>
+  
+    <span class="logo__mark"><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44">
+  <path fill="none" d="M15 8l14.729 14.382L15 35.367" />
+</svg>
+</span>
+    <span class="logo__text"
+      >Emmanuel Arias</span
+    >
+    
+  
+</a>
+
+      <div class="copyright">
+        <span
+          >© 2022 Powered by
+          <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a></span
+        >
+        <span>
+          <a href="https://github.com/eariassoto/hugo-theme-hello-friend" target="_blank" rel="noopener">Theme</a> created by
+          <a href="https://twitter.com/panr" target="_blank" rel="noopener">panr</a>
+        </span>
+      </div>
+    
+  </div>
+</footer>
+
+<script src="https://eariassoto.github.io/assets/main.js"></script>
+<script src="https://eariassoto.github.io/assets/prism.js"></script>
+
+
+      
+    </div>
+
+    
+  </body>
 </html>

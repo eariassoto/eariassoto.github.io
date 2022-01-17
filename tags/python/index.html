@@ -1,16 +1,217 @@
 <!DOCTYPE html>
-<html lang="en"><meta charset="utf-8"><meta name="generator" content="Hugo 0.90.1" /><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="color-scheme" content="light dark">
-<meta name="supported-color-schemes" content="light dark"><title>Python&nbsp;&ndash;&nbsp;Emmanuel Arias</title><link rel="stylesheet" href="/css/core.min.9e958365cf0319ede466a402e1369f31dc1f205c868aa836fe25581725c829d3f3545d9f142cccafe35363950a63e2a6.css" integrity="sha384-npWDZc8DGe3kZqQC4TafMdwfIFyGiqg2/iVYFyXIKdPzVF2fFCzMr&#43;NTY5UKY&#43;Km"><link rel="alternate" type="application/rss+xml" href="/tags/python/index.xml" title="Emmanuel Arias" /><meta name="twitter:card" content="summary" />
-<meta name="twitter:title" content="Python" /><body><section id="header">
-    <div class="header wrap"><span class="header left-side"><a class="site home" href="/"><span class="site name">Emmanuel Arias</span></a></span>
-        <span class="header right-side"><div class="nav wrap"><nav class="nav"><a class="nav item" href="/categories/">Categories</a></nav></div></span></div><div class="site slogan"><span class="title">A software developer looking for his <span style='font-family: monospace;'>$PATH</span></span></div></section><section id="content"><section class="article header"><h1>Python</h1></section><ul class="note list"><li class="item"><a class="note" href="/post/source-to-source-compilation-with-lex-yacc/">
-            <p class="note title">Source-to-source compilation with Lex-Yacc</p><p class="note date">Jul 15, 2017</p><p class="note content">In this post, I will describe a source-to-source compiler that transforms a Brainfuck program into its equivalent 64 bits assembly code. The assembly program can be built into a executable, thus allowing you to run Brainfuck programs natively.
-<span class="mldr">&mldr;</span></p></a><p class="note labels"><a class="category" href="/categories/small-projects/">Small Projects</a><a class="tag" href="/tags/python/">Python</a><a class="tag" href="/tags/lex/yacc/">Lex/Yacc</a><a class="tag" href="/tags/compilers/">Compilers</a></p></li></ul></section><section id="footer"><div class="footer-wrap">
-    <p class="copyright">©2017-2021 Emmanuel Arias.</p>
-    <p class="powerby"><span>Powered&nbsp;by&nbsp;</span><a href="https://gohugo.io" 
-        target="_blank" rel="noopener noreferrer">Hugo</a><span>&nbsp;&amp;&nbsp;</span><a href="https://themes.gohugo.io/hugo-notepadium/" 
-        target="_blank" rel="noopener noreferrer">Notepadium</a></p></div>
-</section></body>
+<html lang="en">
+  <head>
+    
+      <title>
+        Python ::
+        Emmanuel Arias — Blog
+      </title>
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta
+  name="description"
+  content=""
+/>
+<meta
+  name="keywords"
+  content=""
+/>
+<meta name="robots" content="noodp" />
+<link rel="canonical" href="https://eariassoto.github.io/tags/python/" />
 
+
+
+
+
+<link rel="stylesheet" href="https://eariassoto.github.io/assets/style.css" />
+
+<link rel="stylesheet" href="https://eariassoto.github.io/style.css" />
+
+
+<link
+  rel="apple-touch-icon-precomposed"
+  sizes="144x144"
+  href="https://eariassoto.github.io/img/apple-touch-icon-144-precomposed.png"
+/>
+<link rel="shortcut icon" href="https://eariassoto.github.io/img/favicon.png" />
+
+
+<link href="https://eariassoto.github.io/assets/fonts/Inter-Italic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-Regular.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-Medium.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-MediumItalic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-Bold.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-BoldItalic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Python"/>
+<meta name="twitter:description" content=""/>
+
+
+
+<meta property="og:title" content="Python" />
+<meta property="og:description" content="" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://eariassoto.github.io/tags/python/" /><meta property="og:site_name" content="Emmanuel Arias" />
+
+
+
+
+<link rel="alternate" type="application/rss+xml" href="/tags/python/index.xml" title="Emmanuel Arias" />
+
+
+
+  </head>
+  <body class="dark-theme">
+    <div class="container">
+      <header class="header">
+  <span class="header__inner">
+    <a
+  href="/"
+  class="logo"
+  style="text-decoration: none;"
+>
+  
+    <span class="logo__mark"><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44">
+  <path fill="none" d="M15 8l14.729 14.382L15 35.367" />
+</svg>
+</span>
+    <span class="logo__text"
+      >Emmanuel Arias</span
+    >
+    
+  
+</a>
+
+    <span class="header__right">
+      
+      <span class="theme-toggle">
+        <svg
+  class="theme-toggler"
+  width="24"
+  height="24"
+  viewBox="0 0 48 48"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path
+    d="M22 41C32.4934 41 41 32.4934 41 22C41 11.5066 32.4934 3 22
+  3C11.5066 3 3 11.5066 3 22C3 32.4934 11.5066 41 22 41ZM7 22C7
+  13.7157 13.7157 7 22 7V37C13.7157 37 7 30.2843 7 22Z"
+  />
+</svg>
+
+      </span>
+    </span>
+  </span>
+</header>
+
+
+      <div class="content">
+        
+  <div class="posts">
+    
+      <div class="post on-list">
+        <h1 class="post-title"><a href="https://eariassoto.github.io/post/source-to-source-compilation-with-lex-yacc/">Source-to-source compilation with Lex-Yacc</a></h1>
+        <div class="post-meta">
+          
+            <span class="post-date">
+              2017-07-15
+            </span>
+
+            
+          
+          
+
+
+          
+        </div>
+
+        
+          <span class="post-tags">
+            
+              <a href="https://eariassoto.github.io/tags/python/">#Python</a>&nbsp;
+            
+              <a href="https://eariassoto.github.io/tags/lex/yacc/">#Lex/Yacc</a>&nbsp;
+            
+              <a href="https://eariassoto.github.io/tags/compilers/">#Compilers</a>&nbsp;
+            
+          </span>
+        
+
+        
+
+        <div class="post-content">
+          
+            
+              <p>In this post, I will describe a source-to-source compiler that transforms a Brainfuck program into its equivalent 64 bits assembly code. The assembly program can be built into a executable, thus allowing you to run Brainfuck programs natively.</p>
+            
+          
+        </div>
+        
+          <div>
+            <a class="read-more button" href="/post/source-to-source-compilation-with-lex-yacc/"
+              >Read more →</a
+            >
+          </div>
+        
+      </div>
+    
+    <div class="pagination">
+  <div class="pagination__buttons">
+    
+    
+  </div>
+</div>
+
+  </div>
+
+      </div>
+
+      
+        <footer class="footer">
+  <div class="footer__inner">
+    
+      <a
+  href="/"
+  class="logo"
+  style="text-decoration: none;"
+>
+  
+    <span class="logo__mark"><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44">
+  <path fill="none" d="M15 8l14.729 14.382L15 35.367" />
+</svg>
+</span>
+    <span class="logo__text"
+      >Emmanuel Arias</span
+    >
+    
+  
+</a>
+
+      <div class="copyright">
+        <span
+          >© 2022 Powered by
+          <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a></span
+        >
+        <span>
+          <a href="https://github.com/eariassoto/hugo-theme-hello-friend" target="_blank" rel="noopener">Theme</a> created by
+          <a href="https://twitter.com/panr" target="_blank" rel="noopener">panr</a>
+        </span>
+      </div>
+    
+  </div>
+</footer>
+
+<script src="https://eariassoto.github.io/assets/main.js"></script>
+<script src="https://eariassoto.github.io/assets/prism.js"></script>
+
+
+      
+    </div>
+
+    
+  </body>
 </html>

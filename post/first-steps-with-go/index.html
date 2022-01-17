@@ -1,71 +1,211 @@
 <!DOCTYPE html>
-<html lang="en"><meta charset="utf-8"><meta name="generator" content="Hugo 0.90.1" /><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="color-scheme" content="light dark">
-<meta name="supported-color-schemes" content="light dark"><title>First Steps With Go&nbsp;&ndash;&nbsp;Emmanuel Arias</title><link rel="stylesheet" href="/css/core.min.9e958365cf0319ede466a402e1369f31dc1f205c868aa836fe25581725c829d3f3545d9f142cccafe35363950a63e2a6.css" integrity="sha384-npWDZc8DGe3kZqQC4TafMdwfIFyGiqg2/iVYFyXIKdPzVF2fFCzMr&#43;NTY5UKY&#43;Km"><meta name="twitter:card" content="summary" />
-<meta name="twitter:title" content="First Steps With Go" /><body><section id="header">
-    <div class="header wrap"><span class="header left-side"><a class="site home" href="/"><span class="site name">Emmanuel Arias</span></a></span>
-        <span class="header right-side"><div class="nav wrap"><nav class="nav"><a class="nav item" href="/categories/">Categories</a></nav></div></span></div><div class="site slogan"><span class="title">A software developer looking for his <span style='font-family: monospace;'>$PATH</span></span></div></section><section id="content"><div class="article-container"><section class="article header">
-    <h1 class="article title">First Steps With Go</h1><p class="article date">Sep 10, 2017</p></section><article class="article markdown-body"><p>Go is a simple and powerful programming language. Its syntax is familiar to C/C++ but it definately has improvements in comparison. It has a bunch of great features such as static types, memory safety, garbage collection, and it is targeted to concurrent programming. I discovered it very recently, so I want to start simple and learn the basics of this language. In this post, we will write our first Go program and library. Also, we will learn how to unit tests our Go programs.</p>
+<html lang="en">
+  <head>
+    
+      <title>
+        First Steps With Go ::
+        Emmanuel Arias — Blog
+      </title>
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta
+  name="description"
+  content="Go is a simple and powerful programming language. Its syntax is familiar to C/C&#43;&#43; but it definately has improvements in comparison. It has a bunch of great features such as static types, memory safety, garbage collection, and it is targeted to concurrent programming. I discovered it very recently, so I want to start simple and learn the basics of this language. In this post, we will write our first Go program and library. Also, we will learn how to unit tests our Go programs.
+"
+/>
+<meta
+  name="keywords"
+  content=""
+/>
+<meta name="robots" content="noodp" />
+<link rel="canonical" href="https://eariassoto.github.io/post/first-steps-with-go/" />
+
+
+
+
+
+<link rel="stylesheet" href="https://eariassoto.github.io/assets/style.css" />
+
+<link rel="stylesheet" href="https://eariassoto.github.io/style.css" />
+
+
+<link
+  rel="apple-touch-icon-precomposed"
+  sizes="144x144"
+  href="https://eariassoto.github.io/img/apple-touch-icon-144-precomposed.png"
+/>
+<link rel="shortcut icon" href="https://eariassoto.github.io/img/favicon.png" />
+
+
+<link href="https://eariassoto.github.io/assets/fonts/Inter-Italic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-Regular.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-Medium.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-MediumItalic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-Bold.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-BoldItalic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="First Steps With Go"/>
+<meta name="twitter:description" content="Go is a simple and powerful programming language. Its syntax is familiar to C/C&#43;&#43; but it definately has improvements in comparison. It has a bunch of great features such as static types, memory safety, garbage collection, and it is targeted to concurrent programming. I discovered it very recently, so I want to start simple and learn the basics of this language. In this post, we will write our first Go program and library. Also, we will learn how to unit tests our Go programs."/>
+
+
+
+<meta property="og:title" content="First Steps With Go" />
+<meta property="og:description" content="Go is a simple and powerful programming language. Its syntax is familiar to C/C&#43;&#43; but it definately has improvements in comparison. It has a bunch of great features such as static types, memory safety, garbage collection, and it is targeted to concurrent programming. I discovered it very recently, so I want to start simple and learn the basics of this language. In this post, we will write our first Go program and library. Also, we will learn how to unit tests our Go programs." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://eariassoto.github.io/post/first-steps-with-go/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2017-09-10T18:03:18-06:00" />
+<meta property="article:modified_time" content="2017-09-10T18:03:18-06:00" /><meta property="og:site_name" content="Emmanuel Arias" />
+
+
+
+
+
+
+
+  </head>
+  <body class="dark-theme">
+    <div class="container">
+      <header class="header">
+  <span class="header__inner">
+    <a
+  href="/"
+  class="logo"
+  style="text-decoration: none;"
+>
+  
+    <span class="logo__mark"><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44">
+  <path fill="none" d="M15 8l14.729 14.382L15 35.367" />
+</svg>
+</span>
+    <span class="logo__text"
+      >Emmanuel Arias</span
+    >
+    
+  
+</a>
+
+    <span class="header__right">
+      
+      <span class="theme-toggle">
+        <svg
+  class="theme-toggler"
+  width="24"
+  height="24"
+  viewBox="0 0 48 48"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path
+    d="M22 41C32.4934 41 41 32.4934 41 22C41 11.5066 32.4934 3 22
+  3C11.5066 3 3 11.5066 3 22C3 32.4934 11.5066 41 22 41ZM7 22C7
+  13.7157 13.7157 7 22 7V37C13.7157 37 7 30.2843 7 22Z"
+  />
+</svg>
+
+      </span>
+    </span>
+  </span>
+</header>
+
+
+      <div class="content">
+        
+  
+  
+
+  <div class="post">
+    <h1 class="post-title">First Steps With Go</h1>
+    <div class="post-meta">
+      
+        <span class="post-date">
+          2017-09-10
+        </span>
+
+        
+          
+        
+      
+
+      
+
+
+      
+    </div>
+
+    
+      <span class="post-tags">
+        
+          <a href="https://eariassoto.github.io/tags/go/">#go</a>&nbsp;
+        
+      </span>
+    
+
+    
+
+    <div class="post-content">
+      
+      <p>Go is a simple and powerful programming language. Its syntax is familiar to C/C++ but it definately has improvements in comparison. It has a bunch of great features such as static types, memory safety, garbage collection, and it is targeted to concurrent programming. I discovered it very recently, so I want to start simple and learn the basics of this language. In this post, we will write our first Go program and library. Also, we will learn how to unit tests our Go programs.</p>
 <h1 id="installing-go">Installing Go</h1>
-<p>I will show you how to install Go in Linux. For Windows and Mac, the process should be very similar. First, you need to visit <a href="https://golang.org/dl/"target="_blank" rel="noopener noreferrer">this page</a>
- and copy the link for the Linux version. In my case, I need the <code>go1.9.linux-amd64</code> version. We need to extract the file somewhere in our computer.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#b58900">cd</span> /opt
+<p>I will show you how to install Go in Linux. For Windows and Mac, the process should be very similar. First, you need to visit <a href="https://golang.org/dl/">this page</a> and copy the link for the Linux version. In my case, I need the <code>go1.9.linux-amd64</code> version. We need to extract the file somewhere in our computer.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">cd /opt
 curl https://storage.googleapis.com/golang/go1.9.linux-amd64.tar.gz | tar zxf -
 </code></pre></div><p>Now, we need to create our Go home directory. In that folder, we will keep our source files, third-party libraries, and install the executables for our programs. Go ahead and create this folder in your home directory:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">go/
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">go/
 ├── bin
 └── src
 </code></pre></div><p>Finally, we need to set two environment variables: <code>GOROOT</code> and <code>GOPATH</code>. Go binaries will assume they have been installed in <code>/usr/local/go</code> (or <code>c:\Go</code> in Windows). In case you installed them somewhere else, set <code>GOROOT</code> to your Go binaries folder.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Point to the local installation of golang.</span>
-<span style="color:#b58900">export</span> <span style="color:#268bd2">GOROOT</span><span style="color:#719e07">=</span>/opt/go
-</code></pre></div><p>The <code>GOPATH</code> variable, as discussed <a href="https://golang.org/cmd/go/#hdr-GOPATH_environment_variable"target="_blank" rel="noopener noreferrer">here</a>
-:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># Point to the local installation of golang.</span>
+export GOROOT<span style="color:#f92672">=</span>/opt/go
+</code></pre></div><p>The <code>GOPATH</code> variable, as discussed <a href="https://golang.org/cmd/go/#hdr-GOPATH_environment_variable">here</a>:</p>
 <blockquote>
 <p>[&hellip;] lists places to look for Go code. On Unix, the value is a colon-separated string. On Windows, the value is a semicolon-separated string.</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Point to the location beneath which source and binaries are installed.</span>
-<span style="color:#b58900">export</span> <span style="color:#268bd2">GOPATH</span><span style="color:#719e07">=</span><span style="color:#268bd2">$HOME</span>/go
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># Point to the location beneath which source and binaries are installed.</span>
+export GOPATH<span style="color:#f92672">=</span>$HOME/go
 </code></pre></div><p>Finally, let&rsquo;s add Go binaries and our /bin folders to the $PATH variable. This way, we can use the Go tools and our programs from the console.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#586e75"># Ensure that the binary-release is on your PATH.</span>
-<span style="color:#b58900">export</span> <span style="color:#268bd2">PATH</span><span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">PATH</span><span style="color:#2aa198">}</span>:<span style="color:#2aa198">${</span><span style="color:#268bd2">GOROOT</span><span style="color:#2aa198">}</span>/bin
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># Ensure that the binary-release is on your PATH.</span>
+export PATH<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>PATH<span style="color:#e6db74">}</span>:<span style="color:#e6db74">${</span>GOROOT<span style="color:#e6db74">}</span>/bin
 
-<span style="color:#586e75"># Ensure that compiled binaries are also on your PATH.</span>
-<span style="color:#b58900">export</span> <span style="color:#268bd2">PATH</span><span style="color:#719e07">=</span><span style="color:#2aa198">${</span><span style="color:#268bd2">PATH</span><span style="color:#2aa198">}</span>:<span style="color:#268bd2">$HOME</span>/go/bin
+<span style="color:#75715e"># Ensure that compiled binaries are also on your PATH.</span>
+export PATH<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>PATH<span style="color:#e6db74">}</span>:$HOME/go/bin
 </code></pre></div><p>Save the <code>~/.bashrc</code> file, and check that Go is correctly installed:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#b58900">source</span> .bashrc
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ source .bashrc
 $ go version
 go version go1.9 linux/amd64
 </code></pre></div><h1 id="writing-our-first-hello-world-program">Writing our first &ldquo;Hello World!&rdquo; program</h1>
 <p>Let&rsquo;s create our first Go program. For this, we need to create a <code>hello_world</code> folder inside <code>$HOME/go/src</code>. Go files end with the <code>.go</code> extension. Let&rsquo;s add a <code>main.go</code> file with this code:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
 
-<span style="color:#719e07">import</span> (
-    <span style="color:#2aa198">&#34;fmt&#34;</span>
+<span style="color:#f92672">import</span> (
+    <span style="color:#e6db74">&#34;fmt&#34;</span>
 )
 
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
-    fmt.<span style="color:#268bd2">Println</span>(<span style="color:#2aa198">&#34;hello world!&#34;</span>)
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#e6db74">&#34;hello world!&#34;</span>)
 }
 </code></pre></div><p>The first statement in any Go source file will be the package name. Packages are a way to separate files in your projects. For executable projects, there should always be a <code>main</code> package.</p>
 <p>The <code>import</code> keyword allow us to import packages in our source file. The <code>fmt</code> package is part of the Go&rsquo;s standard library. We will use &ldquo;fmt&rdquo; to print to <code>stdout</code>. Later in this post, we will see how to import our own libraries.</p>
 <p>Finally, we need to define the <code>main</code> function. This will be the starting point of our program and it is always required in executable projects.</p>
 <h1 id="building-and-installing-our-program">Building and installing our program</h1>
 <p>To simple compile and run our program, we can use the <code>run</code> command.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#b58900">cd</span> <span style="color:#268bd2">$HOME</span>/go/src/hello_world
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ cd $HOME/go/src/hello_world
 $ go run main.go
 Hello world!
 </code></pre></div><p>This will not create an executable file. However, the <code>build</code> command will do it:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#b58900">cd</span> <span style="color:#268bd2">$HOME</span>/go/src/hello_world
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ cd $HOME/go/src/hello_world
 $ go build .
 $ ./hello_world
 Hello world!
 </code></pre></div><p>Additionally, the <code>install</code> command will build and copy the executable in the <code>go/bin</code> folder. We added this folder to our <code>$PATH</code>, so the executable will get installed in our computer.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#b58900">cd</span> <span style="color:#268bd2">$HOME</span>/go/src/hello_world
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ cd $HOME/go/src/hello_world
 $ go install .
 $ ./hello_world
 Hello world!
 </code></pre></div><p>So far, this is how your Go home folder should look like:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">go
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">go
 ├── bin
 │   └── hello_world
 └── src
@@ -74,127 +214,199 @@ Hello world!
         └── main.go
 </code></pre></div><h1 id="writing-our-own-library">Writing our own library</h1>
 <p>A library in Go is a project that does not define a <code>main</code> package and will not bild an executable file. For our first library, let&rsquo;s create a <code>strcaseconv</code> folder in <code>$HOME/go/src</code>. We will use this library in our <code>hello_world</code> folder. Inside <code>strcaseconv</code>, we will add a <code>strcase.go</code> file with this code:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> strcaseconv
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">strcaseconv</span>
 
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">ToMixCase</span>(s <span style="color:#dc322f">string</span>) <span style="color:#dc322f">string</span> {
-        b <span style="color:#719e07">:=</span> []<span style="color:#b58900">byte</span>(s)
-        <span style="color:#719e07">for</span> i <span style="color:#719e07">:=</span> <span style="color:#2aa198">0</span>; i &lt; <span style="color:#b58900">len</span>(b); i <span style="color:#719e07">+=</span> <span style="color:#2aa198">1</span> {
-                <span style="color:#719e07">if</span> b[i] <span style="color:#719e07">&gt;=</span> <span style="color:#2aa198">&#39;a&#39;</span> <span style="color:#719e07">&amp;&amp;</span> b[i] <span style="color:#719e07">&lt;=</span> <span style="color:#2aa198">&#39;z&#39;</span> {
-                        b[i] <span style="color:#719e07">+=</span> <span style="color:#2aa198">32</span>
-                } <span style="color:#719e07">else</span> <span style="color:#719e07">if</span> b[i] <span style="color:#719e07">&gt;=</span> <span style="color:#2aa198">&#39;A&#39;</span> <span style="color:#719e07">&amp;&amp;</span> b[i] <span style="color:#719e07">&lt;=</span> <span style="color:#2aa198">&#39;Z&#39;</span> {
-                        b[i] <span style="color:#719e07">-=</span> <span style="color:#2aa198">32</span>
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">ToMixCase</span>(<span style="color:#a6e22e">s</span> <span style="color:#66d9ef">string</span>) <span style="color:#66d9ef">string</span> {
+        <span style="color:#a6e22e">b</span> <span style="color:#f92672">:=</span> []byte(<span style="color:#a6e22e">s</span>)
+        <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">i</span> <span style="color:#f92672">:=</span> <span style="color:#ae81ff">0</span>; <span style="color:#a6e22e">i</span> &lt; len(<span style="color:#a6e22e">b</span>); <span style="color:#a6e22e">i</span> <span style="color:#f92672">+=</span> <span style="color:#ae81ff">1</span> {
+                <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">b</span>[<span style="color:#a6e22e">i</span>] <span style="color:#f92672">&gt;=</span> <span style="color:#e6db74">&#39;a&#39;</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">b</span>[<span style="color:#a6e22e">i</span>] <span style="color:#f92672">&lt;=</span> <span style="color:#e6db74">&#39;z&#39;</span> {
+                        <span style="color:#a6e22e">b</span>[<span style="color:#a6e22e">i</span>] <span style="color:#f92672">+=</span> <span style="color:#ae81ff">32</span>
+                } <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">b</span>[<span style="color:#a6e22e">i</span>] <span style="color:#f92672">&gt;=</span> <span style="color:#e6db74">&#39;A&#39;</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">b</span>[<span style="color:#a6e22e">i</span>] <span style="color:#f92672">&lt;=</span> <span style="color:#e6db74">&#39;Z&#39;</span> {
+                        <span style="color:#a6e22e">b</span>[<span style="color:#a6e22e">i</span>] <span style="color:#f92672">-=</span> <span style="color:#ae81ff">32</span>
                 }
         }
-        <span style="color:#719e07">return</span> <span style="color:#b58900">string</span>(b)
+        <span style="color:#66d9ef">return</span> string(<span style="color:#a6e22e">b</span>)
 }
 </code></pre></div><p>Compile the library to check for any errors:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#b58900">cd</span> <span style="color:#268bd2">$HOME</span>/go/src/strcaseconv
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ cd $HOME/go/src/strcaseconv
 $ go build .
 </code></pre></div><p>Now, go back to your <code>hello_world</code> projectd and modify <code>main.go</code> to use our new library:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> main
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">main</span>
 
-<span style="color:#719e07">import</span> (
-    <span style="color:#2aa198">&#34;fmt&#34;</span>
-    <span style="color:#2aa198">&#34;strcaseconv&#34;</span>
+<span style="color:#f92672">import</span> (
+    <span style="color:#e6db74">&#34;fmt&#34;</span>
+    <span style="color:#e6db74">&#34;strcaseconv&#34;</span>
 )
 
 
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">main</span>() {
-    fmt.<span style="color:#268bd2">Println</span>(strcaseconv.<span style="color:#268bd2">ToMixCase</span>(<span style="color:#2aa198">&#34;hello world!&#34;</span>))
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">main</span>() {
+    <span style="color:#a6e22e">fmt</span>.<span style="color:#a6e22e">Println</span>(<span style="color:#a6e22e">strcaseconv</span>.<span style="color:#a6e22e">ToMixCase</span>(<span style="color:#e6db74">&#34;hello world!&#34;</span>))
 }
 </code></pre></div><h1 id="unit-testing-our-projects">Unit testing our projects</h1>
 <p>In Go, the unit test framework comes for free. This framework consists in the <code>test</code> command and the <code>testing</code> package. All test should be written in files ending with <code>_test.go</code>. The unit test functions should be named following the <code>TestXXX</code> convention. The functions' signature ought to be <code>func (t *testing.T)</code>.</p>
 <p>The <code>test</code> command will run all unit test functions. Those function who calls <code>t.Error</code> or <code>t.Fail</code> are considered as failed tests. Let&rsquo;s unit test our <code>strcaseconv</code> library in <code>strcase_test.go</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#719e07">package</span> strcaseconv
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#f92672">package</span> <span style="color:#a6e22e">strcaseconv</span>
 
-<span style="color:#719e07">import</span> <span style="color:#2aa198">&#34;testing&#34;</span>
+<span style="color:#f92672">import</span> <span style="color:#e6db74">&#34;testing&#34;</span>
 
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">TestTryUpper</span>(t <span style="color:#719e07">*</span>testing.T) {
-    cases <span style="color:#719e07">:=</span> []<span style="color:#268bd2">struct</span> {
-        in, out <span style="color:#dc322f">byte</span>
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">TestTryUpper</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>) {
+    <span style="color:#a6e22e">cases</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">struct</span> {
+        <span style="color:#a6e22e">in</span>, <span style="color:#a6e22e">out</span> <span style="color:#66d9ef">byte</span>
     }{
-        {<span style="color:#2aa198">&#39;a&#39;</span>, <span style="color:#2aa198">&#39;A&#39;</span>},
-        {<span style="color:#2aa198">&#39;S&#39;</span>, <span style="color:#2aa198">&#39;S&#39;</span>},
-        {<span style="color:#2aa198">&#39;!&#39;</span>, <span style="color:#2aa198">&#39;!&#39;</span>},
+        {<span style="color:#e6db74">&#39;a&#39;</span>, <span style="color:#e6db74">&#39;A&#39;</span>},
+        {<span style="color:#e6db74">&#39;S&#39;</span>, <span style="color:#e6db74">&#39;S&#39;</span>},
+        {<span style="color:#e6db74">&#39;!&#39;</span>, <span style="color:#e6db74">&#39;!&#39;</span>},
     }
 
-    <span style="color:#719e07">for</span> _, c <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> cases {
-        got <span style="color:#719e07">:=</span> <span style="color:#268bd2">tryUpper</span>(c.in)
-        <span style="color:#719e07">if</span> got <span style="color:#719e07">!=</span> c.out {
-            t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;tryUpper(%q) == %q, want %q&#34;</span>, c.in, got, c.out)
+    <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">cases</span> {
+        <span style="color:#a6e22e">got</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">tryUpper</span>(<span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">in</span>)
+        <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">got</span> <span style="color:#f92672">!=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">out</span> {
+            <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Errorf</span>(<span style="color:#e6db74">&#34;tryUpper(%q) == %q, want %q&#34;</span>, <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">in</span>, <span style="color:#a6e22e">got</span>, <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">out</span>)
         }
     }
 }
 
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">TestTryLower</span>(t <span style="color:#719e07">*</span>testing.T) {
-    cases <span style="color:#719e07">:=</span> []<span style="color:#268bd2">struct</span> {
-        in, out <span style="color:#dc322f">byte</span>
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">TestTryLower</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>) {
+    <span style="color:#a6e22e">cases</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">struct</span> {
+        <span style="color:#a6e22e">in</span>, <span style="color:#a6e22e">out</span> <span style="color:#66d9ef">byte</span>
     }{
-        {<span style="color:#2aa198">&#39;a&#39;</span>, <span style="color:#2aa198">&#39;a&#39;</span>},
-        {<span style="color:#2aa198">&#39;S&#39;</span>, <span style="color:#2aa198">&#39;s&#39;</span>},
-        {<span style="color:#2aa198">&#39;#&#39;</span>, <span style="color:#2aa198">&#39;#&#39;</span>},
+        {<span style="color:#e6db74">&#39;a&#39;</span>, <span style="color:#e6db74">&#39;a&#39;</span>},
+        {<span style="color:#e6db74">&#39;S&#39;</span>, <span style="color:#e6db74">&#39;s&#39;</span>},
+        {<span style="color:#e6db74">&#39;#&#39;</span>, <span style="color:#e6db74">&#39;#&#39;</span>},
     }
 
-    <span style="color:#719e07">for</span> _, c <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> cases {
-        got <span style="color:#719e07">:=</span> <span style="color:#268bd2">tryLower</span>(c.in)
-        <span style="color:#719e07">if</span> got <span style="color:#719e07">!=</span> c.out {
-            t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;tryLower(%q) == %q, want %q&#34;</span>, c.in, got, c.out)
+    <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">cases</span> {
+        <span style="color:#a6e22e">got</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">tryLower</span>(<span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">in</span>)
+        <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">got</span> <span style="color:#f92672">!=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">out</span> {
+            <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Errorf</span>(<span style="color:#e6db74">&#34;tryLower(%q) == %q, want %q&#34;</span>, <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">in</span>, <span style="color:#a6e22e">got</span>, <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">out</span>)
         }
     }
 }
 
-<span style="color:#268bd2">func</span> <span style="color:#268bd2">TestToMixCase</span>(t <span style="color:#719e07">*</span>testing.T) {
-    cases <span style="color:#719e07">:=</span> []<span style="color:#268bd2">struct</span> {
-        in, out <span style="color:#dc322f">string</span>
+<span style="color:#66d9ef">func</span> <span style="color:#a6e22e">TestToMixCase</span>(<span style="color:#a6e22e">t</span> <span style="color:#f92672">*</span><span style="color:#a6e22e">testing</span>.<span style="color:#a6e22e">T</span>) {
+    <span style="color:#a6e22e">cases</span> <span style="color:#f92672">:=</span> []<span style="color:#66d9ef">struct</span> {
+        <span style="color:#a6e22e">in</span>, <span style="color:#a6e22e">out</span> <span style="color:#66d9ef">string</span>
     }{
-        {<span style="color:#2aa198">&#34;hello, world&#34;</span>, <span style="color:#2aa198">&#34;HeLlO, wOrLd&#34;</span>},
-        {<span style="color:#2aa198">&#34;It is a nice day&#34;</span>, <span style="color:#2aa198">&#34;It iS A NiCe dAy&#34;</span>},
-        {<span style="color:#2aa198">&#34;&#34;</span>, <span style="color:#2aa198">&#34;&#34;</span>},
+        {<span style="color:#e6db74">&#34;hello, world&#34;</span>, <span style="color:#e6db74">&#34;HeLlO, wOrLd&#34;</span>},
+        {<span style="color:#e6db74">&#34;It is a nice day&#34;</span>, <span style="color:#e6db74">&#34;It iS A NiCe dAy&#34;</span>},
+        {<span style="color:#e6db74">&#34;&#34;</span>, <span style="color:#e6db74">&#34;&#34;</span>},
     }
 
-    <span style="color:#719e07">for</span> _, c <span style="color:#719e07">:=</span> <span style="color:#719e07">range</span> cases {
-        got <span style="color:#719e07">:=</span> <span style="color:#268bd2">ToMixCase</span>(c.in)
-        <span style="color:#719e07">if</span> got <span style="color:#719e07">!=</span> c.out {
-            t.<span style="color:#268bd2">Errorf</span>(<span style="color:#2aa198">&#34;ToMixCase(%q) == %q, want %q&#34;</span>, c.in, got, c.out)
+    <span style="color:#66d9ef">for</span> <span style="color:#a6e22e">_</span>, <span style="color:#a6e22e">c</span> <span style="color:#f92672">:=</span> <span style="color:#66d9ef">range</span> <span style="color:#a6e22e">cases</span> {
+        <span style="color:#a6e22e">got</span> <span style="color:#f92672">:=</span> <span style="color:#a6e22e">ToMixCase</span>(<span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">in</span>)
+        <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">got</span> <span style="color:#f92672">!=</span> <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">out</span> {
+            <span style="color:#a6e22e">t</span>.<span style="color:#a6e22e">Errorf</span>(<span style="color:#e6db74">&#34;ToMixCase(%q) == %q, want %q&#34;</span>, <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">in</span>, <span style="color:#a6e22e">got</span>, <span style="color:#a6e22e">c</span>.<span style="color:#a6e22e">out</span>)
         }
     }
 }
 </code></pre></div><p>To run them, use the <code>test</code> command:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#b58900">cd</span> go/src/strcaseconv
-$ go <span style="color:#b58900">test</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ cd go/src/strcaseconv
+$ go test
 PASS
 ok      strcaseconv    0.001s
-</code></pre></div><p>You can find more information about the <code>testing</code> package <a href="https://godoc.org/testing"target="_blank" rel="noopener noreferrer">here</a>
-</p>
+</code></pre></div><p>You can find more information about the <code>testing</code> package <a href="https://godoc.org/testing">here</a></p>
 <h1 id="more-useful-commands">More useful commands</h1>
 <p>To install someone else&rsquo;s library or program, Go offers the <code>get</code> command. To try it, let&rsquo;s download this hello world program I made a little while ago:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go get github.com/eariassoto/hello_go
-$ <span style="color:#b58900">cd</span> go/src/github.com/eariassoto/hello_go/
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ go get github.com/eariassoto/hello_go
+$ cd go/src/github.com/eariassoto/hello_go/
 $ go run main.go 
 What is your name?: Emmanuel
 Hello Emmanuel!
 </code></pre></div><p>Go will install new libraries in the first folder pointed by <code>GOPATH</code>. In our setup, it will be in the <code>$HOME/go/src</code> folder.</p>
 <p>Another useful feature is the <code>fmt</code> command. This command will take as parameters Go source files and it will format them using Go conventions.</p>
-<p>If you are a Vim user, there is a nice <a href="https://github.com/fatih/vim-go"target="_blank" rel="noopener noreferrer">plugin</a>
- for Go development.</p>
+<p>If you are a Vim user, there is a nice <a href="https://github.com/fatih/vim-go">plugin</a> for Go development.</p>
 <h1 id="where-to-go-next">Where to go next?</h1>
 <p>There are a lot of resources and documentation about Go. If you want to learn more about Go visit these websites:</p>
 <ul>
-<li><a href="https://play.golang.org/"target="_blank" rel="noopener noreferrer">Go Playground</a>
- Online Go editor and compiler</li>
-<li><a href="https://tour.golang.org/welcome/1"target="_blank" rel="noopener noreferrer">A Tour of Go</a>
- Official Go tutorial</li>
-<li><a href="https://gobyexample.com/"target="_blank" rel="noopener noreferrer">Go by Example</a>
- Excellent hand-on introduction on Go</li>
-<li><a href="https://golang.org/doc/"target="_blank" rel="noopener noreferrer">Go Documentation</a>
- Official Go documentation</li>
-</ul></article><section class="article labels"><a class="category" href=/categories/small-projects/>Small Projects</a><a class="tag" href=/tags/go/>go</a></section>
-</div>
-<div class="article bottom"><section class="article navigation"><p><a class="link" href="/post/unit-tests/"><span class="iconfont icon-article"></span>Test your C++ code with the Google Test framework</a></p><p><a class="link" href="/post/source-to-source-compilation-with-lex-yacc/"><span class="iconfont icon-article"></span>Source-to-source compilation with Lex-Yacc</a></p></section></div></section><section id="footer"><div class="footer-wrap">
-    <p class="copyright">©2017-2021 Emmanuel Arias.</p>
-    <p class="powerby"><span>Powered&nbsp;by&nbsp;</span><a href="https://gohugo.io" 
-        target="_blank" rel="noopener noreferrer">Hugo</a><span>&nbsp;&amp;&nbsp;</span><a href="https://themes.gohugo.io/hugo-notepadium/" 
-        target="_blank" rel="noopener noreferrer">Notepadium</a></p></div>
-</section></body>
+<li><a href="https://play.golang.org/">Go Playground</a> Online Go editor and compiler</li>
+<li><a href="https://tour.golang.org/welcome/1">A Tour of Go</a> Official Go tutorial</li>
+<li><a href="https://gobyexample.com/">Go by Example</a> Excellent hand-on introduction on Go</li>
+<li><a href="https://golang.org/doc/">Go Documentation</a> Official Go documentation</li>
+</ul>
+    </div>
+    
+      
+        <div class="pagination">
+          <div class="pagination__title">
+            <span class="pagination__title-h"
+              >Read other posts</span
+            >
+            <hr />
+          </div>
+          <div class="pagination__buttons">
+            
+              <span class="button previous">
+                <a href="https://eariassoto.github.io/post/unit-tests/">
+                  <span class="button__icon">←</span>
+                  <span class="button__text">Test your C&#43;&#43; code with the Google Test framework</span>
+                </a>
+              </span>
+            
+            
+              <span class="button next">
+                <a href="https://eariassoto.github.io/post/source-to-source-compilation-with-lex-yacc/">
+                  <span class="button__text">Source-to-source compilation with Lex-Yacc</span>
+                  <span class="button__icon">→</span>
+                </a>
+              </span>
+            
+          </div>
+        </div>
+      
+    
 
+    
+      
+        
+
+      
+    
+  </div>
+
+      </div>
+
+      
+        <footer class="footer">
+  <div class="footer__inner">
+    
+      <a
+  href="/"
+  class="logo"
+  style="text-decoration: none;"
+>
+  
+    <span class="logo__mark"><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44">
+  <path fill="none" d="M15 8l14.729 14.382L15 35.367" />
+</svg>
+</span>
+    <span class="logo__text"
+      >Emmanuel Arias</span
+    >
+    
+  
+</a>
+
+      <div class="copyright">
+        <span
+          >© 2022 Powered by
+          <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a></span
+        >
+        <span>
+          <a href="https://github.com/eariassoto/hugo-theme-hello-friend" target="_blank" rel="noopener">Theme</a> created by
+          <a href="https://twitter.com/panr" target="_blank" rel="noopener">panr</a>
+        </span>
+      </div>
+    
+  </div>
+</footer>
+
+<script src="https://eariassoto.github.io/assets/main.js"></script>
+<script src="https://eariassoto.github.io/assets/prism.js"></script>
+
+
+      
+    </div>
+
+    
+  </body>
 </html>

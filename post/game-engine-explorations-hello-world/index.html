@@ -1,11 +1,153 @@
 <!DOCTYPE html>
-<html lang="en"><meta charset="utf-8"><meta name="generator" content="Hugo 0.90.1" /><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="color-scheme" content="light dark">
-<meta name="supported-color-schemes" content="light dark"><title>Game Engine Explorations: Hello World&nbsp;&ndash;&nbsp;Emmanuel Arias</title><link rel="stylesheet" href="/css/core.min.9e958365cf0319ede466a402e1369f31dc1f205c868aa836fe25581725c829d3f3545d9f142cccafe35363950a63e2a6.css" integrity="sha384-npWDZc8DGe3kZqQC4TafMdwfIFyGiqg2/iVYFyXIKdPzVF2fFCzMr&#43;NTY5UKY&#43;Km"><meta name="twitter:card" content="summary" />
-<meta name="twitter:title" content="Game Engine Explorations: Hello World" /><body><section id="header">
-    <div class="header wrap"><span class="header left-side"><a class="site home" href="/"><span class="site name">Emmanuel Arias</span></a></span>
-        <span class="header right-side"><div class="nav wrap"><nav class="nav"><a class="nav item" href="/categories/">Categories</a></nav></div></span></div><div class="site slogan"><span class="title">A software developer looking for his <span style='font-family: monospace;'>$PATH</span></span></div></section><section id="content"><div class="article-container"><section class="article header">
-    <h1 class="article title">Game Engine Explorations: Hello World</h1><p class="article date">Dec 04, 2021</p></section><article class="article markdown-body"><p>My previous post was an introduction to my first explorations in game engine development. In this post, I am laying down the foundation of the project. I will be using a tool that automatically creates Visual Studio solutions and Makefiles.</p>
+<html lang="en">
+  <head>
+    
+      <title>
+        Game Engine Explorations: Hello World ::
+        Emmanuel Arias — Blog
+      </title>
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta
+  name="description"
+  content="My previous post was an introduction to my first explorations in game engine development. In this post, I am laying down the foundation of the project. I will be using a tool that automatically creates Visual Studio solutions and Makefiles.
+"
+/>
+<meta
+  name="keywords"
+  content=""
+/>
+<meta name="robots" content="noodp" />
+<link rel="canonical" href="https://eariassoto.github.io/post/game-engine-explorations-hello-world/" />
+
+
+
+
+
+<link rel="stylesheet" href="https://eariassoto.github.io/assets/style.css" />
+
+<link rel="stylesheet" href="https://eariassoto.github.io/style.css" />
+
+
+<link
+  rel="apple-touch-icon-precomposed"
+  sizes="144x144"
+  href="https://eariassoto.github.io/img/apple-touch-icon-144-precomposed.png"
+/>
+<link rel="shortcut icon" href="https://eariassoto.github.io/img/favicon.png" />
+
+
+<link href="https://eariassoto.github.io/assets/fonts/Inter-Italic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-Regular.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-Medium.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-MediumItalic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-Bold.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-BoldItalic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Game Engine Explorations: Hello World"/>
+<meta name="twitter:description" content="My previous post was an introduction to my first explorations in game engine development. In this post, I am laying down the foundation of the project. I will be using a tool that automatically creates Visual Studio solutions and Makefiles."/>
+
+
+
+<meta property="og:title" content="Game Engine Explorations: Hello World" />
+<meta property="og:description" content="My previous post was an introduction to my first explorations in game engine development. In this post, I am laying down the foundation of the project. I will be using a tool that automatically creates Visual Studio solutions and Makefiles." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://eariassoto.github.io/post/game-engine-explorations-hello-world/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2021-12-04T03:41:43+01:00" />
+<meta property="article:modified_time" content="2021-12-04T03:41:43+01:00" /><meta property="og:site_name" content="Emmanuel Arias" />
+
+
+
+
+
+
+
+  </head>
+  <body class="dark-theme">
+    <div class="container">
+      <header class="header">
+  <span class="header__inner">
+    <a
+  href="/"
+  class="logo"
+  style="text-decoration: none;"
+>
+  
+    <span class="logo__mark"><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44">
+  <path fill="none" d="M15 8l14.729 14.382L15 35.367" />
+</svg>
+</span>
+    <span class="logo__text"
+      >Emmanuel Arias</span
+    >
+    
+  
+</a>
+
+    <span class="header__right">
+      
+      <span class="theme-toggle">
+        <svg
+  class="theme-toggler"
+  width="24"
+  height="24"
+  viewBox="0 0 48 48"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path
+    d="M22 41C32.4934 41 41 32.4934 41 22C41 11.5066 32.4934 3 22
+  3C11.5066 3 3 11.5066 3 22C3 32.4934 11.5066 41 22 41ZM7 22C7
+  13.7157 13.7157 7 22 7V37C13.7157 37 7 30.2843 7 22Z"
+  />
+</svg>
+
+      </span>
+    </span>
+  </span>
+</header>
+
+
+      <div class="content">
+        
+  
+  
+
+  <div class="post">
+    <h1 class="post-title">Game Engine Explorations: Hello World</h1>
+    <div class="post-meta">
+      
+        <span class="post-date">
+          2021-12-04
+        </span>
+
+        
+          
+        
+      
+
+      
+
+
+      
+    </div>
+
+    
+      <span class="post-tags">
+        
+          <a href="https://eariassoto.github.io/tags/c&#43;&#43;/">#C&#43;&#43;</a>&nbsp;
+        
+      </span>
+    
+
+    
+
+    <div class="post-content">
+      
+      <p>My previous post was an introduction to my first explorations in game engine development. In this post, I am laying down the foundation of the project. I will be using a tool that automatically creates Visual Studio solutions and Makefiles.</p>
 <p>This first iteration consists of an executable program that calls a function from a static library. This is how the folder structure looks like without any configuration files:</p>
 <pre tabindex="0"><code>└───sources
     ├───engine_lib
@@ -17,26 +159,26 @@
     └───game_app
             main.cpp
 </code></pre><p>The main function is quite simple:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#719e07">#include</span> <span style="color:#719e07">&#34;engine_lib/hello.h&#34;</span><span style="color:#719e07">
-</span><span style="color:#719e07"></span>
-<span style="color:#dc322f">int</span> <span style="color:#268bd2">main</span>(<span style="color:#dc322f">int</span> <span style="color:#586e75">/*argc*/</span>, <span style="color:#dc322f">char</span><span style="color:#719e07">*</span> <span style="color:#586e75">/*argv*/</span>[])
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;engine_lib/hello.h&#34;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>(<span style="color:#66d9ef">int</span> <span style="color:#75715e">/*argc*/</span>, <span style="color:#66d9ef">char</span><span style="color:#f92672">*</span> <span style="color:#75715e">/*argv*/</span>[])
 {
     say_hello();
 
-    <span style="color:#719e07">return</span> <span style="color:#2aa198">0</span>;
+    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
 }
 </code></pre></div><p>The static library is also as simple as it gets:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#586e75">// .h
-</span><span style="color:#586e75"></span><span style="color:#719e07">#pragma once
-</span><span style="color:#719e07"></span>
-<span style="color:#dc322f">void</span> <span style="color:#268bd2">say_hello</span>();
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C++" data-lang="C++"><span style="color:#75715e">// .h
+</span><span style="color:#75715e"></span><span style="color:#75715e">#pragma once
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">say_hello</span>();
 
-<span style="color:#586e75">// .cpp
-</span><span style="color:#586e75"></span><span style="color:#719e07">#include</span> <span style="color:#719e07">&#34;hello.h&#34;</span><span style="color:#719e07">
-</span><span style="color:#719e07"></span>
-<span style="color:#719e07">#include</span> <span style="color:#719e07">&lt;iostream&gt;</span><span style="color:#719e07">
-</span><span style="color:#719e07"></span>
-<span style="color:#dc322f">void</span> <span style="color:#268bd2">say_hello</span>() { std<span style="color:#719e07">::</span>cout <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;Hello World!</span><span style="color:#cb4b16">\n</span><span style="color:#2aa198">&#34;</span>; }
+<span style="color:#75715e">// .cpp
+</span><span style="color:#75715e"></span><span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;hello.h&#34;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+<span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">say_hello</span>() { std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;Hello World!</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>; }
 
 </code></pre></div><p>I also added a <code>.clang-format</code> file in the <code>sources</code> foldder with some personal preferences:</p>
 <pre tabindex="0"><code>---
@@ -47,9 +189,7 @@ SortIncludes: false
 PointerAlignment: Left
 </code></pre><p>Visual Studio will recognize the format file and apply it to source files in this project. I can also use it to configure it source files formatting in editors like Vim.</p>
 <h2 id="choosing-the-build-configurator-tool">Choosing the build configurator tool</h2>
-<p>I used to go with CMake to setup my C++ projects, but I found two alternatives that I better target large projects. At my current job at Ubisoft, we use a tool called Sharpmake. It takes a C# program as input that defines your solutions and projects. Sharpmake support multiple platforms, for our interests, it can generate Visual Studio solutions and Makefiles. This tool has an <a href="https://github.com/ubisoft/Sharpmake"target="_blank" rel="noopener noreferrer">open source version</a>
- available to use. A similar and more popular tool is <a href="https://premake.github.io/"target="_blank" rel="noopener noreferrer">Premake</a>
-. Premake comes as a lightweight executable that reads Lua files that can generate VS solutions and Makefiles as well. I have decided to use Premake for this project.</p>
+<p>I used to go with CMake to setup my C++ projects, but I found two alternatives that I better target large projects. At my current job at Ubisoft, we use a tool called Sharpmake. It takes a C# program as input that defines your solutions and projects. Sharpmake support multiple platforms, for our interests, it can generate Visual Studio solutions and Makefiles. This tool has an <a href="https://github.com/ubisoft/Sharpmake">open source version</a> available to use. A similar and more popular tool is <a href="https://premake.github.io/">Premake</a>. Premake comes as a lightweight executable that reads Lua files that can generate VS solutions and Makefiles as well. I have decided to use Premake for this project.</p>
 <h2 id="setting-up-premake">Setting up Premake</h2>
 <p>To make things easier, I will create a <code>premake</code> folder that will hold the binaries and the main Lua project file:</p>
 <pre tabindex="0"><code>├───premake
@@ -62,122 +202,194 @@ PointerAlignment: Left
 │
 └───sources
 </code></pre><p>The default filename for Premake script files is<code>premake5.lua</code>. In this file, I will configure my main workspace. Premake generator translates this workspace to VS solutions and Makefiles. Let´s look this file by pieces:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lua" data-lang="lua"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">1</span><span style="color:#586e75">-- Copyright (c) 2021 Emmanuel Arias</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">2</span><span style="color:#268bd2">local</span> ROOT <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;../&#34;</span></code></pre></div>
-<p>Paths in Premake are relative to where the current <code>.lua</code> file is located. For consistent paths, I will define a local variable <code>ROOT</code> in every script. This variable will help me to share global path variables.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lua" data-lang="lua"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">4</span><span style="color:#586e75">-- _ACTION is set to nil when premake is run but no generation is needed</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">5</span><span style="color:#586e75">-- for example &#34;premake5 -help&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">6</span><span style="color:#268bd2">local</span> gen_action <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;NULL&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">7</span><span style="color:#268bd2">if</span> _ACTION <span style="color:#719e07">~=</span> nill <span style="color:#268bd2">then</span> gen_action <span style="color:#719e07">=</span> _ACTION <span style="color:#268bd2">end</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">8</span><span style="color:#268bd2">local</span> GEN_FOLDER <span style="color:#719e07">=</span> (<span style="color:#2aa198">&#34;generated/&#34;</span> <span style="color:#719e07">..</span> gen_action <span style="color:#719e07">..</span> <span style="color:#2aa198">&#34;/&#34;</span>)</code></pre></div>
-<p>Here I am setting up the folder where Premake will use to create the project files. Everything in this folder is generated and should be omitted by the version control system. <code>_ACTION</code> is a global variable set by Premake and it stores the action set by the user. You can find more info <a href="https://premake.github.io/docs/_ACTION/"target="_blank" rel="noopener noreferrer">here</a>
-. For example, if I execute these two commands:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lua" data-lang="lua"><span style="color:#75715e">-- Copyright (c) 2021 Emmanuel Arias</span>
+<span style="color:#66d9ef">local</span> ROOT <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;../&#34;</span>
+</code></pre></div><p>Paths in Premake are relative to where the current <code>.lua</code> file is located. For consistent paths, I will define a local variable <code>ROOT</code> in every script. This variable will help me to share global path variables.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lua" data-lang="lua"><span style="color:#75715e">-- _ACTION is set to nil when premake is run but no generation is needed</span>
+<span style="color:#75715e">-- for example &#34;premake5 -help&#34;</span>
+<span style="color:#66d9ef">local</span> gen_action <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;NULL&#34;</span>
+<span style="color:#66d9ef">if</span> _ACTION <span style="color:#f92672">~=</span> nill <span style="color:#66d9ef">then</span> gen_action <span style="color:#f92672">=</span> _ACTION <span style="color:#66d9ef">end</span>
+<span style="color:#66d9ef">local</span> GEN_FOLDER <span style="color:#f92672">=</span> (<span style="color:#e6db74">&#34;generated/&#34;</span> <span style="color:#f92672">..</span> gen_action <span style="color:#f92672">..</span> <span style="color:#e6db74">&#34;/&#34;</span>)
+</code></pre></div><p>Here I am setting up the folder where Premake will use to create the project files. Everything in this folder is generated and should be omitted by the version control system. <code>_ACTION</code> is a global variable set by Premake and it stores the action set by the user. You can find more info <a href="https://premake.github.io/docs/_ACTION/">here</a>. For example, if I execute these two commands:</p>
 <pre tabindex="0"><code>&gt; premake5 vs2019
 &gt; premake5 gmake
 </code></pre><p>I will get two folders: <code>generated/vs2019</code> and <code>generated/gmake</code> with two different and independent configurations. This also means that I will get separate folders with the binary files by the VS solutions and the Makefiles.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lua" data-lang="lua"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">10</span><span style="color:#586e75">-- Global variables</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">11</span>PROJECT_ROOT <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;/sources/%{prj.name}/&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">12</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">13</span><span style="color:#268bd2">local</span> OUTPUT_DIR <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;%{cfg.buildcfg}-%{cfg.architecture}/&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">14</span>TARGET_FOLDER <span style="color:#719e07">=</span> (GEN_FOLDER <span style="color:#719e07">..</span> <span style="color:#2aa198">&#34;target/&#34;</span> <span style="color:#719e07">..</span> <span style="color:#2aa198">&#34;/%{prj.name}/&#34;</span> <span style="color:#719e07">..</span> OUTPUT_DIR)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">15</span>INTERMEDIATE_FOLDER <span style="color:#719e07">=</span> (GEN_FOLDER <span style="color:#719e07">..</span> <span style="color:#2aa198">&#34;intermediate/&#34;</span> <span style="color:#719e07">..</span> <span style="color:#2aa198">&#34;/%{prj.name}/&#34;</span> <span style="color:#719e07">..</span> OUTPUT_DIR)</code></pre></div>
-<p>Here I define global variables for the projects' lua scripts. Premake projects need to know where source files are and where to save internediate and output files. The <code>intermediate/</code> folder is not relevant for me, but <code>target/</code> will have all the executables and library files. The variables you see in between  <code>%{ }</code> are Premake tokens. These tokens are replaced in runtime and you can find more info <a href="https://premake.github.io/docs/Tokens"target="_blank" rel="noopener noreferrer">here</a>
-.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lua" data-lang="lua"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">17</span>workspace <span style="color:#2aa198">&#34;Tamarindo Engine&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">18</span>   startproject <span style="color:#2aa198">&#34;game_app&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">19</span>   filename <span style="color:#2aa198">&#34;tamarindo_engine&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">20</span>   location (ROOT <span style="color:#719e07">..</span> GEN_FOLDER)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">21</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">22</span>   configurations { <span style="color:#2aa198">&#34;Debug&#34;</span>, <span style="color:#2aa198">&#34;Release&#34;</span> }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">23</span>   platforms { <span style="color:#2aa198">&#34;x32&#34;</span>, <span style="color:#2aa198">&#34;x64&#34;</span> }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">24</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">25</span>   filter <span style="color:#2aa198">&#34;configurations:Debug&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">26</span>      defines { <span style="color:#2aa198">&#34;DEBUG&#34;</span> }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">27</span>      symbols  <span style="color:#2aa198">&#34;On&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">28</span>   
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">29</span>   filter <span style="color:#2aa198">&#34;configurations:Release&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">30</span>      defines { <span style="color:#2aa198">&#34;NDEBUG&#34;</span> }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">31</span>      optimize <span style="color:#2aa198">&#34;On&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">32</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">33</span>   filter <span style="color:#2aa198">&#34;platforms:x64&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">34</span>      architecture <span style="color:#2aa198">&#34;x86_64&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">35</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">36</span>   filter <span style="color:#2aa198">&#34;platforms:x32&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">37</span>      architecture <span style="color:#2aa198">&#34;x86&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">38</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">39</span>   flags {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">40</span>      <span style="color:#2aa198">&#34;FatalWarnings&#34;</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">41</span>      <span style="color:#2aa198">&#34;MultiProcessorCompile&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">42</span>   }</code></pre></div>
-<p>Now I start declaring the main workspace. It has simple configurations: it supports 32 and 64 bits architetures, and defines two optimization levels. For VS solutions, I can define a start-up project. This project will be the executable application.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lua" data-lang="lua"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">44</span>include (ROOT <span style="color:#719e07">..</span> <span style="color:#2aa198">&#34;sources/engine_lib&#34;</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">45</span>include (ROOT <span style="color:#719e07">..</span> <span style="color:#2aa198">&#34;sources/game_app&#34;</span>)</code></pre></div>
-<p>Finally, I need to include the two projects: the engine library and the application. Premake expects <code>premake5.lua</code> files in both of those folders.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lua" data-lang="lua"><span style="color:#75715e">-- Global variables</span>
+PROJECT_ROOT <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;/sources/%{prj.name}/&#34;</span>
+
+<span style="color:#66d9ef">local</span> OUTPUT_DIR <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;%{cfg.buildcfg}-%{cfg.architecture}/&#34;</span>
+TARGET_FOLDER <span style="color:#f92672">=</span> (GEN_FOLDER <span style="color:#f92672">..</span> <span style="color:#e6db74">&#34;target/&#34;</span> <span style="color:#f92672">..</span> <span style="color:#e6db74">&#34;/%{prj.name}/&#34;</span> <span style="color:#f92672">..</span> OUTPUT_DIR)
+INTERMEDIATE_FOLDER <span style="color:#f92672">=</span> (GEN_FOLDER <span style="color:#f92672">..</span> <span style="color:#e6db74">&#34;intermediate/&#34;</span> <span style="color:#f92672">..</span> <span style="color:#e6db74">&#34;/%{prj.name}/&#34;</span> <span style="color:#f92672">..</span> OUTPUT_DIR)
+</code></pre></div><p>Here I define global variables for the projects' lua scripts. Premake projects need to know where source files are and where to save internediate and output files. The <code>intermediate/</code> folder is not relevant for me, but <code>target/</code> will have all the executables and library files. The variables you see in between  <code>%{ }</code> are Premake tokens. These tokens are replaced in runtime and you can find more info <a href="https://premake.github.io/docs/Tokens">here</a>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lua" data-lang="lua">workspace <span style="color:#e6db74">&#34;Tamarindo Engine&#34;</span>
+   startproject <span style="color:#e6db74">&#34;game_app&#34;</span>
+   filename <span style="color:#e6db74">&#34;tamarindo_engine&#34;</span>
+   location (ROOT <span style="color:#f92672">..</span> GEN_FOLDER)
+
+   configurations { <span style="color:#e6db74">&#34;Debug&#34;</span>, <span style="color:#e6db74">&#34;Release&#34;</span> }
+   platforms { <span style="color:#e6db74">&#34;x32&#34;</span>, <span style="color:#e6db74">&#34;x64&#34;</span> }
+
+   filter <span style="color:#e6db74">&#34;configurations:Debug&#34;</span>
+      defines { <span style="color:#e6db74">&#34;DEBUG&#34;</span> }
+      symbols  <span style="color:#e6db74">&#34;On&#34;</span>
+   
+   filter <span style="color:#e6db74">&#34;configurations:Release&#34;</span>
+      defines { <span style="color:#e6db74">&#34;NDEBUG&#34;</span> }
+      optimize <span style="color:#e6db74">&#34;On&#34;</span>
+
+   filter <span style="color:#e6db74">&#34;platforms:x64&#34;</span>
+      architecture <span style="color:#e6db74">&#34;x86_64&#34;</span>
+
+   filter <span style="color:#e6db74">&#34;platforms:x32&#34;</span>
+      architecture <span style="color:#e6db74">&#34;x86&#34;</span>
+
+   flags {
+      <span style="color:#e6db74">&#34;FatalWarnings&#34;</span>,
+      <span style="color:#e6db74">&#34;MultiProcessorCompile&#34;</span>
+   }
+</code></pre></div><p>Now I start declaring the main workspace. It has simple configurations: it supports 32 and 64 bits architetures, and defines two optimization levels. For VS solutions, I can define a start-up project. This project will be the executable application.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lua" data-lang="lua">include (ROOT <span style="color:#f92672">..</span> <span style="color:#e6db74">&#34;sources/engine_lib&#34;</span>)
+include (ROOT <span style="color:#f92672">..</span> <span style="color:#e6db74">&#34;sources/game_app&#34;</span>)
+</code></pre></div><p>Finally, I need to include the two projects: the engine library and the application. Premake expects <code>premake5.lua</code> files in both of those folders.</p>
 <p>The script for the engine library is quite simple:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lua" data-lang="lua"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 1</span><span style="color:#586e75">-- Copyright (c) 2021 Emmanuel Arias</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 2</span><span style="color:#268bd2">local</span> ROOT <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;../../&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 3</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 4</span>project <span style="color:#2aa198">&#34;engine_lib&#34;</span>
-<span style="display:block;width:100%;background-color:#19404a"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 5</span>   kind <span style="color:#2aa198">&#34;StaticLib&#34;</span>
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 6</span>   language <span style="color:#2aa198">&#34;C++&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 7</span>   cppdialect <span style="color:#2aa198">&#34;C++17&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 8</span>   staticruntime <span style="color:#2aa198">&#34;on&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 9</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">10</span>   targetdir (ROOT <span style="color:#719e07">..</span> TARGET_FOLDER)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">11</span>   objdir (ROOT <span style="color:#719e07">..</span> INTERMEDIATE_FOLDER)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">12</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">13</span>   files {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">14</span>       (ROOT <span style="color:#719e07">..</span> PROJECT_ROOT <span style="color:#719e07">..</span> <span style="color:#2aa198">&#34;engine_lib/**.h&#34;</span> ),
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">15</span>       (ROOT <span style="color:#719e07">..</span> PROJECT_ROOT <span style="color:#719e07">..</span> <span style="color:#2aa198">&#34;engine_lib/**.cpp&#34;</span> )
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">16</span>    }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">17</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">18</span>    includedirs {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">19</span>      (ROOT <span style="color:#719e07">..</span> PROJECT_ROOT <span style="color:#719e07">..</span> <span style="color:#2aa198">&#34;engine_lib&#34;</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">20</span>    }</code></pre></div>
-<p>This script is very self-explanatory. From this snippet, I like that the <code>kind</code> command makes configuration easier. The application project script has few differences:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lua" data-lang="lua"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 1</span><span style="color:#586e75">-- Copyright (c) 2021 Emmanuel Arias</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 2</span><span style="color:#268bd2">local</span> ROOT <span style="color:#719e07">=</span> <span style="color:#2aa198">&#34;../../&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 3</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 4</span>project <span style="color:#2aa198">&#34;game_app&#34;</span>
-<span style="display:block;width:100%;background-color:#19404a"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 5</span>   kind <span style="color:#2aa198">&#34;ConsoleApp&#34;</span>
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 6</span>   language <span style="color:#2aa198">&#34;C++&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 7</span>   cppdialect <span style="color:#2aa198">&#34;C++17&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 8</span>   staticruntime <span style="color:#2aa198">&#34;on&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050"> 9</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">10</span>   targetdir (ROOT <span style="color:#719e07">..</span> TARGET_FOLDER)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">11</span>   objdir (ROOT <span style="color:#719e07">..</span> INTERMEDIATE_FOLDER)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">12</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">13</span>   files {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">14</span>       (ROOT <span style="color:#719e07">..</span> PROJECT_ROOT <span style="color:#719e07">..</span> <span style="color:#2aa198">&#34;**.h&#34;</span> ),
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">15</span>       (ROOT <span style="color:#719e07">..</span> PROJECT_ROOT <span style="color:#719e07">..</span> <span style="color:#2aa198">&#34;**.cpp&#34;</span> )
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">16</span>    }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">17</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">18</span>    includedirs {
-<span style="display:block;width:100%;background-color:#19404a"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">19</span>        <span style="color:#2aa198">&#34;../engine_lib&#34;</span>
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">20</span>    }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">21</span>
-<span style="display:block;width:100%;background-color:#19404a"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">22</span>    links {
-</span><span style="display:block;width:100%;background-color:#19404a"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">23</span>        <span style="color:#2aa198">&#34;engine_lib&#34;</span>
-</span><span style="display:block;width:100%;background-color:#19404a"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#495050">24</span>    }</span></code></pre></div>
-<p>Last thing I need to make things easier is to create a batch script to run Premake.</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bat" data-lang="bat">:<span style="color:#586e75">: Copyright (c) 2021 Emmanuel Arias</span>
-@<span style="color:#719e07">echo</span> off
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lua" data-lang="lua"><span style="color:#75715e">-- Copyright (c) 2021 Emmanuel Arias</span>
+<span style="color:#66d9ef">local</span> ROOT <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;../../&#34;</span>
 
-<span style="color:#719e07">call</span> premake\bin\win64\premake5.exe --file=premake/premake5.lua vs2019
+project <span style="color:#e6db74">&#34;engine_lib&#34;</span>
+   kind <span style="color:#e6db74">&#34;StaticLib&#34;</span>
+   language <span style="color:#e6db74">&#34;C++&#34;</span>
+   cppdialect <span style="color:#e6db74">&#34;C++17&#34;</span>
+   staticruntime <span style="color:#e6db74">&#34;on&#34;</span>
+
+   targetdir (ROOT <span style="color:#f92672">..</span> TARGET_FOLDER)
+   objdir (ROOT <span style="color:#f92672">..</span> INTERMEDIATE_FOLDER)
+
+   files {
+       (ROOT <span style="color:#f92672">..</span> PROJECT_ROOT <span style="color:#f92672">..</span> <span style="color:#e6db74">&#34;engine_lib/**.h&#34;</span> ),
+       (ROOT <span style="color:#f92672">..</span> PROJECT_ROOT <span style="color:#f92672">..</span> <span style="color:#e6db74">&#34;engine_lib/**.cpp&#34;</span> )
+    }
+
+    includedirs {
+      (ROOT <span style="color:#f92672">..</span> PROJECT_ROOT <span style="color:#f92672">..</span> <span style="color:#e6db74">&#34;engine_lib&#34;</span>)
+    }
+</code></pre></div><p>This script is very self-explanatory. From this snippet, I like that the <code>kind</code> command makes configuration easier. The application project script has few differences:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-lua" data-lang="lua"><span style="color:#75715e">-- Copyright (c) 2021 Emmanuel Arias</span>
+<span style="color:#66d9ef">local</span> ROOT <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;../../&#34;</span>
+
+project <span style="color:#e6db74">&#34;game_app&#34;</span>
+   kind <span style="color:#e6db74">&#34;ConsoleApp&#34;</span>
+   language <span style="color:#e6db74">&#34;C++&#34;</span>
+   cppdialect <span style="color:#e6db74">&#34;C++17&#34;</span>
+   staticruntime <span style="color:#e6db74">&#34;on&#34;</span>
+
+   targetdir (ROOT <span style="color:#f92672">..</span> TARGET_FOLDER)
+   objdir (ROOT <span style="color:#f92672">..</span> INTERMEDIATE_FOLDER)
+
+   files {
+       (ROOT <span style="color:#f92672">..</span> PROJECT_ROOT <span style="color:#f92672">..</span> <span style="color:#e6db74">&#34;**.h&#34;</span> ),
+       (ROOT <span style="color:#f92672">..</span> PROJECT_ROOT <span style="color:#f92672">..</span> <span style="color:#e6db74">&#34;**.cpp&#34;</span> )
+    }
+
+    includedirs {
+        <span style="color:#e6db74">&#34;../engine_lib&#34;</span>
+    }
+
+    links {
+        <span style="color:#e6db74">&#34;engine_lib&#34;</span>
+    }
+</code></pre></div><p>Last thing I need to make things easier is to create a batch script to run Premake.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bat" data-lang="bat">:<span style="color:#75715e">: Copyright (c) 2021 Emmanuel Arias</span>
+@<span style="color:#66d9ef">echo</span> off
+
+<span style="color:#66d9ef">call</span> premake\bin\win64\premake5.exe --file=premake/premake5.lua vs2019
 </code></pre></div><p>After running the script, my project folder will look like this:</p>
-<p><img  src="/static/img/engine_explorations/base_struct.PNG"
-        alt="Base project structure"/></p>
-<p>I can run the executable from Visual Studio, or I can go and execute it in the <code>target</code> folder. You can find this project on my <a href="https://github.com/eariassoto/tamarindo_engine"target="_blank" rel="noopener noreferrer">Github</a>
-, and the code from this post is in this <a href="https://github.com/eariassoto/tamarindo_engine/tree/a4ca92dbdb4bca9a467d26275929db3588e9f1e1"target="_blank" rel="noopener noreferrer">commit</a>
-.</p>
-<p>That is all for now, in the <a href="/post/game-engine-explorations-basic-design/">next post</a>
-, I will lay down the basic class hierarchy and main function for the engine. Thanks a lot for reading :).</p></article><section class="article labels"><a class="category" href=/categories/game-engine-explorations/>Game Engine Explorations</a><a class="tag" href=/tags/c&#43;&#43;/>C&#43;&#43;</a></section>
-</div>
-<div class="article bottom"><section class="article navigation"><p><a class="link" href="/post/game-engine-explorations-basic-design/"><span class="iconfont icon-article"></span>Game Engine Explorations: Name, Base Design and Logging</a></p><p><a class="link" href="/post/game-engine-explorations-first-steps/"><span class="iconfont icon-article"></span>Game Engine Explorations: First steps</a></p></section></div></section><section id="footer"><div class="footer-wrap">
-    <p class="copyright">©2017-2021 Emmanuel Arias.</p>
-    <p class="powerby"><span>Powered&nbsp;by&nbsp;</span><a href="https://gohugo.io" 
-        target="_blank" rel="noopener noreferrer">Hugo</a><span>&nbsp;&amp;&nbsp;</span><a href="https://themes.gohugo.io/hugo-notepadium/" 
-        target="_blank" rel="noopener noreferrer">Notepadium</a></p></div>
-</section></body>
+<p><img src="/static/img/engine_explorations/base_struct.PNG" alt="Base project structure"></p>
+<p>I can run the executable from Visual Studio, or I can go and execute it in the <code>target</code> folder. You can find this project on my <a href="https://github.com/eariassoto/tamarindo_engine">Github</a>, and the code from this post is in this <a href="https://github.com/eariassoto/tamarindo_engine/tree/a4ca92dbdb4bca9a467d26275929db3588e9f1e1">commit</a>.</p>
+<p>That is all for now, in the <a href="/post/game-engine-explorations-basic-design/">next post</a>, I will lay down the basic class hierarchy and main function for the engine. Thanks a lot for reading :).</p>
+    </div>
+    
+      
+        <div class="pagination">
+          <div class="pagination__title">
+            <span class="pagination__title-h"
+              >Read other posts</span
+            >
+            <hr />
+          </div>
+          <div class="pagination__buttons">
+            
+              <span class="button previous">
+                <a href="https://eariassoto.github.io/post/game-engine-explorations-basic-design/">
+                  <span class="button__icon">←</span>
+                  <span class="button__text">Game Engine Explorations: Name, Base Design and Logging</span>
+                </a>
+              </span>
+            
+            
+              <span class="button next">
+                <a href="https://eariassoto.github.io/post/game-engine-explorations-first-steps/">
+                  <span class="button__text">Game Engine Explorations: First steps</span>
+                  <span class="button__icon">→</span>
+                </a>
+              </span>
+            
+          </div>
+        </div>
+      
+    
 
+    
+      
+        
+
+      
+    
+  </div>
+
+      </div>
+
+      
+        <footer class="footer">
+  <div class="footer__inner">
+    
+      <a
+  href="/"
+  class="logo"
+  style="text-decoration: none;"
+>
+  
+    <span class="logo__mark"><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44">
+  <path fill="none" d="M15 8l14.729 14.382L15 35.367" />
+</svg>
+</span>
+    <span class="logo__text"
+      >Emmanuel Arias</span
+    >
+    
+  
+</a>
+
+      <div class="copyright">
+        <span
+          >© 2022 Powered by
+          <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a></span
+        >
+        <span>
+          <a href="https://github.com/eariassoto/hugo-theme-hello-friend" target="_blank" rel="noopener">Theme</a> created by
+          <a href="https://twitter.com/panr" target="_blank" rel="noopener">panr</a>
+        </span>
+      </div>
+    
+  </div>
+</footer>
+
+<script src="https://eariassoto.github.io/assets/main.js"></script>
+<script src="https://eariassoto.github.io/assets/prism.js"></script>
+
+
+      
+    </div>
+
+    
+  </body>
 </html>

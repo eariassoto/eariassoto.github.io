@@ -1,152 +1,372 @@
 <!DOCTYPE html>
-<html lang="en"><meta charset="utf-8"><meta name="generator" content="Hugo 0.90.1" /><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="color-scheme" content="light dark">
-<meta name="supported-color-schemes" content="light dark"><title>Make your pointers smart - C&#43;&#43; good practices&nbsp;&ndash;&nbsp;Emmanuel Arias</title><link rel="stylesheet" href="/css/core.min.9e958365cf0319ede466a402e1369f31dc1f205c868aa836fe25581725c829d3f3545d9f142cccafe35363950a63e2a6.css" integrity="sha384-npWDZc8DGe3kZqQC4TafMdwfIFyGiqg2/iVYFyXIKdPzVF2fFCzMr&#43;NTY5UKY&#43;Km"><meta name="twitter:card" content="summary" />
-<meta name="twitter:title" content="Make your pointers smart - C&#43;&#43; good practices" /><body><section id="header">
-    <div class="header wrap"><span class="header left-side"><a class="site home" href="/"><span class="site name">Emmanuel Arias</span></a></span>
-        <span class="header right-side"><div class="nav wrap"><nav class="nav"><a class="nav item" href="/categories/">Categories</a></nav></div></span></div><div class="site slogan"><span class="title">A software developer looking for his <span style='font-family: monospace;'>$PATH</span></span></div></section><section id="content"><div class="article-container"><section class="article header">
-    <h1 class="article title">Make your pointers smart - C++ good practices</h1><p class="article date">Feb 28, 2018</p></section><article class="article markdown-body"><p>Ever since the C++ language was first standardized, <code>new</code> and <code>delete</code> were defined as the methods to create/delete objects dynamically. The <code>new</code> operator allocates a memory block to construct an object and then calls the proper class' constructor to initialize it. If successful, this operator will return a pointer to the location of the memory block. Otherwise, it will return <code>nullptr</code> or it will throw an exception. The <code>delete</code> operator executes the inverse operation, it deallocates object&rsquo;s memory block. Before freeing the memory, <code>delete</code> calls the object&rsquo;s destructor. The destructor is used to free memory that the object must delete.</p>
+<html lang="en">
+  <head>
+    
+      <title>
+        Make your pointers smart - C&#43;&#43; good practices ::
+        Emmanuel Arias — Blog
+      </title>
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta
+  name="description"
+  content="Ever since the C&#43;&#43; language was first standardized, new and delete were defined as the methods to create/delete objects dynamically. The new operator allocates a memory block to construct an object and then calls the proper class&#39; constructor to initialize it. If successful, this operator will return a pointer to the location of the memory block. Otherwise, it will return nullptr or it will throw an exception. The delete operator executes the inverse operation, it deallocates object&amp;rsquo;s memory block."
+/>
+<meta
+  name="keywords"
+  content=""
+/>
+<meta name="robots" content="noodp" />
+<link rel="canonical" href="https://eariassoto.github.io/post/smart-pointers-cpp-good-practices/" />
+
+
+
+
+
+<link rel="stylesheet" href="https://eariassoto.github.io/assets/style.css" />
+
+<link rel="stylesheet" href="https://eariassoto.github.io/style.css" />
+
+
+<link
+  rel="apple-touch-icon-precomposed"
+  sizes="144x144"
+  href="https://eariassoto.github.io/img/apple-touch-icon-144-precomposed.png"
+/>
+<link rel="shortcut icon" href="https://eariassoto.github.io/img/favicon.png" />
+
+
+<link href="https://eariassoto.github.io/assets/fonts/Inter-Italic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-Regular.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-Medium.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-MediumItalic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-Bold.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+<link href="https://eariassoto.github.io/assets/fonts/Inter-BoldItalic.woff2" rel="preload" type="font/woff2" as="font" crossorigin="">
+
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Make your pointers smart - C&#43;&#43; good practices"/>
+<meta name="twitter:description" content="Ever since the C&#43;&#43; language was first standardized, new and delete were defined as the methods to create/delete objects dynamically. The new operator allocates a memory block to construct an object and then calls the proper class&#39; constructor to initialize it. If successful, this operator will return a pointer to the location of the memory block. Otherwise, it will return nullptr or it will throw an exception. The delete operator executes the inverse operation, it deallocates object&rsquo;s memory block."/>
+
+
+
+<meta property="og:title" content="Make your pointers smart - C&#43;&#43; good practices" />
+<meta property="og:description" content="Ever since the C&#43;&#43; language was first standardized, new and delete were defined as the methods to create/delete objects dynamically. The new operator allocates a memory block to construct an object and then calls the proper class&#39; constructor to initialize it. If successful, this operator will return a pointer to the location of the memory block. Otherwise, it will return nullptr or it will throw an exception. The delete operator executes the inverse operation, it deallocates object&rsquo;s memory block." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://eariassoto.github.io/post/smart-pointers-cpp-good-practices/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2018-02-28T21:05:41-06:00" />
+<meta property="article:modified_time" content="2018-02-28T21:05:41-06:00" /><meta property="og:site_name" content="Emmanuel Arias" />
+
+
+
+
+
+
+
+  </head>
+  <body class="dark-theme">
+    <div class="container">
+      <header class="header">
+  <span class="header__inner">
+    <a
+  href="/"
+  class="logo"
+  style="text-decoration: none;"
+>
+  
+    <span class="logo__mark"><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44">
+  <path fill="none" d="M15 8l14.729 14.382L15 35.367" />
+</svg>
+</span>
+    <span class="logo__text"
+      >Emmanuel Arias</span
+    >
+    
+  
+</a>
+
+    <span class="header__right">
+      
+      <span class="theme-toggle">
+        <svg
+  class="theme-toggler"
+  width="24"
+  height="24"
+  viewBox="0 0 48 48"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path
+    d="M22 41C32.4934 41 41 32.4934 41 22C41 11.5066 32.4934 3 22
+  3C11.5066 3 3 11.5066 3 22C3 32.4934 11.5066 41 22 41ZM7 22C7
+  13.7157 13.7157 7 22 7V37C13.7157 37 7 30.2843 7 22Z"
+  />
+</svg>
+
+      </span>
+    </span>
+  </span>
+</header>
+
+
+      <div class="content">
+        
+  
+  
+
+  <div class="post">
+    <h1 class="post-title">Make your pointers smart - C++ good practices</h1>
+    <div class="post-meta">
+      
+        <span class="post-date">
+          2018-02-28
+        </span>
+
+        
+          
+        
+      
+
+      
+
+
+      
+    </div>
+
+    
+      <span class="post-tags">
+        
+          <a href="https://eariassoto.github.io/tags/c&#43;&#43;/">#C&#43;&#43;</a>&nbsp;
+        
+          <a href="https://eariassoto.github.io/tags/pointers/">#pointers</a>&nbsp;
+        
+      </span>
+    
+
+    
+
+    <div class="post-content">
+      
+      <p>Ever since the C++ language was first standardized, <code>new</code> and <code>delete</code> were defined as the methods to create/delete objects dynamically. The <code>new</code> operator allocates a memory block to construct an object and then calls the proper class' constructor to initialize it. If successful, this operator will return a pointer to the location of the memory block. Otherwise, it will return <code>nullptr</code> or it will throw an exception. The <code>delete</code> operator executes the inverse operation, it deallocates object&rsquo;s memory block. Before freeing the memory, <code>delete</code> calls the object&rsquo;s destructor. The destructor is used to free memory that the object must delete.</p>
 <p>Let&rsquo;s create a small example that created objects dynamically with <code>new</code> and <code>delete</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#719e07">#include</span> <span style="color:#719e07">&lt;iostream&gt;</span><span style="color:#719e07">
-</span><span style="color:#719e07">#include</span> <span style="color:#719e07">&lt;string&gt;</span><span style="color:#719e07">
-</span><span style="color:#719e07">#include</span> <span style="color:#719e07">&lt;sstream&gt;</span><span style="color:#719e07">
-</span><span style="color:#719e07"></span>
-<span style="color:#719e07">class</span> <span style="color:#268bd2">Contact</span> {
- <span style="color:#719e07">public</span><span style="color:#719e07">:</span>
-  Contact(<span style="color:#719e07">const</span> std<span style="color:#719e07">::</span>string<span style="color:#719e07">&amp;</span> name, <span style="color:#719e07">const</span> std<span style="color:#719e07">::</span>string<span style="color:#719e07">&amp;</span> email)
-      <span style="color:#719e07">:</span> name{name}, email{email} {
-    std<span style="color:#719e07">::</span>cout <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;Constructed: [&#34;</span> <span style="color:#719e07">&lt;&lt;</span> <span style="color:#719e07">this</span> <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;]</span><span style="color:#cb4b16">\n</span><span style="color:#2aa198">&#34;</span>;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;string&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;sstream&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Contact</span> {
+ <span style="color:#66d9ef">public</span><span style="color:#f92672">:</span>
+  Contact(<span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>string<span style="color:#f92672">&amp;</span> name, <span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>string<span style="color:#f92672">&amp;</span> email)
+      <span style="color:#f92672">:</span> name{name}, email{email} {
+    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;Constructed: [&#34;</span> <span style="color:#f92672">&lt;&lt;</span> <span style="color:#66d9ef">this</span> <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;]</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>;
   }
-  <span style="color:#719e07">~</span>Contact() { std<span style="color:#719e07">::</span>cout <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;Destructing: [&#34;</span> <span style="color:#719e07">&lt;&lt;</span> <span style="color:#719e07">this</span> <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;]</span><span style="color:#cb4b16">\n</span><span style="color:#2aa198">&#34;</span>; };
+  <span style="color:#f92672">~</span>Contact() { std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;Destructing: [&#34;</span> <span style="color:#f92672">&lt;&lt;</span> <span style="color:#66d9ef">this</span> <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;]</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>; };
 
-  <span style="color:#719e07">const</span> std<span style="color:#719e07">::</span>string print() {
-    std<span style="color:#719e07">::</span>stringstream printStream;
-    printStream <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;{Name:&#34;</span> <span style="color:#719e07">&lt;&lt;</span> name <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;, Email:&#34;</span> <span style="color:#719e07">&lt;&lt;</span> email <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;}&#34;</span>;
-    <span style="color:#719e07">return</span> printStream.str();
+  <span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>string print() {
+    std<span style="color:#f92672">::</span>stringstream printStream;
+    printStream <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;{Name:&#34;</span> <span style="color:#f92672">&lt;&lt;</span> name <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;, Email:&#34;</span> <span style="color:#f92672">&lt;&lt;</span> email <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;}&#34;</span>;
+    <span style="color:#66d9ef">return</span> printStream.str();
   }
 
- <span style="color:#719e07">protected</span><span style="color:#719e07">:</span>
-  std<span style="color:#719e07">::</span>string name;
-  std<span style="color:#719e07">::</span>string email;
+ <span style="color:#66d9ef">protected</span><span style="color:#f92672">:</span>
+  std<span style="color:#f92672">::</span>string name;
+  std<span style="color:#f92672">::</span>string email;
 };
 
-<span style="color:#dc322f">int</span> <span style="color:#268bd2">main</span>() {
-  Contact<span style="color:#719e07">*</span> contact <span style="color:#719e07">=</span> <span style="color:#719e07">new</span> Contact(<span style="color:#2aa198">&#34;John Doe&#34;</span>, <span style="color:#2aa198">&#34;jdoe@mail.com&#34;</span>);
-  std<span style="color:#719e07">::</span>cout <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;Contact: &#34;</span> <span style="color:#719e07">&lt;&lt;</span> contact<span style="color:#719e07">-&gt;</span>print() <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#39;\n&#39;</span>;
-  <span style="color:#719e07">delete</span> contact;
-  <span style="color:#719e07">return</span> <span style="color:#2aa198">0</span>;
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>() {
+  Contact<span style="color:#f92672">*</span> contact <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> Contact(<span style="color:#e6db74">&#34;John Doe&#34;</span>, <span style="color:#e6db74">&#34;jdoe@mail.com&#34;</span>);
+  std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;Contact: &#34;</span> <span style="color:#f92672">&lt;&lt;</span> contact<span style="color:#f92672">-&gt;</span>print() <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#39;\n&#39;</span>;
+  <span style="color:#66d9ef">delete</span> contact;
+  <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
 }
 </code></pre></div><p>If we run this program we will get:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">Constructed: <span style="color:#719e07">[</span>0x162bc80<span style="color:#719e07">]</span>
-Contact: <span style="color:#719e07">{</span>Name:John Doe, Email:jdoe@mail.com<span style="color:#719e07">}</span>
-Destructing: <span style="color:#719e07">[</span>0x162bc80<span style="color:#719e07">]</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">Constructed: <span style="color:#f92672">[</span>0x162bc80<span style="color:#f92672">]</span>
+Contact: <span style="color:#f92672">{</span>Name:John Doe, Email:jdoe@mail.com<span style="color:#f92672">}</span>
+Destructing: <span style="color:#f92672">[</span>0x162bc80<span style="color:#f92672">]</span>
 </code></pre></div><p>Using regular pointers, like this example can give you problems. If you miss a <code>delete</code> call on an object, the object&rsquo;s memory blocks will not be reassigned to another process. This problem is called memory leak. Leaking memory can exhaust all of the system&rsquo;s memory!</p>
 <p>Another problem related to <code>new</code> and <code>delete</code> is pointer ownership. A regular pointer does not have the context to indicate who is its owner. By ownership, I mean whose object is in charge of deleting the pointer&rsquo;s reference. If no one deletes the memory, we will get our memory leaked. If <code>delete</code> gets called twice for the same object, we will get a segmentation fault. Further, if someone deletes an object, and another object tries to reference it, we will also hit a segmentation fault. With regular pointers, you must handle memory deallocation carefully. The larger your program grows, the harder will be to not make mistakes.</p>
 <h1 id="introducing-smart-pointers">Introducing smart pointers</h1>
 <p>Both ownership and memory deallocation are addressed by the new pointer types, introduced by the C++11 specification. Let&rsquo;s will talk about <code>unique_ptr</code> first. The <code>unique_ptr</code> type wraps dynamic memory and disposes of it when the pointer goes out of scope. A <code>unique_ptr</code> can only have one owner. Ownership can be passed between objects using the <code>std::move()</code> function. This type implements both the <code>*</code> and <code>-&gt;</code> operators to dereference memory, just like regular pointers. You can also get a raw pointer with the <code>get()</code> function.</p>
 <p>Let&rsquo;s change our main function so it uses <code>unique_ptr</code> instead:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#719e07">#include</span> <span style="color:#719e07">&lt;memory&gt;</span><span style="color:#719e07">
-</span><span style="color:#719e07"></span>
-<span style="color:#dc322f">int</span> <span style="color:#268bd2">main</span>() {
-  std<span style="color:#719e07">::</span>cout <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;Foo</span><span style="color:#cb4b16">\n</span><span style="color:#2aa198">&#34;</span>;
-  std<span style="color:#719e07">::</span>unique_ptr<span style="color:#719e07">&lt;</span>Contact<span style="color:#719e07">&gt;</span> contact <span style="color:#719e07">=</span>
-      std<span style="color:#719e07">::</span>unique_ptr<span style="color:#719e07">&lt;</span>Contact<span style="color:#719e07">&gt;</span>(<span style="color:#719e07">new</span> Contact(<span style="color:#2aa198">&#34;John Doe&#34;</span>, <span style="color:#2aa198">&#34;jdoe@mail.com&#34;</span>));
-  std<span style="color:#719e07">::</span>cout <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;Contact: &#34;</span> <span style="color:#719e07">&lt;&lt;</span> contact<span style="color:#719e07">-&gt;</span>print() <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#39;\n&#39;</span>;
-  std<span style="color:#719e07">::</span>cout <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;Bar</span><span style="color:#cb4b16">\n</span><span style="color:#2aa198">&#34;</span>;
-  <span style="color:#719e07">return</span> <span style="color:#2aa198">0</span>;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;memory&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>() {
+  std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;Foo</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>;
+  std<span style="color:#f92672">::</span>unique_ptr<span style="color:#f92672">&lt;</span>Contact<span style="color:#f92672">&gt;</span> contact <span style="color:#f92672">=</span>
+      std<span style="color:#f92672">::</span>unique_ptr<span style="color:#f92672">&lt;</span>Contact<span style="color:#f92672">&gt;</span>(<span style="color:#66d9ef">new</span> Contact(<span style="color:#e6db74">&#34;John Doe&#34;</span>, <span style="color:#e6db74">&#34;jdoe@mail.com&#34;</span>));
+  std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;Contact: &#34;</span> <span style="color:#f92672">&lt;&lt;</span> contact<span style="color:#f92672">-&gt;</span>print() <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#39;\n&#39;</span>;
+  std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;Bar</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>;
+  <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
 }
-</code></pre></div><div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">Foo
-Constructed: <span style="color:#719e07">[</span>0x1e68c80<span style="color:#719e07">]</span>
-Contact: <span style="color:#719e07">{</span>Name:John Doe, Email:jdoe@mail.com<span style="color:#719e07">}</span>
+</code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">Foo
+Constructed: <span style="color:#f92672">[</span>0x1e68c80<span style="color:#f92672">]</span>
+Contact: <span style="color:#f92672">{</span>Name:John Doe, Email:jdoe@mail.com<span style="color:#f92672">}</span>
 Bar
-Destructing: <span style="color:#719e07">[</span>0x1e68c80<span style="color:#719e07">]</span>
+Destructing: <span style="color:#f92672">[</span>0x1e68c80<span style="color:#f92672">]</span>
 </code></pre></div><p>I added two logs so you can verify that <code>contact</code> deletes the object after &ldquo;Bar&rdquo; is logged. This happens because <code>contact</code> is owned by <code>main</code>, and <code>main</code> goes out of scope after this log. Let&rsquo;s surround <code>contact</code> with an anonymous scope:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#dc322f">int</span> <span style="color:#268bd2">main</span>() {
-  std<span style="color:#719e07">::</span>cout <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;Foo</span><span style="color:#cb4b16">\n</span><span style="color:#2aa198">&#34;</span>;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>() {
+  std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;Foo</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>;
   {
-    std<span style="color:#719e07">::</span>unique_ptr<span style="color:#719e07">&lt;</span>Contact<span style="color:#719e07">&gt;</span> contact <span style="color:#719e07">=</span>
-        std<span style="color:#719e07">::</span>unique_ptr<span style="color:#719e07">&lt;</span>Contact<span style="color:#719e07">&gt;</span>(<span style="color:#719e07">new</span> Contact(<span style="color:#2aa198">&#34;John Doe&#34;</span>, <span style="color:#2aa198">&#34;jdoe@mail.com&#34;</span>));
-    std<span style="color:#719e07">::</span>cout <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;Contact: &#34;</span> <span style="color:#719e07">&lt;&lt;</span> contact<span style="color:#719e07">-&gt;</span>print() <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#39;\n&#39;</span>;
+    std<span style="color:#f92672">::</span>unique_ptr<span style="color:#f92672">&lt;</span>Contact<span style="color:#f92672">&gt;</span> contact <span style="color:#f92672">=</span>
+        std<span style="color:#f92672">::</span>unique_ptr<span style="color:#f92672">&lt;</span>Contact<span style="color:#f92672">&gt;</span>(<span style="color:#66d9ef">new</span> Contact(<span style="color:#e6db74">&#34;John Doe&#34;</span>, <span style="color:#e6db74">&#34;jdoe@mail.com&#34;</span>));
+    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;Contact: &#34;</span> <span style="color:#f92672">&lt;&lt;</span> contact<span style="color:#f92672">-&gt;</span>print() <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#39;\n&#39;</span>;
   }
-  std<span style="color:#719e07">::</span>cout <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;Bar</span><span style="color:#cb4b16">\n</span><span style="color:#2aa198">&#34;</span>;
-  <span style="color:#719e07">return</span> <span style="color:#2aa198">0</span>;
+  std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;Bar</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>;
+  <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
 }
-</code></pre></div><div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">Foo
-Constructed: <span style="color:#719e07">[</span>0x1e68c80<span style="color:#719e07">]</span>
-Contact: <span style="color:#719e07">{</span>Name:John Doe, Email:jdoe@mail.com<span style="color:#719e07">}</span>
-Destructing: <span style="color:#719e07">[</span>0x1e68c80<span style="color:#719e07">]</span>
+</code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">Foo
+Constructed: <span style="color:#f92672">[</span>0x1e68c80<span style="color:#f92672">]</span>
+Contact: <span style="color:#f92672">{</span>Name:John Doe, Email:jdoe@mail.com<span style="color:#f92672">}</span>
+Destructing: <span style="color:#f92672">[</span>0x1e68c80<span style="color:#f92672">]</span>
 Bar
 </code></pre></div><p>Now the object is deleted when the anonymous scope goes out of scope, right before the &ldquo;Bar&rdquo; log. Notice that in both examples, there is no <code>delete</code> call. We can even get rid of the <code>new</code> operator with C++14&rsquo;s <code>make_unique</code> function:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++">  std<span style="color:#719e07">::</span>unique_ptr<span style="color:#719e07">&lt;</span>Contact<span style="color:#719e07">&gt;</span> contact <span style="color:#719e07">=</span>
-      std<span style="color:#719e07">::</span>make_unique<span style="color:#719e07">&lt;</span>Contact<span style="color:#719e07">&gt;</span>(<span style="color:#2aa198">&#34;John Doe&#34;</span>, <span style="color:#2aa198">&#34;jdoe@mail.com&#34;</span>);
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++">  std<span style="color:#f92672">::</span>unique_ptr<span style="color:#f92672">&lt;</span>Contact<span style="color:#f92672">&gt;</span> contact <span style="color:#f92672">=</span>
+      std<span style="color:#f92672">::</span>make_unique<span style="color:#f92672">&lt;</span>Contact<span style="color:#f92672">&gt;</span>(<span style="color:#e6db74">&#34;John Doe&#34;</span>, <span style="color:#e6db74">&#34;jdoe@mail.com&#34;</span>);
 }
 </code></pre></div><p>There are cases where we need to share the ownership of an object. For this, C++11 introduced the <code>shared_ptr</code> type. Several <code>shared_ptr</code>s can refer to the same object, thus sharing ownership. Internally, these pointers keep a use counter. This counter indicates how many <code>shared_ptr</code> are sharing ownership of an object. The last <code>shared_ptr</code> owning an object deletes the object once it goes out of scope. This pointer type allows you to distribute ownership with the safety that memory will be properly freed. Let&rsquo;s add to our example a <code>compare</code> function that receives a copy <code>shared_ptr</code> as a parameter. I added logs so we can check the pointers' use counter:</p>
-<div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#719e07">class</span> <span style="color:#268bd2">Contact</span> {
- <span style="color:#719e07">public</span><span style="color:#719e07">:</span>
-  Contact(<span style="color:#719e07">const</span> std<span style="color:#719e07">::</span>string<span style="color:#719e07">&amp;</span> name, <span style="color:#719e07">const</span> std<span style="color:#719e07">::</span>string<span style="color:#719e07">&amp;</span> email)
-      <span style="color:#719e07">:</span> name{name}, email{email} {
-    std<span style="color:#719e07">::</span>cout <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;Constructed: [&#34;</span> <span style="color:#719e07">&lt;&lt;</span> <span style="color:#719e07">this</span> <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;]</span><span style="color:#cb4b16">\n</span><span style="color:#2aa198">&#34;</span>;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Contact</span> {
+ <span style="color:#66d9ef">public</span><span style="color:#f92672">:</span>
+  Contact(<span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>string<span style="color:#f92672">&amp;</span> name, <span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>string<span style="color:#f92672">&amp;</span> email)
+      <span style="color:#f92672">:</span> name{name}, email{email} {
+    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;Constructed: [&#34;</span> <span style="color:#f92672">&lt;&lt;</span> <span style="color:#66d9ef">this</span> <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;]</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>;
   }
-  <span style="color:#719e07">~</span>Contact() { std<span style="color:#719e07">::</span>cout <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;Destructing: [&#34;</span> <span style="color:#719e07">&lt;&lt;</span> <span style="color:#719e07">this</span> <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;]</span><span style="color:#cb4b16">\n</span><span style="color:#2aa198">&#34;</span>; };
+  <span style="color:#f92672">~</span>Contact() { std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;Destructing: [&#34;</span> <span style="color:#f92672">&lt;&lt;</span> <span style="color:#66d9ef">this</span> <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;]</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>; };
 
-  <span style="color:#719e07">const</span> std<span style="color:#719e07">::</span>string print() {
-    std<span style="color:#719e07">::</span>stringstream printStream;
-    printStream <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;{Name:&#34;</span> <span style="color:#719e07">&lt;&lt;</span> name <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;, Email:&#34;</span> <span style="color:#719e07">&lt;&lt;</span> email <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;}&#34;</span>;
-    <span style="color:#719e07">return</span> printStream.str();
+  <span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>string print() {
+    std<span style="color:#f92672">::</span>stringstream printStream;
+    printStream <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;{Name:&#34;</span> <span style="color:#f92672">&lt;&lt;</span> name <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;, Email:&#34;</span> <span style="color:#f92672">&lt;&lt;</span> email <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;}&#34;</span>;
+    <span style="color:#66d9ef">return</span> printStream.str();
   }
 
-  <span style="color:#dc322f">bool</span> <span style="color:#268bd2">compare</span>(std<span style="color:#719e07">::</span>shared_ptr<span style="color:#719e07">&lt;</span>Contact<span style="color:#719e07">&gt;</span> otherContact) {
-    <span style="color:#719e07">if</span> (otherContact <span style="color:#719e07">==</span> <span style="color:#719e07">nullptr</span>) {
-      std<span style="color:#719e07">::</span>cout <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;Invalid parameter(s)</span><span style="color:#cb4b16">\n</span><span style="color:#2aa198">&#34;</span>;
-      <span style="color:#719e07">return</span> <span style="color:#b58900">false</span>;
+  <span style="color:#66d9ef">bool</span> <span style="color:#a6e22e">compare</span>(std<span style="color:#f92672">::</span>shared_ptr<span style="color:#f92672">&lt;</span>Contact<span style="color:#f92672">&gt;</span> otherContact) {
+    <span style="color:#66d9ef">if</span> (otherContact <span style="color:#f92672">==</span> <span style="color:#66d9ef">nullptr</span>) {
+      std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;Invalid parameter(s)</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>;
+      <span style="color:#66d9ef">return</span> false;
     }
-    std<span style="color:#719e07">::</span>cout <span style="color:#719e07">&lt;&lt;</span> __FUNCTION__ <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34; otherContact: &#34;</span> <span style="color:#719e07">&lt;&lt;</span> otherContact
-              <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34; reference count: &#34;</span> <span style="color:#719e07">&lt;&lt;</span> otherContact.use_count() <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#39;\n&#39;</span>;
-    <span style="color:#719e07">return</span> name <span style="color:#719e07">==</span> otherContact<span style="color:#719e07">-&gt;</span>name <span style="color:#719e07">&amp;&amp;</span> email <span style="color:#719e07">==</span> otherContact<span style="color:#719e07">-&gt;</span>email;
+    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> __FUNCTION__ <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34; otherContact: &#34;</span> <span style="color:#f92672">&lt;&lt;</span> otherContact
+              <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34; reference count: &#34;</span> <span style="color:#f92672">&lt;&lt;</span> otherContact.use_count() <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#39;\n&#39;</span>;
+    <span style="color:#66d9ef">return</span> name <span style="color:#f92672">==</span> otherContact<span style="color:#f92672">-&gt;</span>name <span style="color:#f92672">&amp;&amp;</span> email <span style="color:#f92672">==</span> otherContact<span style="color:#f92672">-&gt;</span>email;
   }
 
- <span style="color:#719e07">protected</span><span style="color:#719e07">:</span>
-  std<span style="color:#719e07">::</span>string name;
-  std<span style="color:#719e07">::</span>string email;
+ <span style="color:#66d9ef">protected</span><span style="color:#f92672">:</span>
+  std<span style="color:#f92672">::</span>string name;
+  std<span style="color:#f92672">::</span>string email;
 };
 
-<span style="color:#dc322f">int</span> <span style="color:#268bd2">main</span>() {
-  std<span style="color:#719e07">::</span>cout <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;Foo</span><span style="color:#cb4b16">\n</span><span style="color:#2aa198">&#34;</span>;
-  std<span style="color:#719e07">::</span>shared_ptr<span style="color:#719e07">&lt;</span>Contact<span style="color:#719e07">&gt;</span> contactJohn <span style="color:#719e07">=</span>
-      std<span style="color:#719e07">::</span>make_shared<span style="color:#719e07">&lt;</span>Contact<span style="color:#719e07">&gt;</span>(<span style="color:#2aa198">&#34;John Doe&#34;</span>, <span style="color:#2aa198">&#34;jdoe@mail.com&#34;</span>);
-  std<span style="color:#719e07">::</span>shared_ptr<span style="color:#719e07">&lt;</span>Contact<span style="color:#719e07">&gt;</span> contactJane <span style="color:#719e07">=</span>
-      std<span style="color:#719e07">::</span>make_shared<span style="color:#719e07">&lt;</span>Contact<span style="color:#719e07">&gt;</span>(<span style="color:#2aa198">&#34;Jane Smith&#34;</span>, <span style="color:#2aa198">&#34;jsmith@mail.com&#34;</span>);
-  std<span style="color:#719e07">::</span>cout <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;ContactJane pointer: &#34;</span> <span style="color:#719e07">&lt;&lt;</span> contactJane
-            <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34; reference count: &#34;</span> <span style="color:#719e07">&lt;&lt;</span> contactJane.use_count() <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#39;\n&#39;</span>;
-  std<span style="color:#719e07">::</span>cout <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;Are they equals?: &#34;</span> <span style="color:#719e07">&lt;&lt;</span> contactJohn<span style="color:#719e07">-&gt;</span>compare(contactJane) <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#39;\n&#39;</span>;
-  std<span style="color:#719e07">::</span>cout <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;ContactJane pointer: &#34;</span> <span style="color:#719e07">&lt;&lt;</span> contactJane
-            <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34; use count: &#34;</span> <span style="color:#719e07">&lt;&lt;</span> contactJane.use_count() <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#39;\n&#39;</span>;
-  std<span style="color:#719e07">::</span>cout <span style="color:#719e07">&lt;&lt;</span> <span style="color:#2aa198">&#34;Bar</span><span style="color:#cb4b16">\n</span><span style="color:#2aa198">&#34;</span>;
-  <span style="color:#719e07">return</span> <span style="color:#2aa198">0</span>;
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>() {
+  std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;Foo</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>;
+  std<span style="color:#f92672">::</span>shared_ptr<span style="color:#f92672">&lt;</span>Contact<span style="color:#f92672">&gt;</span> contactJohn <span style="color:#f92672">=</span>
+      std<span style="color:#f92672">::</span>make_shared<span style="color:#f92672">&lt;</span>Contact<span style="color:#f92672">&gt;</span>(<span style="color:#e6db74">&#34;John Doe&#34;</span>, <span style="color:#e6db74">&#34;jdoe@mail.com&#34;</span>);
+  std<span style="color:#f92672">::</span>shared_ptr<span style="color:#f92672">&lt;</span>Contact<span style="color:#f92672">&gt;</span> contactJane <span style="color:#f92672">=</span>
+      std<span style="color:#f92672">::</span>make_shared<span style="color:#f92672">&lt;</span>Contact<span style="color:#f92672">&gt;</span>(<span style="color:#e6db74">&#34;Jane Smith&#34;</span>, <span style="color:#e6db74">&#34;jsmith@mail.com&#34;</span>);
+  std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;ContactJane pointer: &#34;</span> <span style="color:#f92672">&lt;&lt;</span> contactJane
+            <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34; reference count: &#34;</span> <span style="color:#f92672">&lt;&lt;</span> contactJane.use_count() <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#39;\n&#39;</span>;
+  std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;Are they equals?: &#34;</span> <span style="color:#f92672">&lt;&lt;</span> contactJohn<span style="color:#f92672">-&gt;</span>compare(contactJane) <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#39;\n&#39;</span>;
+  std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;ContactJane pointer: &#34;</span> <span style="color:#f92672">&lt;&lt;</span> contactJane
+            <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34; use count: &#34;</span> <span style="color:#f92672">&lt;&lt;</span> contactJane.use_count() <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#39;\n&#39;</span>;
+  std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;Bar</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>;
+  <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
 }
-</code></pre></div><div class="highlight"><pre tabindex="0" style="color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">Constructed: <span style="color:#719e07">[</span>0x1bf4c30<span style="color:#719e07">]</span>
-Constructed: <span style="color:#719e07">[</span>0x1bf4cc0<span style="color:#719e07">]</span>                                             
-ContactJane pointer: 0x1bf4cc0 use count: <span style="color:#2aa198">1</span>
-compare otherContact: 0x1bf4cc0 use count: <span style="color:#2aa198">2</span>
-Are they equals?: <span style="color:#2aa198">0</span>
-ContactJane pointer: 0x1bf4cc0 use count: <span style="color:#2aa198">1</span>
+</code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">Constructed: <span style="color:#f92672">[</span>0x1bf4c30<span style="color:#f92672">]</span>
+Constructed: <span style="color:#f92672">[</span>0x1bf4cc0<span style="color:#f92672">]</span>                                             
+ContactJane pointer: 0x1bf4cc0 use count: <span style="color:#ae81ff">1</span>
+compare otherContact: 0x1bf4cc0 use count: <span style="color:#ae81ff">2</span>
+Are they equals?: <span style="color:#ae81ff">0</span>
+ContactJane pointer: 0x1bf4cc0 use count: <span style="color:#ae81ff">1</span>
 Bar
-Destructing: <span style="color:#719e07">[</span>0x1bf4cc0<span style="color:#719e07">]</span>
-Destructing: <span style="color:#719e07">[</span>0x1bf4c30<span style="color:#719e07">]</span>
+Destructing: <span style="color:#f92672">[</span>0x1bf4cc0<span style="color:#f92672">]</span>
+Destructing: <span style="color:#f92672">[</span>0x1bf4c30<span style="color:#f92672">]</span>
 </code></pre></div><p>Notice how calling <code>compare</code> increases the use counter for <code>contactJane</code> to two. Then, <code>compare</code> returns and the use counter goes back to one. When <code>main</code> finishes, the counter goes to zero, and memory is properly deleted. We do not have to worry about whether <code>compare</code> will invalidate our memory or not. Another problem solved by the smart pointers!</p>
 <p>In conclusion, you should avoid the use of regular pointers and start using <code>unique_ptr</code> and <code>shared_ptr</code> pointers. They will save you a lot of headaches and you will get the most out of the modern C++ language.</p>
 <h1 id="more-resources">More resources</h1>
 <ul>
-<li><a href="http://en.cppreference.com/w/cpp/memory"target="_blank" rel="noopener noreferrer">C++ Dynamic memory management reference documentation</a>
-</li>
+<li><a href="http://en.cppreference.com/w/cpp/memory">C++ Dynamic memory management reference documentation</a></li>
 </ul>
-</article><section class="article labels"><a class="category" href=/categories/cpp-development/>Cpp Development</a><a class="tag" href=/tags/c&#43;&#43;/>C&#43;&#43;</a><a class="tag" href=/tags/pointers/>pointers</a></section>
-</div>
-<div class="article bottom"><section class="article navigation"><p><a class="link" href="/post/producer-consumer/"><span class="iconfont icon-article"></span>Minimal implementations in Modern C++: Producer-Consumer problem</a></p><p><a class="link" href="/post/coverage/"><span class="iconfont icon-article"></span>Analyze the testing coverage of your C++ code</a></p></section></div></section><section id="footer"><div class="footer-wrap">
-    <p class="copyright">©2017-2021 Emmanuel Arias.</p>
-    <p class="powerby"><span>Powered&nbsp;by&nbsp;</span><a href="https://gohugo.io" 
-        target="_blank" rel="noopener noreferrer">Hugo</a><span>&nbsp;&amp;&nbsp;</span><a href="https://themes.gohugo.io/hugo-notepadium/" 
-        target="_blank" rel="noopener noreferrer">Notepadium</a></p></div>
-</section></body>
 
+    </div>
+    
+      
+        <div class="pagination">
+          <div class="pagination__title">
+            <span class="pagination__title-h"
+              >Read other posts</span
+            >
+            <hr />
+          </div>
+          <div class="pagination__buttons">
+            
+              <span class="button previous">
+                <a href="https://eariassoto.github.io/post/producer-consumer/">
+                  <span class="button__icon">←</span>
+                  <span class="button__text">Minimal implementations in Modern C&#43;&#43;: Producer-Consumer problem</span>
+                </a>
+              </span>
+            
+            
+              <span class="button next">
+                <a href="https://eariassoto.github.io/post/coverage/">
+                  <span class="button__text">Analyze the testing coverage of your C&#43;&#43; code</span>
+                  <span class="button__icon">→</span>
+                </a>
+              </span>
+            
+          </div>
+        </div>
+      
+    
+
+    
+      
+        
+
+      
+    
+  </div>
+
+      </div>
+
+      
+        <footer class="footer">
+  <div class="footer__inner">
+    
+      <a
+  href="/"
+  class="logo"
+  style="text-decoration: none;"
+>
+  
+    <span class="logo__mark"><svg xmlns="http://www.w3.org/2000/svg" class="greater-icon" viewBox="0 0 44 44">
+  <path fill="none" d="M15 8l14.729 14.382L15 35.367" />
+</svg>
+</span>
+    <span class="logo__text"
+      >Emmanuel Arias</span
+    >
+    
+  
+</a>
+
+      <div class="copyright">
+        <span
+          >© 2022 Powered by
+          <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a></span
+        >
+        <span>
+          <a href="https://github.com/eariassoto/hugo-theme-hello-friend" target="_blank" rel="noopener">Theme</a> created by
+          <a href="https://twitter.com/panr" target="_blank" rel="noopener">panr</a>
+        </span>
+      </div>
+    
+  </div>
+</footer>
+
+<script src="https://eariassoto.github.io/assets/main.js"></script>
+<script src="https://eariassoto.github.io/assets/prism.js"></script>
+
+
+      
+    </div>
+
+    
+  </body>
 </html>
